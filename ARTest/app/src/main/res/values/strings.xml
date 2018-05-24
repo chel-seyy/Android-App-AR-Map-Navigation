@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NUS AR Maps</string>
+    <string name="places_lt">Lecture Theatres</string>
 </resources>
