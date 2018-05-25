@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="places_lt">
+
+        <item>SR1</item>
+        <item>SR2</item>
+        <item>SR3</item>
+        <item>SR4</item>
+        <item>SR5</item>
+        <item>SR6</item>
+        <item>SR7</item>
+        <item>SR8</item>
+        <item>SR9</item>
+        <item>SR10</item>
+        <item>Canteen</item>
+        <item>Cerebro@SoC</item>
+        <item>LT15</item>
+        <item>LT19</item>
+        <item>Makers@SoC</item>
+        <item>Tech Hangout</item>
+        <item>Fabrication Lab</item>
+
+
+    </array>
+
+</resources>
