@@ -10,22 +10,32 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
-    final private ListItemClickListener mOnClickListener;
+    private static final String TAG = "RECYCLER_ADAPTER";
+    private ListItemClickListener mOnClickListener;
     private List<String> list;
+    private Context context;
+    private Toast mToast;
 
-    public interface ListItemClickListener{
-        void onListItemClick(int clickedItemIndex);
+    public RecyclerAdapter(Context context, List<String>list){
+        this.context = context;
+        this.list = list;
     }
 
-    public RecyclerAdapter(List<String>list, ListItemClickListener listener){
-        this.list = list;
-        mOnClickListener = listener;
+    /*
+    List Item Click Listener
+     */
+    public interface ListItemClickListener{
+        void onListItemClick(View v, int index);
+
     }
 
 
@@ -39,6 +49,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.place.setText(list.get(position));
+        holder.setItemClickListener(new ListItemClickListener() {
+            @Override
+            public void onListItemClick(View v, int index) {
+                if (mToast != null) {
+                    mToast.cancel();
+                }
+                Log.d(TAG, list.get(position)+" at position: "+index);
+                String toastMessage = "Going to: " + list.get(index);
+                mToast = Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT);
+
+                mToast.show();
+            }
+        });
     }
 
     @Override
@@ -50,16 +73,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                         implements OnClickListener{
 
         TextView place;
-        public MyViewHolder(TextView itemView) {
+        ListItemClickListener clickListener;
+
+        public MyViewHolder(View itemView) {
             super(itemView);
-            place = itemView;
+            place = (TextView)itemView.findViewById(R.id.lt_place);
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            int clickedPosition = getAdapterPosition();
-            mOnClickListener.onListItemClick(clickedPosition);
+            mOnClickListener.onListItemClick(view, getLayoutPosition());
+        }
+        public void setItemClickListener(ListItemClickListener listener){
+            mOnClickListener = listener;
         }
     }
 

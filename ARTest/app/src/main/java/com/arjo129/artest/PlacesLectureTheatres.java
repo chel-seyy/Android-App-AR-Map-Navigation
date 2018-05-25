@@ -24,8 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlacesLectureTheatres extends AppCompatActivity
-            implements ListItemClickListener{
+public class PlacesLectureTheatres extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private List<String> list;
@@ -48,8 +47,8 @@ public class PlacesLectureTheatres extends AppCompatActivity
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         list = Arrays.asList(getResources().getStringArray(R.array.places_lt));
-        adapter = new RecyclerAdapter(list, this);
-//        recyclerView.setHasFixedSize(true);
+        adapter = new RecyclerAdapter(this, list);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
 
     }
@@ -126,15 +125,15 @@ public class PlacesLectureTheatres extends AppCompatActivity
 
 
 
-    @Override
-    public void onListItemClick(int clickedItemIndex) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
-        String toastMessage = "Going to: " + list.get(clickedItemIndex);
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT);
-
-        mToast.show();
-    }
+//    @Override
+//    public void onListItemClick(int clickedItemIndex) {
+//        if (mToast != null) {
+//            mToast.cancel();
+//        }
+//        String toastMessage = "Going to: " + list.get(clickedItemIndex);
+//        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT);
+//
+//        mToast.show();
+//    }
 
 }
