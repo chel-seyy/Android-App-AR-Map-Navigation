@@ -13,6 +13,7 @@
         android:gravity="center"
         android:columnWidth="160dp"
         android:padding="12dp"
+        android:background="@color/orange"
         />
 
 </LinearLayout>

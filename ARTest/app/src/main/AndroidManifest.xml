@@ -30,12 +30,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PlacesLectureTheatres"
+        <activity
+            android:name=".PlacesLectureTheatres"
             android:label="@string/places_lt"
-            android:parentActivityName=".PlacesToGo"/>
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".PlacesToGo" />
+            android:parentActivityName=".PlacesToGo">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PlacesToGo" />
+        </activity>
+
+        <activity android:name=".LoginActivity"
+            android:parentActivityName=".PlacesToGo">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PlacesToGo" />
+        </activity>
     </application>
 
 </manifest>

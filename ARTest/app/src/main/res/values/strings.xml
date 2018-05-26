@@ -2,4 +2,8 @@
     <string name="app_name">NUS AR Maps</string>
     <string name="places_lt">Lecture Theatres</string>
     <string name="action_search_lt">Choose Lecture Theatres to go</string>
+    <string name="activity_login">Login</string>
+    <string name="login_button">Login</string>
+    <string name="password_text">Password</string>
+    <string name="admin_text">Admin</string>
 </resources>
