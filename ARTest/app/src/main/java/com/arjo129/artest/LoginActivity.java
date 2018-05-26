@@ -23,7 +23,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String message = admin_editText.getText().toString() + ", "
-                        + password_editText.getText().toString();
+                        + password_editText.getText().toString() + " logged in!";
                 Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });

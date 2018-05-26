@@ -17,9 +17,9 @@ public class PlacesToGo extends AppCompatActivity {
             "Lecture Theatres"
     };
     int[] images = {
-            R.drawable.baseline_star_black_18dp,
-            R.drawable.baseline_library_books_black_18dp,
-            R.drawable.baseline_location_on_black_18dp
+            R.mipmap.ic_star,
+            R.mipmap.ic_recent_books,
+            R.mipmap.ic_location
     };
 
     @Override

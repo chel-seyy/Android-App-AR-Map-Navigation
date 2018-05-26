@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="5dp">
@@ -10,11 +11,11 @@
         android:id="@+id/grid_imageButton"
         android:layout_width="150dp"
         android:layout_height="150dp"
+        android:background="@android:color/transparent"
         android:scaleType="fitStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/white"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
@@ -25,6 +26,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
         android:textAlignment="viewEnd"
+        android:textColor="@android:color/background_dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/grid_imageButton" />
