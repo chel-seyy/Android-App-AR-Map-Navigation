@@ -16,9 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="com.google.ar.core"
-            android:value="required" />
+        <meta-data android:name="com.google.ar.core" android:value="required" />
+
 
         <activity
             android:name=".PlacesToGo"
@@ -34,18 +33,20 @@
             android:name=".PlacesLectureTheatres"
             android:label="@string/places_lt"
             android:parentActivityName=".PlacesToGo">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PlacesToGo" />
         </activity>
-
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".LoginActivity"
             android:parentActivityName=".PlacesToGo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PlacesToGo" />
         </activity>
+
+        <activity android:name=".ARActivity"></activity>
+
     </application>
 
 </manifest>
