@@ -33,6 +33,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'pub.devrel:easypermissions:1.2.0'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
     //Note: Add ARCore
     //implementation 'com.google.ar:core:1.2.0'
     //Add: Sceneform framework - these libraries enable you to easily place objects in 3D

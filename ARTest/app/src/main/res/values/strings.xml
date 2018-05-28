@@ -8,4 +8,6 @@
     <string name="admin_text">Admin</string>
     <string name="activity_compass">Compass</string>
     <string name="activity_wifi">Wifi Scans</string>
+    <string name="open_location_settings">Open Location Settings</string>
+    <string name="cancel">Cancel</string>
 </resources>
