@@ -6,4 +6,15 @@
         android:icon="@drawable/ic_login"
         android:title="@string/activity_login"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/activity_compass"
+        android:title="@string/activity_compass"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/activity_wifi"
+        android:title="@string/activity_wifi"
+        android:icon="@drawable/ic_wifi"
+        app:showAsAction="ifRoom"/>
 </menu>

@@ -6,4 +6,6 @@
     <string name="login_button">Login</string>
     <string name="password_text">Password</string>
     <string name="admin_text">Admin</string>
+    <string name="activity_compass">Compass</string>
+    <string name="activity_wifi">Wifi Scans</string>
 </resources>

@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.camera.ar"
@@ -16,8 +20,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data android:name="com.google.ar.core" android:value="required" />
-
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="required" />
 
         <activity
             android:name=".PlacesToGo"
@@ -44,9 +49,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PlacesToGo" />
         </activity>
-
-        <activity android:name=".ARActivity"></activity>
-
+        <activity android:name=".ARActivity" />
+        <activity
+            android:name=".CompassActivity"
+            android:label="Compass"
+            android:parentActivityName=".PlacesToGo">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PlacesToGo" />
+        </activity>
+        <activity android:name=".WifiActivity"
+            android:label="Wifi Scans"
+            android:parentActivityName=".PlacesToGo">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PlacesToGo" />
+        </activity>
     </application>
 
 </manifest>

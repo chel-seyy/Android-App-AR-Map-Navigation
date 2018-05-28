@@ -18,6 +18,7 @@
         android:background="#878ba9"
         android:ems="10"
         android:hint="Admin"
+
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/password_text"
         app:layout_constraintEnd_toEndOf="parent"

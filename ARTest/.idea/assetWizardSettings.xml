@@ -19,8 +19,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\Chelsey\Desktop\Orbital\Pics\baseline-person-android-black\res\drawable-hdpi\baseline_person_black_18.png" />
-                                      <entry key="outputName" value="ic_login" />
+                                      <entry key="imageAsset" value="C:\Users\Chelsey\Desktop\Orbital\Pics\2x\baseline_wifi_black_24dp.png" />
+                                      <entry key="outputName" value="ic_wifi" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -46,8 +46,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\Chelsey\Desktop\Orbital\Pics\res\drawable-hdpi\twotone_star_black_48.png" />
-                                      <entry key="outputName" value="ic_star" />
+                                      <entry key="iconShape" value="NONE" />
+                                      <entry key="imageAsset" value="C:\Users\Chelsey\Desktop\Orbital\Pics\compass.png" />
+                                      <entry key="outputName" value="ic_compass2" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -57,7 +58,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
+                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>
