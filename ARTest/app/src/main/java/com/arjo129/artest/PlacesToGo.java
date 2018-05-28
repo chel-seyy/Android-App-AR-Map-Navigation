@@ -23,14 +23,16 @@ public class PlacesToGo extends AppCompatActivity
     private static final int LOCATION_PERMISSION = 22;
     private GridView gridView;
     String[] places = {
+            "Lecture Theatres",
             "Favourites",
-            "Recent",
-            "Lecture Theatres"
+            "Recent"
+
     };
     int[] images = {
-            R.mipmap.ic_star,
-            R.mipmap.ic_recent_books,
-            R.mipmap.ic_location
+            R.mipmap.ic_location_gps_foreground,
+            R.mipmap.ic_happy_star_foreground,
+            R.mipmap.ic_recents_foreground
+
     };
 
     @Override

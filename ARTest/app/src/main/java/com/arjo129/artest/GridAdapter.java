@@ -55,7 +55,7 @@ public class GridAdapter extends BaseAdapter{
             imageButton.setImageResource(images[i]);
             textview.setText(values[i]);
 
-            if(i == 2){
+            if(i == 0){
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

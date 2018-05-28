@@ -24,7 +24,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
         android:textAlignment="viewEnd"
         android:textColor="@android:color/background_dark"
         app:layout_constraintEnd_toEndOf="parent"

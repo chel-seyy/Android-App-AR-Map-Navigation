@@ -9,11 +9,10 @@
         android:id="@+id/grid_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="auto_fit"
-        android:gravity="center"
+        android:background="#f7c17b"
         android:columnWidth="160dp"
-        android:padding="12dp"
-        android:background="@color/orange"
-        />
+        android:gravity="center"
+        android:numColumns="auto_fit"
+        android:padding="12dp" />
 
 </LinearLayout>

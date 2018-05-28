@@ -19,8 +19,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\Chelsey\Desktop\Orbital\Pics\2x\baseline_wifi_black_24dp.png" />
-                                      <entry key="outputName" value="ic_wifi" />
+                                      <entry key="imageAsset" value="C:\Users\Chelsey\Desktop\Orbital\Pics\2x\baseline_compass_calibration_black_18dp.png" />
+                                      <entry key="outputName" value="ic_happyStar" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,12 +29,27 @@
                             <entry key="launcher">
                               <value>
                                 <PersistentState>
+                                  <option name="children">
+                                    <map>
+                                      <entry key="foregroundImage">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="trimmed" value="true" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                    </map>
+                                  </option>
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="C:\Users\Chelsey\Desktop\Orbital\Pics\res\drawable-hdpi\twotone_star_black_48.png" />
-                                      <entry key="foregroundLayerName" value="ic_launcher_foreground" />
-                                      <entry key="outputName" value="ic_star" />
+                                      <entry key="foregroundImage" value="C:\Users\Chelsey\Desktop\Orbital\Pics\recents.png" />
+                                      <entry key="foregroundLayerName" value="ic_recents_foreground" />
+                                      <entry key="outputName" value="ic_recents_gps" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -54,11 +69,6 @@
                                 </PersistentState>
                               </value>
                             </entry>
-                          </map>
-                        </option>
-                        <option name="values">
-                          <map>
-                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>
