@@ -36,6 +36,7 @@ dependencies {
     implementation 'pub.devrel:easypermissions:1.2.0'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
     //Note: Add ARCore
+    compile 'com.loopj.android:android-async-http:1.4.9'
     //implementation 'com.google.ar:core:1.2.0'
     //Add: Sceneform framework - these libraries enable you to easily place objects in 3D
     implementation "com.google.ar.sceneform:core:1.0.0"
