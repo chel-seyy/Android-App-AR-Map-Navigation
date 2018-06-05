@@ -11,4 +11,6 @@
     <string name="open_location_settings">Open Location Settings</string>
     <string name="cancel">Cancel</string>
     <string name="title_activity_learn_wifi">Learn Wifi</string>
+    <string name="server_url" translatable="false">http://ec2-18-191-20-227.us-east-2.compute.amazonaws.com:8080/session_token</string>
+    <string name="access_token" translatable="false">pk.eyJ1IjoiZ3JlZWtnZWVrIiwiYSI6ImNqaHZlZmhrNDA0ajkzcW1kODRtMHZ5MmYifQ.1AxqPHxWVqkZHQtJYmEZJw</string>
 </resources>

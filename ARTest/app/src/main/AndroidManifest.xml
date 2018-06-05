@@ -65,9 +65,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PlacesToGo" />
         </activity>
-        <activity
-            android:name=".LearnWifi"
-            android:label="@string/title_activity_learn_wifi"></activity>
+
+        <activity android:name=".CollectData"
+            android:label="Collecting Wifi-points"
+            android:parentActivityName=".LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+        </activity>
+
     </application>
 
 </manifest>

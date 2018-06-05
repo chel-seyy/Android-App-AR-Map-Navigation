@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
                     obj.put("password", password);
                     StringEntity ent = new StringEntity(obj.toString());
                     AsyncHttpClient client = new AsyncHttpClient();
-                    client.post(getApplication(), "http://ec2-18-191-20-227.us-east-2.compute.amazonaws.com:8080/session_token",
+                    client.post(getApplication(), getString(R.string.server_url),
                             ent, "application/json", new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
@@ -49,14 +49,14 @@ public class LoginActivity extends AppCompatActivity {
                                             //Correct
                                             String session_id = (String)responseBody.get("session_id");
                                             String session_secret = (String)responseBody.get("session_secret");
-                                            Intent learn_wifi = new Intent(getApplicationContext(),LearnWifi.class);
-                                            learn_wifi.putExtra("session_id", session_id);
-                                            learn_wifi.putExtra("session_secret", session_secret);
-                                            startActivity(learn_wifi);
+                                            Intent collect_data = new Intent(getApplicationContext(),CollectData.class);
+                                            collect_data.putExtra("session_id", session_id);
+                                            collect_data.putExtra("session_secret", session_secret);
+                                            startActivity(collect_data);
                                         } else {
                                             //'Tis not working
                                             Log.d("LoginActivity", "Bad user");
-                                            Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_SHORT).show();
                                         }
                                     } catch(JSONException j){
                                         Log.d("LoginActivity", "JSON problem");
