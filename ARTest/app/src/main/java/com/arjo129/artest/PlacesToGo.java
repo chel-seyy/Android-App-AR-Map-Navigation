@@ -39,9 +39,7 @@ public class PlacesToGo extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places_to_go);
-
         gridView = (GridView)findViewById(R.id.grid_view);
-
         GridAdapter gridAdapter = new GridAdapter(this, places, images);
         gridView.setAdapter(gridAdapter);
     }

@@ -64,6 +64,15 @@ public class GridAdapter extends BaseAdapter{
                     }
                 });
             }
+            if(i == 1){
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent ARMode = new Intent(context,ARActivity.class);
+                        context.startActivity(ARMode);
+                    }
+                });
+            }
         }
         return view;
     }
