@@ -135,16 +135,20 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
                 }
                 Log.d(TAG, "Got wife bssid: "+ key +" , RSSI:"+ value + "session_secret");
             }
-
+            double lng= destinationCoord.getLongitude();
+            double lat= destinationCoord.getLatitude();
+            //Transform the coordinate space into 3x3m grids...
+            int x_coord = (int)Math.round(((lat-1)*110547)/3);
+            int y_coord = (int)Math.round(111320*Math.cos(Math.toRadians(lat))*lng/3);
             try {
                 //Compose JSON POST request
                 JSONObject encapsulation_layer = new JSONObject();
                 encapsulation_layer.put("session_id", session_id);
                 encapsulation_layer.put("session_secret", session_secret);
                 encapsulation_layer.put("api_key", getString(R.string.server_api_key));
-                encapsulation_layer.put("location", "com1f"+floor+"|"+destinationCoord.getLatitude()+"|"+destinationCoord.getLongitude());
-                encapsulation_layer.put("x",destinationCoord.getLongitude());
-                encapsulation_layer.put("y",destinationCoord.getLatitude());
+                encapsulation_layer.put("location", "com1f"+floor+"|"+x_coord+"|"+y_coord);
+                encapsulation_layer.put("x",x_coord);
+                encapsulation_layer.put("y",y_coord);
                 encapsulation_layer.put("floor",floor);
                 encapsulation_layer.put("WIFI",wifi_list);
                 AsyncHttpClient client = new AsyncHttpClient();
