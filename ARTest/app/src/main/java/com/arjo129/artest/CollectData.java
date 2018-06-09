@@ -1,5 +1,6 @@
 package com.arjo129.artest;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
@@ -11,6 +12,8 @@ import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -37,11 +40,20 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.StringEntity;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
@@ -60,16 +72,22 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     private GeoJsonSource indoorBuildingSource;
     private List<List<Point>> boundingBoxList;
     private MapboxMap map;
+    private WifiLocation wifilocation; // Custom class to wrap wifi scans which will be done in multiple placed through this app
     private View levelButtons;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private PermissionsManager permissionsManager;
     private Location originLocation;
-
     private Marker destinationMarker;
-    private LatLng originCoord;
     private LatLng destinationCoord;
+    private int floor = -1; //Keep track of the floor
+    private String TAG = "CollectData"; // Used for log.d
+    private String session_secret;
+    private String session_id;
 
+    void setSessionSecret(String str){
+        session_secret = str;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,13 +96,13 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
         Button buttonFirstLevel = findViewById(R.id.first_level_button);
         buttonFirstLevel.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 indoorBuildingSource.setGeoJson(loadJsonFromAsset("com1floor1.geojson"));
                 Toast.makeText(CollectData.this, "Level 1 clicked.",Toast.LENGTH_SHORT).show();
+                floor = 1;
             }
         });
         Button buttonZeroLevel = findViewById(R.id.zero_level_button);
@@ -93,11 +111,73 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 Toast.makeText(CollectData.this, "Basement clicked.",Toast.LENGTH_SHORT).show();
                 indoorBuildingSource.setGeoJson(loadJsonFromAsset("com1floor0.geojson"));
-
+                floor = -1;
             }
         });
+        //Extract session_id and session_secret as given by LoginActivity
+        Intent current_intent =  getIntent();
+        session_id = current_intent.getStringExtra("session_id");
+        session_secret  = current_intent.getStringExtra("session_secret");
+        //Instantiate the wifilocation class with the context, and a cllback function to
+        //make it easy to post data
+        wifilocation = new WifiLocation(this,(HashMap<String,Integer> map) -> {
+            //Format WIFI list so the server can learn a location
+            JSONObject wifi_list = new JSONObject();
+            for (Map.Entry<String, Integer> item : map.entrySet()) {
+                String key = item.getKey();
+                int value = item.getValue();
+                try {
+                    wifi_list.put(key, value);
+                }
+                catch(Exception e){
+                    Log.d(TAG,e.toString());
+                    return null;
+                }
+                Log.d(TAG, "Got wife bssid: "+ key +" , RSSI:"+ value + "session_secret");
+            }
 
-
+            try {
+                //Compose JSON POST request
+                JSONObject encapsulation_layer = new JSONObject();
+                encapsulation_layer.put("session_id", session_id);
+                encapsulation_layer.put("session_secret", session_secret);
+                encapsulation_layer.put("api_key", getString(R.string.server_api_key));
+                encapsulation_layer.put("location", "com1f"+floor+"|"+destinationCoord.getLatitude()+"|"+destinationCoord.getLongitude());
+                encapsulation_layer.put("x",destinationCoord.getLongitude());
+                encapsulation_layer.put("y",destinationCoord.getLatitude());
+                encapsulation_layer.put("floor",floor);
+                encapsulation_layer.put("WIFI",wifi_list);
+                AsyncHttpClient client = new AsyncHttpClient();
+                StringEntity ent = new StringEntity(encapsulation_layer.toString());
+                Log.d(TAG,"Sending request");
+                Log.d(TAG,encapsulation_layer.toString());
+                client.post(this,getString(R.string.server_url)+"learn_location",ent,"application/json",new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                        Log.d(TAG,responseBody.toString());
+                        Log.d(TAG,"Recieved response");
+                        try {
+                            if(responseBody.get("status").equals("failed")){
+                                // Log user out as something went wrong
+                                Intent loginIntent = new Intent(getApplicationContext(),LoginActivity.class);
+                                startActivity(loginIntent);
+                            }
+                            else {
+                                //Continue
+                                setSessionSecret((String)responseBody.get("session_secret"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                Log.d(TAG, "Completed wifi scan");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+            return null;
+        });
     }
     @SuppressWarnings({"MissingPermission"})
     public void onStart() {
@@ -225,6 +305,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
                         .position(destinationCoord)
                         .setTitle(point.toString())
                 );
+                //Performing Wifi Scan how should we add an indicator
+                wifilocation.scanWifiNetworks();
             }
         });
 
