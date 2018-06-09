@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
                     obj.put("password", password);
                     StringEntity ent = new StringEntity(obj.toString());
                     AsyncHttpClient client = new AsyncHttpClient();
-                    client.post(getApplication(), getString(R.string.server_url),
+                    client.post(getApplication(), getString(R.string.server_url)+"session_token",
                             ent, "application/json", new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
