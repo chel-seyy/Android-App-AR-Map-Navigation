@@ -20,6 +20,8 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -74,6 +76,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     private MapboxMap map;
     private WifiLocation wifilocation; // Custom class to wrap wifi scans which will be done in multiple placed through this app
     private View levelButtons;
+    private FeatureCollection featureCollection;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private PermissionsManager permissionsManager;
@@ -96,24 +99,9 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        Button buttonFirstLevel = findViewById(R.id.first_level_button);
-        buttonFirstLevel.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                indoorBuildingSource.setGeoJson(loadJsonFromAsset("com1floor1.geojson"));
-                Toast.makeText(CollectData.this, "Level 1 clicked.",Toast.LENGTH_SHORT).show();
-                floor = 1;
-            }
-        });
-        Button buttonZeroLevel = findViewById(R.id.zero_level_button);
-        buttonZeroLevel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(CollectData.this, "Basement clicked.",Toast.LENGTH_SHORT).show();
-                indoorBuildingSource.setGeoJson(loadJsonFromAsset("com1floor0.geojson"));
-                floor = -1;
-            }
-        });
+
+        setLevelButtons();
+
         //Extract session_id and session_secret as given by LoginActivity
         Intent current_intent =  getIntent();
         session_id = current_intent.getStringExtra("session_id");
@@ -240,6 +228,33 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapView.onSaveInstanceState(outState);
     }
 
+    private void setLevelButtons(){
+        Button buttonSecondLevel = findViewById(R.id.second_level_button);
+        buttonSecondLevel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                floor = 2;
+                initializeNewLevel(floor);
+            }
+        });
+        Button buttonFirstLevel = findViewById(R.id.first_level_button);
+        buttonFirstLevel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                floor = 1;
+                initializeNewLevel(floor);
+            }
+        });
+        Button buttonZeroLevel = findViewById(R.id.zero_level_button);
+        buttonZeroLevel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                floor = 0;
+                initializeNewLevel(floor);
+            }
+        });
+    }
+
     private void hideLevelButton(){
         AlphaAnimation animation = new AlphaAnimation(1.0f,0.0f);
         animation.setDuration(500); // millisecs
@@ -251,6 +266,44 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         animation.setDuration(500);
         levelButtons.startAnimation(animation);
         levelButtons.setVisibility(View.VISIBLE);
+    }
+
+    private void getFeatureCollectionFromJson(int level) throws IOException{
+        String filename = "com1floor"+String.valueOf(level)+".geojson";
+        try {
+            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
+        } catch (Exception e){
+            Log.d("MapActivity", "getFeatureCollectionFromJson: "+e);
+        }
+    }
+    private void initializeNewLevel(int level){
+        String filename = "com1floor"+String.valueOf(level)+".geojson";
+        indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
+        map.removeAnnotations();
+        featureCollection = null;
+        try {
+            getFeatureCollectionFromJson(level);
+        }catch (Exception e){
+            Log.e("MapActivity","onCreate: "+e);
+        }
+        List<Feature> featureList = featureCollection.features();
+
+
+        Log.d("Mapactivity","Building features list");
+        for(int i=0; i<featureList.size(); i++){
+            Feature singleLocation = featureList.get(i);
+            if( singleLocation.hasProperty("name")){
+                String name = singleLocation.getStringProperty("name");
+                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
+                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
+//                Log.d("MapActivity", "feature: " +name);
+                LatLng locationLatLng = new LatLng(stringLat, stringLng);
+
+                map.addMarker(new MarkerOptions()
+                        .position(locationLatLng)
+                        .title(name));
+            }
+        }
     }
 
     private void loadBuildingLayer(){
@@ -353,9 +406,32 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor0.geojson"));
         mapboxMap.addSource(indoorBuildingSource);
         loadBuildingLayer();
+        try {
+            getFeatureCollectionFromJson(0);
+        }catch (Exception e){
+            Log.e("MapActivity","onCreate: "+e);
+        }
+        List<Feature> featureList = featureCollection.features();
+        Log.d("Mapactivity","Building features list");
+        for(int i=0; i<featureList.size(); i++){
+            Feature singleLocation = featureList.get(i);
+            if( singleLocation.hasProperty("name")){
 
+                String name = singleLocation.getStringProperty("name");
+                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
+                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
+//                Log.d("MapActivity", "feature: " +name);
+                LatLng locationLatLng = new LatLng(stringLat, stringLng);
+
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(locationLatLng)
+                        .title(name));
+            }
+
+        }
 //        enableLocationPlugin();
     }
+
     public void enableLocationPlugin(){
         if(PermissionsManager.areLocationPermissionsGranted(this)){
             initializeLocationEngine();

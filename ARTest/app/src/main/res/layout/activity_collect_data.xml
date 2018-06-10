@@ -25,6 +25,16 @@
         android:layout_margin="16dp"
         android:layout_gravity="bottom|end"
         android:background="@color/mapbox_blue">
+
+
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/second_level_button"
+            android:text="2"
+            android:background="?android:attr/selectableItemBackground"
+            android:textColor="#ffffff"/>
+
         <Button
             android:layout_width="50dp"
             android:layout_height="wrap_content"
