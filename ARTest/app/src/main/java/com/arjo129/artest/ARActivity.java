@@ -105,7 +105,6 @@ public class ARActivity extends AppCompatActivity {
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
 
         Scene scene = arFragment.getArSceneView().getScene();
-
         ViewRenderable.builder()
                 .setView(this, R.layout.tool_tips)
                 .build()
@@ -114,6 +113,7 @@ public class ARActivity extends AppCompatActivity {
         scene.setOnUpdateListener(new Scene.OnUpdateListener() {
             @Override
             public void onUpdate(FrameTime frameTime) {
+                arFragment.onUpdate(frameTime);
                 Session session = arFragment.getArSceneView().getSession();
                 Collection<Plane> planes = session.getAllTrackables(Plane.class);
                 for(Plane p: planes){
