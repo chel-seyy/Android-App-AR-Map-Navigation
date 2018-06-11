@@ -9,6 +9,8 @@ import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
+import com.google.ar.core.Camera;
+import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
@@ -35,6 +37,12 @@ import java.util.function.Function;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.abs;
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
+import static java.lang.Math.copySign;
+
 public class ARActivity extends AppCompatActivity {
     ViewRenderable testViewRenderable;
     WifiLocation wifiLocation;
@@ -42,7 +50,7 @@ public class ARActivity extends AppCompatActivity {
     int x,y,floor;
     boolean planeAnchored = true;
     Runnable serverReqThread;
-    private int ScanInterval = 5000; // 5 seconds by default, can be changed later
+    private int ScanInterval = 60000; // 5 seconds by default, can be changed later
     private Handler serverHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +123,7 @@ public class ARActivity extends AppCompatActivity {
             public void onUpdate(FrameTime frameTime) {
                 arFragment.onUpdate(frameTime);
                 Session session = arFragment.getArSceneView().getSession();
+                Frame frame = arFragment.getArSceneView().getArFrame();
                 Collection<Plane> planes = session.getAllTrackables(Plane.class);
                 for(Plane p: planes){
                     //Log.d("ARActivity","got plane" );
@@ -122,6 +131,12 @@ public class ARActivity extends AppCompatActivity {
                     if(planeAnchored) {
                         Log.d("ARActivity","drawn" );
                         Anchor anchor = p.createAnchor(pose);
+                        float qw = pose.qw();
+                        float qx = pose.qx();
+                        float qy = pose.qy();
+                        float qz = pose.qz();
+                        double[] rpy = quat2rpy(qw,qx,qy,qz);
+                        Log.d(TAG, "Plane rpy:"+rpy[0]+" , "+rpy[1]+" , "+rpy[2]);
                         AnchorNode anchorNode = new AnchorNode(anchor);
                         anchorNode.setParent(scene);
                         TransformableNode transformableNode = new TransformableNode(arFragment.getTransformationSystem());
@@ -130,6 +145,15 @@ public class ARActivity extends AppCompatActivity {
                         planeAnchored = false;
                     }
                 }
+                Camera camera = frame.getCamera();
+                Pose cameraPose = camera.getPose();
+                //convert quaternion to rpy
+                float qw = cameraPose.qw();
+                float qx = cameraPose.qx();
+                float qy = cameraPose.qy();
+                float qz = cameraPose.qz();
+                double[] rpy = quat2rpy(qw,qx,qy,qz);
+                //pitch correspons to
             }
         });
     }
@@ -138,5 +162,26 @@ public class ARActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         serverHandler.removeCallbacks(serverReqThread);
+    }
+
+    double[] quat2rpy(float qw,float qx, float qy, float qz){
+        double sinr = 2.0 * (qw * qx + qy * qz);
+        double cosr = 1.0 - 2.0 * (qx * qx + qy * qy);
+        double roll = atan2(sinr, cosr);
+        double sinp = 2.0 * (qw * qy - qz * qx);
+        double pitch;
+        if (abs(sinp) >= 1)
+            pitch = copySign(PI / 2, sinp); // use 90 degrees if out of range
+        else
+            pitch = asin(sinp);
+        double siny = 2.0 * (qw * qz + qx * qy);
+        double cosy = 1.0 - 2.0 * (qy * qy + qz * qz);;
+        double yaw = atan2(siny, cosy);
+        double[] rpy = new double[3];
+        rpy[0] = roll;
+        rpy[1] = pitch;
+        rpy[2] = yaw;
+        return rpy;
+        //Log.d(TAG,"angle: "+roll*180/PI+","+pitch*180/PI+","+yaw*180/PI);
     }
 }
