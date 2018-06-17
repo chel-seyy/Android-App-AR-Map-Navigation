@@ -19,6 +19,7 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Scene;
 import com.google.ar.sceneform.math.Quaternion;
+import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
@@ -54,12 +55,14 @@ public class ARActivity extends AppCompatActivity {
     private int ScanInterval = 60000; // 5 seconds by default, can be changed later
     private Handler serverHandler;
     private CompassListener compassListener;
+    private  DisplayRotationHelper dhelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar);
         //Use a custom compass object to reduce
         compassListener = new CompassListener(this);
+        dhelper = new DisplayRotationHelper(this);
         //Build a wifiLocation request...
         wifiLocation = new WifiLocation(this, (HashMap<String, Integer> map)->{
             //Ths lambda function is triggered whenever a wifi scan is completed
@@ -124,52 +127,52 @@ public class ARActivity extends AppCompatActivity {
                 .build()
                 .thenAccept(renderable -> testViewRenderable = renderable);
 
-        scene.setOnUpdateListener(new Scene.OnUpdateListener() {
-            @Override
-            public void onUpdate(FrameTime frameTime) {
-                arFragment.onUpdate(frameTime);
-                Session session = arFragment.getArSceneView().getSession();
-                Frame frame = arFragment.getArSceneView().getArFrame();
-                Collection<Plane> planes = session.getAllTrackables(Plane.class);
-                float[] compass_heading =  compassListener.orientation;
-                Log.d(TAG,"COMPASS RPY:"+compass_heading[0]*180/3.1415+","+compass_heading[1]*180/3.1415+","+compass_heading[2]*180/3.1415);
-                for(Plane p: planes){
-                    //Log.d("ARActivity","got plane" );
-                    Pose pose = p.getCenterPose();
-                    if(planeAnchored) {
-                        Log.d(TAG,"drawn" );
-                        Anchor anchor = p.createAnchor(pose);
-                        float qw = pose.qw();
-                        float qx = pose.qx();
-                        float qy = pose.qy();
-                        float qz = pose.qz();
-                        double[] rpy = quat2rpy(qw,qx,qy,qz);
-
-
-                        Log.d(TAG, "Plane rpy: "+rpy[0]+" , "+rpy[1]+" , "+rpy[2]);
-                        AnchorNode anchorNode = new AnchorNode(anchor);
-                        anchorNode.setParent(scene);
-                        //Quaternion qt = Quaternion.axisAngle(,);
-                        TransformableNode transformableNode = new TransformableNode(arFragment.getTransformationSystem());
-                        //transformableNode.setWorldRotation(qt);
-                        transformableNode.setParent(anchorNode);
-                        transformableNode.setRenderable(testViewRenderable);
-                        planeAnchored = false;
+        //Onclick render the arrow add the spot clicked
+        arFragment.setOnTapArPlaneListener(
+                (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
+                    if (testViewRenderable == null) {
+                        return;
                     }
-                }
-                Camera camera = frame.getCamera();
-                Pose cameraPose = camera.getPose();
-                //convert quaternion to rpy
-                float qw = cameraPose.qw();
-                float qx = cameraPose.qx();
-                float qy = cameraPose.qy();
-                float qz = cameraPose.qz();
-                double[] rpy = quat2rpy(qw,qx,qy,qz);
-                Log.d(TAG,"ARCORE world: "+rpy[0]*180/3.1415+","+rpy[1]*180/3.1415+","+rpy[2]*180/3.1415);
-                //pitch corresponds to compass yaw
-            }
-        });
+
+                    if (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING) {
+                        return;
+                    }
+
+                    // Create the Anchor.
+                    Anchor anchor = hitResult.createAnchor();
+                    AnchorNode anchorNode = new AnchorNode(anchor);
+                    anchorNode.setParent(arFragment.getArSceneView().getScene());
+                    //Create Y-Axis rotation opposite of heading 0 Degrees = west for some reason
+                    Vector3 vc = new Vector3(0,1,0);
+                    float  bearing = compassListener.getBearing();
+                    Log.d(TAG,"Bearing: "+bearing);
+                   // Quaternion qt = Quaternion.axisAngle(vc,compassListener.getBearing());
+                    float[] compass = new float[4];
+
+                    //Get rotation from camera
+                    Frame frame = arFragment.getArSceneView().getArFrame();
+                    Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
+                            Pose.makeInterpolated(
+                                    Pose.IDENTITY,
+                                    Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
+                                    dhelper.getRotation()));
+                    float[] devquat = deviceOrientedPose.getRotationQuaternion();
+                    Quaternion deviceFrame = new Quaternion();
+                    deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
+                    double[] rpy = quat2rpy(deviceFrame);
+                    Log.d(TAG,"DeviceFrame: "+rpy[0]*180/3.1415+"."+rpy[1]*180/3.1415+","+rpy[2]*180/3.1415+","+bearing);
+                    //Rotate around y axis.,,
+                    Quaternion qt = Quaternion.axisAngle(vc,bearing+(float)rpy[1]*180/3.1415f+90);
+                    //Vector3 zaxis = new Vector3(0,0,1);
+                    // Create the transformable andy and add it to the anchor.
+                    TransformableNode andy = new TransformableNode(arFragment.getTransformationSystem());
+                    andy.setParent(anchorNode);
+                    andy.setWorldRotation(qt);
+                    andy.setRenderable(testViewRenderable);
+                    //andy.select();
+                });
     }
+
 
     @Override
     protected void onDestroy(){
@@ -177,6 +180,39 @@ public class ARActivity extends AppCompatActivity {
         serverHandler.removeCallbacks(serverReqThread);
     }
 
+    Quaternion fromRPY(double heading, double attitude, double bank) {
+        // Assuming the angles are in radians.
+        double c1 = Math.cos(heading/2);
+        double s1 = Math.sin(heading/2);
+        double c2 = Math.cos(attitude/2);
+        double s2 = Math.sin(attitude/2);
+        double c3 = Math.cos(bank/2);
+        double s3 = Math.sin(bank/2);
+        double c1c2 = c1*c2;
+        double s1s2 = s1*s2;
+        double w =c1c2*c3 - s1s2*s3;
+        double x =c1c2*s3 + s1s2*c3;
+        double y =s1*c2*c3 + c1*s2*s3;
+        double z =c1*s2*c3 - s1*c2*s3;
+        double angle = 2 * Math.acos(w);
+        double norm = x*x+y*y+z*z;
+        if (norm < 0.000001) { // when all euler angles are zero angle =0 so
+            // we can set axis to anything to avoid divide by zero
+            x=1;
+            y=z=0;
+        } else {
+            norm = Math.sqrt(norm);
+            x /= norm;
+            y /= norm;
+            z /= norm;
+        }
+        Vector3 vec = new Vector3((float)x,(float)y, (float)z);
+        Quaternion qt = Quaternion.axisAngle(vec,(float)(angle*57.29));
+        return qt;
+    }
+    double[] quat2rpy(Quaternion quaternion){
+        return quat2rpy(quaternion.w,quaternion.x, quaternion.y, quaternion.z);
+    }
     double[] quat2rpy(float qw,float qx, float qy, float qz){
         double sinr = 2.0 * (qw * qx + qy * qz);
         double cosr = 1.0 - 2.0 * (qx * qx + qy * qy);

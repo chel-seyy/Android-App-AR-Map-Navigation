@@ -9,7 +9,7 @@ import android.hardware.SensorManager;
 public class CompassListener implements SensorEventListener {
     private SensorManager mSensorManager;
     private float[] mGravity = new float[3];
-    private float[] mGeomagnetic = new float[3];
+    public float[] mGeomagnetic = new float[3];
     public  float[] orientation = new float[3];
     public float azimuth = 0f;
     private float correctAzimuth = 0f;
@@ -47,7 +47,12 @@ public class CompassListener implements SensorEventListener {
         }
 
     }
-
+    public float getBearing(){
+        float eastX = mGeomagnetic[0];
+        float eastZ = mGeomagnetic[2];
+        // negative because positive rotation about Y rotates X away from Z
+        return -(float)Math.atan2(eastZ, eastX)*180/3.1415f;
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
