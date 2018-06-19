@@ -46,7 +46,7 @@ import static java.lang.Math.atan2;
 import static java.lang.Math.copySign;
 
 public class ARActivity extends AppCompatActivity {
-    ViewRenderable testViewRenderable;
+    ModelRenderable testViewRenderable;
     WifiLocation wifiLocation;
     final String TAG = "ARActivity";
     int x,y,floor;
@@ -122,8 +122,8 @@ public class ARActivity extends AppCompatActivity {
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ARView);
         Scene scene = arFragment.getArSceneView().getScene();
         // Build the View renderable froim an android resource file
-        ViewRenderable.builder()
-                .setView(this, R.layout.tool_tips)
+        ModelRenderable.builder()
+                .setSource(this, R.raw.model)
                 .build()
                 .thenAccept(renderable -> testViewRenderable = renderable);
 
@@ -144,11 +144,8 @@ public class ARActivity extends AppCompatActivity {
                     anchorNode.setParent(arFragment.getArSceneView().getScene());
                     //Create Y-Axis rotation opposite of heading 0 Degrees = west for some reason
                     Vector3 vc = new Vector3(0,1,0);
-                    float  bearing = compassListener.getBearing();
+                    float  bearing = compassListener.getBearing(); // Get the phone's bearing
                     Log.d(TAG,"Bearing: "+bearing);
-                   // Quaternion qt = Quaternion.axisAngle(vc,compassListener.getBearing());
-                    float[] compass = new float[4];
-
                     //Get rotation from camera
                     Frame frame = arFragment.getArSceneView().getArFrame();
                     Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
@@ -162,14 +159,20 @@ public class ARActivity extends AppCompatActivity {
                     double[] rpy = quat2rpy(deviceFrame);
                     Log.d(TAG,"DeviceFrame: "+rpy[0]*180/3.1415+"."+rpy[1]*180/3.1415+","+rpy[2]*180/3.1415+","+bearing);
                     //Rotate around y axis.,,
-                    Quaternion qt = Quaternion.axisAngle(vc,bearing+(float)rpy[1]*180/3.1415f+90);
+                    Quaternion qt = Quaternion.axisAngle(vc,bearing+(float)rpy[1]*180/3.1415f+180);
                     //Vector3 zaxis = new Vector3(0,0,1);
                     // Create the transformable andy and add it to the anchor.
                     TransformableNode andy = new TransformableNode(arFragment.getTransformationSystem());
                     andy.setParent(anchorNode);
                     andy.setWorldRotation(qt);
+                    float angrad = bearing/180*3.1415f + (float)rpy[1];
+                    Vector3 pos = new Vector3(0.9f*(float)Math.cos(angrad),0,-0.9f*(float)Math.sin(angrad));
+                    float[] vec = deviceOrientedPose.getTranslation();
+                    Vector3 camPos = new Vector3(vec[0],vec[1],vec[2]);
+                    pos = Vector3.add(camPos,pos);
+                    andy.setWorldPosition(pos);  
                     andy.setRenderable(testViewRenderable);
-                    //andy.select();
+                   // andy.select();
                 });
     }
 
@@ -178,6 +181,18 @@ public class ARActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         serverHandler.removeCallbacks(serverReqThread);
+    }
+
+    public static double bearing(double lat1, double lon1, double lat2, double lon2){
+        double longitude1 = lon1;
+        double longitude2 = lon2;
+        double latitude1 = Math.toRadians(lat1);
+        double latitude2 = Math.toRadians(lat2);
+        double longDiff = Math.toRadians(longitude2-longitude1);
+        double y = Math.sin(longDiff)*Math.cos(latitude2);
+        double x = Math.cos(latitude1)*Math.sin(latitude2)-Math.sin(latitude1)*Math.cos(latitude2)*Math.cos(longDiff);
+
+        return (Math.toDegrees(Math.atan2(y, x))+360)%360;
     }
 
     Quaternion fromRPY(double heading, double attitude, double bank) {
