@@ -4,37 +4,30 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
-import android.widget.Toast;
 
+import com.arjo129.artest.arrendering.ARScene;
+import com.arjo129.artest.device.CompassListener;
+import com.arjo129.artest.device.WifiLocation;
 import com.google.ar.core.Anchor;
-import com.google.ar.core.Camera;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
-import com.google.ar.core.Session;
 import com.google.ar.sceneform.AnchorNode;
-import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.Scene;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
-import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
-import com.google.ar.sceneform.ux.BaseArFragment;
-import com.google.ar.sceneform.ux.TransformableNode;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -56,6 +49,7 @@ public class ARActivity extends AppCompatActivity {
     private Handler serverHandler;
     private CompassListener compassListener;
     private  DisplayRotationHelper dhelper;
+    private ARScene navscene;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,16 +111,15 @@ public class ARActivity extends AppCompatActivity {
             }
         };
         serverReqThread.run();
-
         //Instantiate the ARCore stuff
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ARView);
         Scene scene = arFragment.getArSceneView().getScene();
+        ARScene arScene = new ARScene(this,compassListener,arFragment,null,dhelper);
         // Build the View renderable froim an android resource file
         ModelRenderable.builder()
                 .setSource(this, R.raw.model)
                 .build()
                 .thenAccept(renderable -> testViewRenderable = renderable);
-
         //Onclick render the arrow add the spot clicked
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
@@ -140,7 +133,7 @@ public class ARActivity extends AppCompatActivity {
 
                     // Create the Anchor.
                     Anchor anchor = hitResult.createAnchor();
-                    AnchorNode anchorNode = new AnchorNode(anchor);
+                    Node anchorNode = new AnchorNode(anchor);
                     anchorNode.setParent(arFragment.getArSceneView().getScene());
                     //Create Y-Axis rotation opposite of heading 0 Degrees = west for some reason
                     Vector3 vc = new Vector3(0,1,0);
@@ -162,18 +155,19 @@ public class ARActivity extends AppCompatActivity {
                     Quaternion qt = Quaternion.axisAngle(vc,bearing+(float)rpy[1]*180/3.1415f+180);
                     //Vector3 zaxis = new Vector3(0,0,1);
                     // Create the transformable andy and add it to the anchor.
-                    TransformableNode andy = new TransformableNode(arFragment.getTransformationSystem());
+                    Node andy = new Node();
                     andy.setParent(anchorNode);
                     andy.setWorldRotation(qt);
                     float angrad = bearing/180*3.1415f + (float)rpy[1];
-                    Vector3 pos = new Vector3(0.9f*(float)Math.cos(angrad),0,-0.9f*(float)Math.sin(angrad));
+                    Vector3 pos = new Vector3 (0.9f*(float)Math.cos(angrad),0,-0.9f*(float)Math.sin(angrad));
                     float[] vec = deviceOrientedPose.getTranslation();
                     Vector3 camPos = new Vector3(vec[0],vec[1],vec[2]);
                     pos = Vector3.add(camPos,pos);
-                    andy.setWorldPosition(pos);  
+                    andy.setWorldPosition(pos);
                     andy.setRenderable(testViewRenderable);
-                   // andy.select();
+                    // andy.select();
                 });
+
     }
 
 

@@ -1,4 +1,4 @@
-    package com.arjo129.artest;
+    package com.arjo129.artest.device;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -13,7 +13,7 @@ public class CompassListener implements SensorEventListener {
     public  float[] orientation = new float[3];
     public float azimuth = 0f;
     private float correctAzimuth = 0f;
-    CompassListener(Context ctx){
+    public CompassListener(Context ctx){
         mSensorManager = (SensorManager)ctx.getSystemService(Context.SENSOR_SERVICE);
         startListening();
     }

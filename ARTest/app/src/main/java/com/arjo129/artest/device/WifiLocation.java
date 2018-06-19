@@ -1,4 +1,4 @@
-package com.arjo129.artest;
+package com.arjo129.artest.device;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +13,8 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.arjo129.artest.R;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
@@ -26,7 +28,7 @@ public class WifiLocation {
     private boolean network_enabled = false;
     private Function<HashMap<String,Integer>, Void> function;
 
-    WifiLocation(Context ctx, Function<HashMap<String,Integer>, Void> handler) {
+    public WifiLocation(Context ctx, Function<HashMap<String, Integer>, Void> handler) {
         context = ctx;
         function = handler;
         wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
