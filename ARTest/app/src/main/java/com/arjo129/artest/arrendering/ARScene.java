@@ -2,6 +2,7 @@ package com.arjo129.artest.arrendering;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.arjo129.artest.DisplayRotationHelper;
 import com.arjo129.artest.R;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Handler;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -50,40 +52,35 @@ public class ARScene {
                 this.bear = bearing;
             }
         }*/
-    CompassListener compassListener;
-    DisplayRotationHelper dhelper;
-    LocationEngine locationEngine;
-    ArFragment frag;
-    HashMap<Integer,Node> items = new HashMap<>();
-    boolean update = false, ready =false;
+    private CompassListener compassListener;
+    private DisplayRotationHelper dhelper;
+    private ArFragment frag;
+    private SparseArray<Node> items = new SparseArray<>();
+    private boolean update = false, ready =false;
     private int item_counter  = 0;
     private Context context;
     private ModelRenderable testViewRenderable;
+    private ArrowPath arrowPath1,arrowPath2,arrowPath3,arrowPath4;
     /**
      * Constructs a new ARScene with a compass class
      * @param compass - compass listener which helps orient the device
      * @param fg - ArFragment which tells
      * @param displayRotationHelper - display rotation
      */
-    public ARScene(Context ctx, CompassListener compass, ArFragment fg, LocationEngine le, DisplayRotationHelper displayRotationHelper){
+    public ARScene(Context ctx, CompassListener compass, ArFragment fg, DisplayRotationHelper displayRotationHelper){
        compassListener = compass;
        frag = fg;
-       locationEngine = le;
        //Set the ARFragement to listen to me
-       frag.getArSceneView().getScene().setOnUpdateListener(new Scene.OnUpdateListener() {
-           @Override
-           public void onUpdate(FrameTime frameTime) {
-               frag.onUpdate(frameTime);
-               onUpdateFrame(frameTime);
-           }
+       frag.getArSceneView().getScene().setOnUpdateListener(frameTime -> {
+           frag.onUpdate(frameTime);
+           onUpdateFrame(frameTime);
        });
        context  = ctx;
        dhelper = displayRotationHelper;
-
-        ModelRenderable.builder()
-                .setSource(ctx, R.raw.model)
-                .build()
-                .thenAccept(renderable -> testViewRenderable = renderable);
+       arrowPath1 = new ArrowPath(context,4,0,90,this);
+       arrowPath2 = new ArrowPath(context,4,90,180,this);
+       arrowPath3 = new ArrowPath(context,4, 180,270,this);
+       arrowPath4 = new ArrowPath(context, 4, 270,0,this);
     }
 
     /**
@@ -101,7 +98,7 @@ public class ARScene {
         }
         //Let us know when ARCore has some idea of the world...
         if(!ready){
-            Collection<Trackable> trackables = sess.getAllTrackables(Trackable.class);
+            Collection<Plane> trackables = sess.getAllTrackables(Plane.class);
             if(!trackables.isEmpty()){
                 ready = true;
                 onReady();
@@ -110,11 +107,10 @@ public class ARScene {
     }
 
     public void onReady(){
-        int id = placeItem(testViewRenderable, 1, 0,180,0,true);
-        if(id < 0){
-            ready  = false;
-            Log.d(TAG,"No anchors found :(");
-        }
+        arrowPath1.construct();
+        arrowPath2.construct();
+        arrowPath3.construct();
+        arrowPath4.construct();
     }
 
     /**
@@ -150,15 +146,15 @@ public class ARScene {
         deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
         double[] rpy = quat2rpy(deviceFrame);
         //Rotate around y axis...
-        Quaternion qt = Quaternion.axisAngle(Vector3.up(),heading+(float)rpy[1]*180/3.1415f+(float)rotation);
+        Quaternion qt = Quaternion.axisAngle(Vector3.up(),-(heading+(float)rpy[1]*180/3.1415f+(float)rotation));
         //Build the node
         Node node = new Node();
         node.setParent(frag.getArSceneView().getScene());
         node.setRenderable(r);
-        if(rotate)
         node.setWorldRotation(qt);
-        float angrad = heading/180*3.1415f + (float)rpy[1];
-        Vector3 pos = new Vector3 ((float)dist*(float)Math.cos(angrad+angle),0,-(float)dist*(float)Math.sin(angrad+angle));
+        float angrad = (float)Math.toRadians(heading) + (float)rpy[1];
+        Log.d(TAG,"drawing..."+heading+" intended angle:"+angle+" angrad:"+angrad);
+        Vector3 pos = new Vector3 ((float)dist*(float)Math.cos(angrad+Math.toRadians(angle)),0,(float)dist*(float)Math.sin(angrad+Math.toRadians(angle)));
         float[] vec = deviceOrientedPose.getTranslation();
         Vector3 camPos = new Vector3(vec[0],vec[1],vec[2]);
         pos = Vector3.add(camPos,pos);
@@ -174,7 +170,6 @@ public class ARScene {
         scene.removeChild(geoNode);
         items.remove(id);
     }
-
     /**
      * Bearing in degrees between two coordinates.
      * @param lat1
