@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.arjo129.artest.device.WifiLocation;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mapbox.android.core.location.LocationEngine;
