@@ -24,14 +24,18 @@ public class WifiLocation {
     private WifiManager wifi;
     private boolean gps_enabled = false;
     private boolean network_enabled = false;
+    private boolean scan_finished = false;
     private Function<HashMap<String,Integer>, Void> function;
+
 
     WifiLocation(Context ctx, Function<HashMap<String,Integer>, Void> handler) {
         context = ctx;
         function = handler;
         wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+//        scanWifiNetworks();
     }
     public void scanWifiNetworks(){
+        scan_finished = false;
         wifi_receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -46,6 +50,7 @@ public class WifiLocation {
                     map.put(scanResult.BSSID,scanResult.level);
                 }
                 function.apply(map);
+                scan_finished = true;
             }
         };
         enableLocation();
@@ -55,6 +60,11 @@ public class WifiLocation {
             Toast.makeText(context, "Scanning....", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public boolean isConnected(){
+        return scan_finished;
+    }
+
     public void enableLocation(){
         LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         try{

@@ -3,6 +3,8 @@ package com.arjo129.artest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -123,6 +125,9 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
                 }
                 Log.d(TAG, "Got wife bssid: "+ key +" , RSSI:"+ value + "session_secret");
             }
+            if(destinationCoord == null){
+                return null;
+            }
             double lng= destinationCoord.getLongitude();
             double lat= destinationCoord.getLatitude();
             //Transform the coordinate space into 3x3m grids...
@@ -171,6 +176,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             return null;
         });
     }
+
+
     @SuppressWarnings({"MissingPermission"})
     public void onStart() {
         super.onStart();
@@ -352,7 +359,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             @Override
             public void onMapClick(@NonNull LatLng point) {
 //                String string = String.format(Locale.ENGLISH,"User clicked at: %s", point.toString());
-//                Toast.makeText(MainActivity.this, string, Toast.LENGTH_LONG).show();
+//                Toast.makeText(CollectData.this, string, Toast.LENGTH_LONG).show();
 
                 if(destinationMarker != null){
                     mapboxMap.removeMarker(destinationMarker);
@@ -379,9 +386,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
             @Override
             public void onCameraMove() {
-                double lng = mapboxMap.getCameraPosition().target.getLongitude();
-                double lat = mapboxMap.getCameraPosition().target.getLatitude();
-//                Log.d("CameraMove", "Position: "+String.valueOf(lng)+" , " + String.valueOf(lat));
+
                 if(mapboxMap.getCameraPosition().zoom > 16){
                     if(TurfJoins.inside(Point.fromLngLat(mapboxMap.getCameraPosition().target.getLongitude(),
                             mapboxMap.getCameraPosition().target.getLatitude()), Polygon.fromLngLats(boundingBoxList))){
@@ -429,7 +434,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             }
 
         }
-//        enableLocationPlugin();
+        enableLocationPlugin();
     }
 
     public void enableLocationPlugin(){
@@ -443,11 +448,13 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             permissionsManager.requestLocationPermissions(this);
         }
     }
+
+
     private void initializeLocationEngine(){
-        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
+        locationEngine = new DBLocationEngine(this);
+//        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.activate();
-
         Location lastlocation = locationEngine.getLastLocation();
         if(lastlocation!=null){
             originLocation = lastlocation;
@@ -463,6 +470,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         locationLayerPlugin.setLocationLayerEnabled(true);
         locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
         locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
+        Log.d(TAG, "intialized location layer");
     }
 
     private void setCameraPosition(Location location){
@@ -470,6 +478,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(location.getLatitude(), location.getLongitude()), 16));
     }
+
 
     @Override
     public void onConnected() {
