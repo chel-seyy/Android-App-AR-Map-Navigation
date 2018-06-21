@@ -22,6 +22,7 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.ux.ArFragment;
+import com.google.ar.schemas.lull.Quat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,8 @@ import static java.lang.Math.copySign;
 
 public class ARScene {
     private static final String TAG = "ARScene";
+    private Runnable refreshThread;
+    private android.os.Handler refreshHandler;
     /*class GeoNode {
             public Renderable rend;
             public double lat,lng,h,bear;
@@ -60,7 +63,7 @@ public class ARScene {
     private int item_counter  = 0;
     private Context context;
     private ModelRenderable testViewRenderable;
-    private ArrowPath arrowPath1,arrowPath2,arrowPath3,arrowPath4;
+    private ArrowPath arrowPath;
     /**
      * Constructs a new ARScene with a compass class
      * @param compass - compass listener which helps orient the device
@@ -77,10 +80,19 @@ public class ARScene {
        });
        context  = ctx;
        dhelper = displayRotationHelper;
-       arrowPath1 = new ArrowPath(context,4,0,90,this);
-       arrowPath2 = new ArrowPath(context,4,90,180,this);
-       arrowPath3 = new ArrowPath(context,4, 180,270,this);
-       arrowPath4 = new ArrowPath(context, 4, 270,0,this);
+       arrowPath = new ArrowPath(context, 4, 270,0,this);
+        refreshHandler = new android.os.Handler();
+        refreshThread = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    update = true;
+                } finally {
+                    refreshHandler.postDelayed(refreshThread,10000);
+                }
+            }
+        };
+        refreshThread.run();
     }
 
     /**
@@ -95,6 +107,7 @@ public class ARScene {
         //TODO: Calculate Drift, correct drift update location
         if(update){
             update = false;
+            arrowPath.update();
         }
         //Let us know when ARCore has some idea of the world...
         if(!ready){
@@ -107,10 +120,7 @@ public class ARScene {
     }
 
     public void onReady(){
-        arrowPath1.construct();
-        arrowPath2.construct();
-        arrowPath3.construct();
-        arrowPath4.construct();
+        arrowPath.construct();
     }
 
     /**
@@ -153,7 +163,7 @@ public class ARScene {
         node.setRenderable(r);
         node.setWorldRotation(qt);
         float angrad = (float)Math.toRadians(heading) + (float)rpy[1];
-        Log.d(TAG,"drawing..."+heading+" intended angle:"+angle+" angrad:"+angrad);
+      //  Log.d(TAG,"drawing..."+heading+" intended angle:"+angle+" angrad:"+angrad);
         Vector3 pos = new Vector3 ((float)dist*(float)Math.cos(angrad+Math.toRadians(angle)),0,(float)dist*(float)Math.sin(angrad+Math.toRadians(angle)));
         float[] vec = deviceOrientedPose.getTranslation();
         Vector3 camPos = new Vector3(vec[0],vec[1],vec[2]);
@@ -164,6 +174,38 @@ public class ARScene {
         return item_counter;
     }
 
+    public Vector3 getPosition(int id){
+        Node pose= items.get(id, null);
+        if(pose==null){
+            return null;
+        }
+        return pose.getWorldPosition();
+    }
+
+    public Quaternion getRotation(int id){
+        Node pose= items.get(id, null);
+        if(pose==null){
+            return null;
+        }
+        return pose.getWorldRotation();
+    }
+
+    public boolean isInFrontOf(int id){
+        Vector3 forward = Vector3.left();
+        Quaternion qt = getRotation(id);
+        forward = Quaternion.rotateVector(qt,forward);
+        Frame frame = frag.getArSceneView().getArFrame();
+        Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
+                Pose.makeInterpolated(
+                        Pose.IDENTITY,
+                        Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
+                        dhelper.getRotation()));
+        float[] campos = deviceOrientedPose.getTranslation();
+        Vector3 cameraPos = new Vector3(campos[0],campos[1],campos[2]);
+        cameraPos = Vector3.subtract(cameraPos,getPosition(id));
+        Log.d(TAG, "angle between "+id+" and camera: "+ Vector3.angleBetweenVectors(cameraPos,forward));
+        return Vector3.dot(forward,cameraPos) > 0;
+    }
     public void removeItem(int id){
         Scene scene = frag.getArSceneView().getScene();
         Node geoNode = items.get(id);

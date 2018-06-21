@@ -7,12 +7,16 @@ import android.view.Display;
 import com.arjo129.artest.R;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
+import java.util.ArrayList;
+import java.util.Vector;
+
 public class ArrowPath {
     float distance;
     float heading;
     float next_path;
     ARScene scene;
     ModelRenderable arrow;
+    ArrayList<Integer> arrows;
     final String TAG = "ArrowPath";
     ArrowPath(Context ctx, float dist, float angle, float next_angle, ARScene arScene){
         scene = arScene;
@@ -23,16 +27,25 @@ public class ArrowPath {
                 .setSource(ctx, R.raw.model)
                 .build()
                 .thenAccept(renderable -> arrow = renderable);
+        arrows = new ArrayList<>();
     }
 
     void construct(){
         for(int i =1 ; i < distance; i+=1){
             Log.d(TAG, "drawing arrow "+i);
-            scene.placeItem(arrow,i,heading,heading+180,0,true);
+            int id = scene.placeItem(arrow,i,heading,heading+180,0,true);
+            arrows.add(id);
         }
         scene.placeItem(arrow,distance,heading, next_path+180,0,true);
     }
     void update(){
-
+        for(int id: arrows){
+            if (scene.isInFrontOf(id)){
+                Log.d(TAG,"in front of arrow "+id);
+            }
+            else {
+                Log.d(TAG,"behind arrow "+id);
+            }
+        }
     }
 }
