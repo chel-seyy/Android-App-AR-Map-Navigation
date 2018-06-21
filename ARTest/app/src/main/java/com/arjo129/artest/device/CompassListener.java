@@ -18,8 +18,8 @@ public class CompassListener implements SensorEventListener {
         startListening();
     }
     public void  startListening(){
-        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),2000000);
-        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),2000000);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
     }
     public void stopListenening(){
         mSensorManager.unregisterListener(this);
@@ -42,7 +42,7 @@ public class CompassListener implements SensorEventListener {
         boolean success = SensorManager.getRotationMatrix(R,I, mGravity,mGeomagnetic);
         if(success){
             SensorManager.getOrientation(R,orientation);
-            azimuth = (float)Math.toDegrees(orientation[0]);
+            azimuth = (float)Math.toDegrees(orientation[2]);
             azimuth = (azimuth+360)%360;
         }
 
@@ -51,7 +51,7 @@ public class CompassListener implements SensorEventListener {
         float eastX = mGeomagnetic[0];
         float eastZ = mGeomagnetic[2];
         // negative because positive rotation about Y rotates X away from Z
-        return -(float)Math.atan2(eastZ, eastX)*180/3.1415f;
+        return azimuth;//-(float)Math.atan2(eastZ, eastX)*180/3.1415f;
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {

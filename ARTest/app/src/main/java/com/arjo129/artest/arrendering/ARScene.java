@@ -64,6 +64,8 @@ public class ARScene {
     private Context context;
     private ModelRenderable testViewRenderable;
     private ArrowPath arrowPath;
+    private Anchor prevCam = null;
+    private float prevHeading = 0;
     /**
      * Constructs a new ARScene with a compass class
      * @param compass - compass listener which helps orient the device
@@ -105,9 +107,30 @@ public class ARScene {
         Session sess = frag.getArSceneView().getSession();
         Frame frame = frag.getArSceneView().getArFrame();
         //TODO: Calculate Drift, correct drift update location
-        if(update){
+        if(update && ready){
             update = false;
             arrowPath.update();
+            Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
+                    Pose.makeInterpolated(
+                            Pose.IDENTITY,
+                            Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
+                            dhelper.getRotation()));
+            Anchor tmp = sess.createAnchor(currPose);
+            if(prevCam!=null){
+                Pose prevPose = prevCam.getPose();
+                float[] devquat = currPose.getRotationQuaternion();
+                Quaternion deviceFrame = new Quaternion();
+                deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
+                double[] rpy = quat2rpy(deviceFrame);
+                float[] prevRpy= prevPose.getRotationQuaternion();
+                deviceFrame = new Quaternion();
+                deviceFrame.set(prevRpy[0],prevRpy[1],prevRpy[2],prevRpy[3]);
+                double[] prevOrientation = quat2rpy(deviceFrame);
+                Log.d(TAG,"Mag: "+(compassListener.getBearing()-prevHeading));
+                Log.d(TAG,"Vis: "+Math.toDegrees(prevOrientation[1]-rpy[1]));
+            }
+            prevCam = tmp;
+            prevHeading = compassListener.getBearing();
         }
         //Let us know when ARCore has some idea of the world...
         if(!ready){
@@ -203,7 +226,7 @@ public class ARScene {
         float[] campos = deviceOrientedPose.getTranslation();
         Vector3 cameraPos = new Vector3(campos[0],campos[1],campos[2]);
         cameraPos = Vector3.subtract(cameraPos,getPosition(id));
-        Log.d(TAG, "angle between "+id+" and camera: "+ Vector3.angleBetweenVectors(cameraPos,forward));
+        //Log.d(TAG, "angle between "+id+" and camera: "+ Vector3.angleBetweenVectors(cameraPos,forward));
         return Vector3.dot(forward,cameraPos) > 0;
     }
     public void removeItem(int id){
