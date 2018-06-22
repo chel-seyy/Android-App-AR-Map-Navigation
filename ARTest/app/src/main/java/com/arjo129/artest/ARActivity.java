@@ -114,7 +114,7 @@ public class ARActivity extends AppCompatActivity {
         //Instantiate the ARCore stuff
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ARView);
         Scene scene = arFragment.getArSceneView().getScene();
-        ARScene arScene = new ARScene(this,compassListener,arFragment,dhelper);
+        navscene = new ARScene(this,compassListener,arFragment,dhelper);
         // Build the View renderable froim an android resource file
         ModelRenderable.builder()
                 .setSource(this, R.raw.model)
@@ -128,5 +128,6 @@ public class ARActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         serverHandler.removeCallbacks(serverReqThread);
+        navscene.destroy();
     }
 }

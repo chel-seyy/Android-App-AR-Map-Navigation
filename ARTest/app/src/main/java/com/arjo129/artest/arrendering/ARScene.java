@@ -13,6 +13,7 @@ import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
+import com.google.ar.core.exceptions.NotTrackingException;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
@@ -110,27 +111,33 @@ public class ARScene {
         if(update && ready){
             update = false;
             arrowPath.update();
-            Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
-                    Pose.makeInterpolated(
-                            Pose.IDENTITY,
-                            Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
-                            dhelper.getRotation()));
-            Anchor tmp = sess.createAnchor(currPose);
-            if(prevCam!=null){
-                Pose prevPose = prevCam.getPose();
-                float[] devquat = currPose.getRotationQuaternion();
-                Quaternion deviceFrame = new Quaternion();
-                deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
-                double[] rpy = quat2rpy(deviceFrame);
-                float[] prevRpy= prevPose.getRotationQuaternion();
-                deviceFrame = new Quaternion();
-                deviceFrame.set(prevRpy[0],prevRpy[1],prevRpy[2],prevRpy[3]);
-                double[] prevOrientation = quat2rpy(deviceFrame);
-                Log.d(TAG,"Mag: "+(compassListener.getBearing()-prevHeading));
-                Log.d(TAG,"Vis: "+Math.toDegrees(prevOrientation[1]-rpy[1]));
+            try {
+                Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
+                        Pose.makeInterpolated(
+                                Pose.IDENTITY,
+                                Pose.makeRotation(0, 0, (float) Math.sqrt(0.5f), (float) Math.sqrt(0.5f)),
+                                dhelper.getRotation()));
+                Anchor tmp = sess.createAnchor(currPose);
+                if (prevCam != null) {
+                    Pose prevPose = prevCam.getPose();
+                    float[] devquat = currPose.getRotationQuaternion();
+                    Quaternion deviceFrame = new Quaternion();
+                    deviceFrame.set(devquat[0], devquat[1], devquat[2], devquat[3]);
+                    double[] rpy = quat2rpy(deviceFrame);
+                    float[] prevRpy = prevPose.getRotationQuaternion();
+                    deviceFrame = new Quaternion();
+                    deviceFrame.set(prevRpy[0], prevRpy[1], prevRpy[2], prevRpy[3]);
+                    double[] prevOrientation = quat2rpy(deviceFrame);
+                    Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
+                    Log.d(TAG, "Vis: " + Math.toDegrees(prevOrientation[1] - rpy[1]));
+                    Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
+
+                }
+                prevCam = tmp;
+                prevHeading = compassListener.getBearing();
+            } catch(NotTrackingException t){
+
             }
-            prevCam = tmp;
-            prevHeading = compassListener.getBearing();
         }
         //Let us know when ARCore has some idea of the world...
         if(!ready){
@@ -179,6 +186,7 @@ public class ARScene {
         deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
         double[] rpy = quat2rpy(deviceFrame);
         //Rotate around y axis...
+        Log.d(TAG,"angle: "+heading+" world heading:"+(float)rpy[1]*180/3.1415f);
         Quaternion qt = Quaternion.axisAngle(Vector3.up(),-(heading+(float)rpy[1]*180/3.1415f+(float)rotation));
         //Build the node
         Node node = new Node();
@@ -234,6 +242,9 @@ public class ARScene {
         Node geoNode = items.get(id);
         scene.removeChild(geoNode);
         items.remove(id);
+    }
+    public void destroy(){
+        compassListener.stopListenening();
     }
     /**
      * Bearing in degrees between two coordinates.
