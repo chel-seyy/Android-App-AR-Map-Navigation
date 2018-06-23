@@ -84,9 +84,7 @@ public class ARScene {
        context  = ctx;
        dhelper = displayRotationHelper;
        arrowPath1 = new ArrowPath(context, 4, 30,130,this);
-       arrowPath2 = new ArrowPath(context, 4, 90,90,this);
-       arrowPath3 = new ArrowPath(context, 4, 180,90,this);
-       arrowPath4 = new ArrowPath(context, 4, 270,90,this);
+
         refreshHandler = new android.os.Handler();
         refreshThread = new Runnable() {
             @Override
@@ -155,9 +153,6 @@ public class ARScene {
 
     public void onReady(){
         arrowPath1.construct();
-        arrowPath2.construct();
-        arrowPath3.construct();
-        arrowPath4.construct();
     }
 
     /**
