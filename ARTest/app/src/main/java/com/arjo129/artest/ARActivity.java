@@ -39,11 +39,9 @@ import static java.lang.Math.atan2;
 import static java.lang.Math.copySign;
 
 public class ARActivity extends AppCompatActivity {
-    ModelRenderable testViewRenderable;
     WifiLocation wifiLocation;
     final String TAG = "ARActivity";
     int x,y,floor;
-    boolean planeAnchored = true;
     Runnable serverReqThread;
     private int ScanInterval = 60000; // 5 seconds by default, can be changed later
     private Handler serverHandler;
@@ -113,14 +111,7 @@ public class ARActivity extends AppCompatActivity {
         serverReqThread.run();
         //Instantiate the ARCore stuff
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ARView);
-        Scene scene = arFragment.getArSceneView().getScene();
         navscene = new ARScene(this,compassListener,arFragment,dhelper);
-        // Build the View renderable froim an android resource file
-        ModelRenderable.builder()
-                .setSource(this, R.raw.model)
-                .build()
-                .thenAccept(renderable -> testViewRenderable = renderable);
-        //Onclick render the arrow add the spot clicked
     }
 
 

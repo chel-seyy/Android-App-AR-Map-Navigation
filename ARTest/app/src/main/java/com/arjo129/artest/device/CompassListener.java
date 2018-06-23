@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.arjo129.artest.arrendering.ARScene;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 
@@ -37,9 +38,10 @@ public class CompassListener implements SensorEventListener {
             float[] outMatrix = new float[9];
             //ARCore uses X-Z plane as the floor vs. The device ROTATION_VECTOR x-axis is east and Y-axis is north
             SensorManager.getRotationMatrixFromVector(rotMatrix, sensorEvent.values);
-            boolean succ = SensorManager.remapCoordinateSystem(rotMatrix, SensorManager.AXIS_X, SensorManager.AXIS_Z, outMatrix);
+            boolean succ = SensorManager.remapCoordinateSystem(rotMatrix, SensorManager.AXIS_X, SensorManager.AXIS_Z,outMatrix);
             SensorManager.getOrientation(outMatrix, orientation);
-            currentHeading = (float) Math.toDegrees(orientation[0]);
+            currentHeading = ((float)Math.toDegrees(orientation[0])+360)%360;
+            ARScene.fromRPY(orientation[0],orientation[1],orientation[2]);
             Log.d(TAG, "" + succ + " " + currentHeading);
         }
 

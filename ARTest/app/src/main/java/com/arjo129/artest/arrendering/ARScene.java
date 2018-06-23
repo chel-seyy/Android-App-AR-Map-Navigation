@@ -64,7 +64,7 @@ public class ARScene {
     private int item_counter  = 0;
     private Context context;
     private ModelRenderable testViewRenderable;
-    private ArrowPath arrowPath;
+    private ArrowPath arrowPath1,arrowPath2,arrowPath3,arrowPath4;
     private Anchor prevCam = null;
     private float prevHeading = 0;
     /**
@@ -83,7 +83,10 @@ public class ARScene {
        });
        context  = ctx;
        dhelper = displayRotationHelper;
-       arrowPath = new ArrowPath(context, 4, 270,0,this);
+       arrowPath1 = new ArrowPath(context, 4, 30,130,this);
+       arrowPath2 = new ArrowPath(context, 4, 90,90,this);
+       arrowPath3 = new ArrowPath(context, 4, 180,90,this);
+       arrowPath4 = new ArrowPath(context, 4, 270,90,this);
         refreshHandler = new android.os.Handler();
         refreshThread = new Runnable() {
             @Override
@@ -91,7 +94,7 @@ public class ARScene {
                 try {
                     update = true;
                 } finally {
-                    refreshHandler.postDelayed(refreshThread,10000);
+                    refreshHandler.postDelayed(refreshThread,1000);
                 }
             }
         };
@@ -110,7 +113,7 @@ public class ARScene {
         //TODO: Calculate Drift, correct drift update location
         if(update && ready){
             update = false;
-            arrowPath.update();
+            //arrowPath.update();
             try {
                 Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
                         Pose.makeInterpolated(
@@ -127,11 +130,12 @@ public class ARScene {
                     float[] prevRpy = prevPose.getRotationQuaternion();
                     deviceFrame = new Quaternion();
                     deviceFrame.set(prevRpy[0], prevRpy[1], prevRpy[2], prevRpy[3]);
-                    double[] prevOrientation = quat2rpy(deviceFrame);
-                    Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
-                    Log.d(TAG, "Vis: " + Math.toDegrees(prevOrientation[1] - rpy[1]));
-                    Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
-
+                    //double[] prevOrientation = quat2rpy(deviceFrame);
+                    //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
+                    //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
+                    //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
+                    //float arNorth = ((float)Math.toDegrees(rpy[1])+360)%360+360-compassListener.getBearing();
+                   // Log.d(TAG,"ARNorth: "+arNorth%360+ ", arangle:"+(float)(Math.toDegrees(rpy[1])+360)%360+ ", heading: "+(360-compassListener.getBearing()));
                 }
                 prevCam = tmp;
                 prevHeading = compassListener.getBearing();
@@ -150,7 +154,10 @@ public class ARScene {
     }
 
     public void onReady(){
-        arrowPath.construct();
+        arrowPath1.construct();
+        arrowPath2.construct();
+        arrowPath3.construct();
+        arrowPath4.construct();
     }
 
     /**
@@ -162,7 +169,7 @@ public class ARScene {
      * @param rotate - set to true if you want to set a rotation
      * @return an item ID, can be used for removing the item
      */
-    public int placeItem(Renderable r, double dist, double angle, double rotation, float height, boolean rotate){
+    public int placeItem(Renderable r, double dist, float angle, float rotation, float height, boolean rotate){
         Session sess = frag.getArSceneView().getSession();
         Frame frame = frag.getArSceneView().getArFrame();
         //Get some anchors to anchor our item to
@@ -186,16 +193,23 @@ public class ARScene {
         deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
         double[] rpy = quat2rpy(deviceFrame);
         //Rotate around y axis...
-        Log.d(TAG,"angle: "+heading+" world heading:"+(float)rpy[1]*180/3.1415f);
-        Quaternion qt = Quaternion.axisAngle(Vector3.up(),-(heading+(float)rpy[1]*180/3.1415f+(float)rotation));
+        //Log.d(TAG,"angle: "+heading+" world heading:"+(float)rpy[1]*180/3.1415f);
+        float arNorth = ((float)Math.toDegrees(rpy[1])+360)%360+360-compassListener.getBearing();
+        //Log.d(TAG,"ARNorth: "+arNorth+ ", arangle:"+(float)Math.toDegrees(rpy[1])+ ", heading: "+heading);
+        //Rotate to camera pose, then rotate to north, then rotate by x degrees
+        float rotAngle = ((360-rotation)+heading+((float)Math.toDegrees(rpy[1])+360)%360)%360;
+        Quaternion qt = Quaternion.axisAngle(Vector3.up(),rotAngle);
         //Build the node
         Node node = new Node();
         node.setParent(frag.getArSceneView().getScene());
         node.setRenderable(r);
+        //Set rotation
+        if(rotate)
         node.setWorldRotation(qt);
-        float angrad = (float)Math.toRadians(heading) + (float)rpy[1];
-      //  Log.d(TAG,"drawing..."+heading+" intended angle:"+angle+" angrad:"+angrad);
-        Vector3 pos = new Vector3 ((float)dist*(float)Math.cos(angrad+Math.toRadians(angle)),0,(float)dist*(float)Math.sin(angrad+Math.toRadians(angle)));
+        //Set angle
+        float angrad = ((360-angle)+heading+((float)Math.toDegrees(rpy[1])+360)%360)%360;
+        Log.d(TAG,"drawing..."+rotAngle+" intended angle:"+angle+" angrad:"+angrad);
+        Vector3 pos = new Vector3 (-(float)dist*(float)Math.sin(Math.toRadians(angrad)),0,-(float)dist*(float)Math.cos(Math.toRadians(angrad)));
         float[] vec = deviceOrientedPose.getTranslation();
         Vector3 camPos = new Vector3(vec[0],vec[1],vec[2]);
         pos = Vector3.add(camPos,pos);
@@ -245,6 +259,7 @@ public class ARScene {
     }
     public void destroy(){
         compassListener.stopListenening();
+        refreshHandler.removeCallbacks(refreshThread);
     }
     /**
      * Bearing in degrees between two coordinates.
@@ -296,7 +311,7 @@ public class ARScene {
         return Math.sqrt(distance);
     }
 
-    Quaternion fromRPY(double heading, double attitude, double bank) {
+    public static Quaternion fromRPY(double heading, double attitude, double bank) {
         // Assuming the angles are in radians.
         double c1 = Math.cos(heading/2);
         double s1 = Math.sin(heading/2);
@@ -326,10 +341,10 @@ public class ARScene {
         Quaternion qt = Quaternion.axisAngle(vec,(float)(angle*57.29));
         return qt;
     }
-    double[] quat2rpy(Quaternion quaternion){
+    public static double[] quat2rpy(Quaternion quaternion){
         return quat2rpy(quaternion.w,quaternion.x, quaternion.y, quaternion.z);
     }
-    double[] quat2rpy(float qw,float qx, float qy, float qz){
+    public static double[] quat2rpy(float qw,float qx, float qy, float qz){
         double sinr = 2.0 * (qw * qx + qy * qz);
         double cosr = 1.0 - 2.0 * (qx * qx + qy * qy);
         double roll = atan2(sinr, cosr);

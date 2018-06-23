@@ -33,15 +33,15 @@ public class ArrowPath {
     void construct(){
         for(int i =1 ; i < distance; i+=1){
             Log.d(TAG, "drawing arrow "+i);
-            int id = scene.placeItem(arrow,i,heading,heading+180,0,true);
+            int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
             arrows.add(id);
         }
-        scene.placeItem(arrow,distance,heading, next_path+180,0,true);
+        scene.placeItem(arrow,distance,heading, next_path+90,0,true);
     }
     void update(){
-        ArrayList<Integer> tbr = new ArrayList<>();
-        for(int id: arrows){
-            if (scene.isInFrontOf(id)){
+       /*ArrayList<Integer> tbr = new ArrayList<>();
+       for(int id: arrows){
+            //if (scene.isInFrontOf(id)){
                 Log.d(TAG,"in front of arrow "+id);
                 scene.removeItem(id);
                 tbr.add(id);
@@ -53,5 +53,7 @@ public class ArrowPath {
         for(int id :tbr){
             arrows.remove(Integer.valueOf(id));
         }
+        construct();
+        */
     }
 }
