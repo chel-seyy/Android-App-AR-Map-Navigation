@@ -467,7 +467,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         locationLayerPlugin = new LocationLayerPlugin(mapView, map,locationEngine);
         locationLayerPlugin.setLocationLayerEnabled(true);
         locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
-        locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
+        locationLayerPlugin.setRenderMode(RenderMode.COMPASS);
+        getLifecycle().addObserver(locationLayerPlugin);
         Log.d(TAG, "intialized location layer");
     }
 

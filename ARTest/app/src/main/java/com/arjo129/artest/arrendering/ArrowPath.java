@@ -53,7 +53,9 @@ public class ArrowPath {
         for(int id: tbr){
             arrows.remove(Integer.valueOf(id));
         }
-        //construct();
+        if(arrows.size() == 1){
 
+        }
+        //construct();
     }
 }

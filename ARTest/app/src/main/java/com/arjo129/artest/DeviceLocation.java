@@ -71,6 +71,7 @@ public class DeviceLocation extends LocationEngine implements LocationListener {
     @SuppressLint("MissingPermission")
     @Override
     public Location getLastLocation() {
+        Log.d(TAG,"requesting location");
         return currentBestLocation;
     }
 
@@ -138,7 +139,7 @@ public class DeviceLocation extends LocationEngine implements LocationListener {
                 }
                 return null;
             });
-
+            //wifiLocation.scanWifiNetworks();
         } catch (SecurityException e){
             Toast.makeText(context, "Enable Location Permissions from Settings", Toast.LENGTH_SHORT).show();
         }

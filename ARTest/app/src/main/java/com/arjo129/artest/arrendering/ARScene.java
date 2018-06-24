@@ -111,7 +111,7 @@ public class ARScene {
         //TODO: Calculate Drift, correct drift update location
         if(update && ready){
             update = false;
-            arrowPath1.update();
+
             try {
                 Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
                         Pose.makeInterpolated(
@@ -128,10 +128,15 @@ public class ARScene {
                     float[] prevRpy = prevPose.getRotationQuaternion();
                     deviceFrame = new Quaternion();
                     deviceFrame.set(prevRpy[0], prevRpy[1], prevRpy[2], prevRpy[3]);
-                    //double[] prevOrientation = quat2rpy(deviceFrame);
-                    //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
-                    //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
-                    //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
+                    prevCam.detach();
+                    double[] prevOrientation = quat2rpy(deviceFrame);
+                    if(abs(compassListener.getBearing() - prevHeading) > 60 && abs(rpy[1] - prevOrientation[1]) >60 ){
+                        //User has turned
+
+                    }
+                    Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
+                    Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
+                    Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
                     //float arNorth = ((float)Math.toDegrees(rpy[1])+360)%360+360-compassListener.getBearing();
                    // Log.d(TAG,"ARNorth: "+arNorth%360+ ", arangle:"+(float)(Math.toDegrees(rpy[1])+360)%360+ ", heading: "+(360-compassListener.getBearing()));
                 }
@@ -140,6 +145,9 @@ public class ARScene {
             } catch(NotTrackingException t){
 
             }
+        }
+        else if(ready){
+            arrowPath1.update();
         }
         //Let us know when ARCore has some idea of the world...
         if(!ready){
@@ -230,6 +238,13 @@ public class ARScene {
         return pose.getWorldRotation();
     }
 
+    public void setPosition(int id, Vector3 vc){
+        Node pose= items.get(id, null);
+        if(pose==null){
+            return;
+        }
+        pose.setWorldPosition(vc);
+    }
     public boolean isInFrontOf(int id){
         Vector3 forward = Vector3.left();
         Quaternion qt = getRotation(id);
@@ -246,6 +261,7 @@ public class ARScene {
         //Log.d(TAG, "angle between "+id+" and camera: "+ Vector3.angleBetweenVectors(cameraPos,forward));
         return Vector3.dot(forward,cameraPos) > 0;
     }
+
     public void removeItem(int id){
         Scene scene = frag.getArSceneView().getScene();
         Node geoNode = items.get(id);
