@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.arjo129.artest.MapActivity;
 import com.arjo129.artest.R;
 
 import java.util.List;
@@ -67,6 +68,10 @@ public class PlaceLevel1 extends AppCompatActivity {
         // When the home button is pressed, take the user back to the VisualizerActivity
         if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
+        }
+        if(id == R.id.go_to_map){
+            Intent mapIntent = new Intent(this, MapActivity.class);
+            startActivity(mapIntent);
         }
         return super.onOptionsItemSelected(item);
     }

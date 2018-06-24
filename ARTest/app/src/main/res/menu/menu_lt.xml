@@ -2,9 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_search_lt"
-        android:title="@string/action_search_lt"
-        android:icon="@mipmap/baseline_search"
-        app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView"/>
+        android:id="@+id/go_to_map"
+        android:title="Go to map"
+        android:icon="@mipmap/baseline_navigation"
+        app:showAsAction="always"/>
+    <!--<item-->
+        <!--android:id="@+id/action_search_lt"-->
+        <!--android:title="@string/action_search_lt"-->
+        <!--android:icon="@mipmap/baseline_search"-->
+        <!--app:actionViewClass="android.support.v7.widget.SearchView"-->
+        <!--app:showAsAction="ifRoom|collapseActionView"/>-->
 </menu>

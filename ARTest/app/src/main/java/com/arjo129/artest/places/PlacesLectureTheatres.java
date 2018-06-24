@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.arjo129.artest.MapActivity;
 import com.arjo129.artest.R;
 import com.arjo129.artest.places.PlaceLevel1;
 
@@ -65,7 +66,7 @@ public class PlacesLectureTheatres extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_lt, menu);
-
+        MenuItem mapButton = menu.findItem(R.id.go_to_map);
 //        final MenuItem searchItem = menu.findItem(R.id.action_search_lt);
 //        searchView = (SearchView) searchItem.getActionView();
 //
@@ -128,6 +129,10 @@ public class PlacesLectureTheatres extends AppCompatActivity {
         // When the home button is pressed, take the user back to the VisualizerActivity
         if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
+        }
+        else if(id == R.id.go_to_map){
+            Intent mapIntent = new Intent(this, MapActivity.class);
+            startActivity(mapIntent);
         }
         return super.onOptionsItemSelected(item);
     }

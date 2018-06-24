@@ -19,20 +19,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Basement" />
+            android:background="#8aecec"
+            android:text="Basement"
+            android:textColor="@android:color/black" />
 
         <Button
             android:id="@+id/button_level1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Level 1" />
+            android:background="#70d2d2"
+            android:text="Level 1"
+            android:textColor="@android:color/black" />
+
         <Button
             android:id="@+id/button_level2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Level 2" />
+            android:background="#56baba"
+            android:text="Level 2"
+            android:textColor="@android:color/black" />
 
 
     </LinearLayout>
