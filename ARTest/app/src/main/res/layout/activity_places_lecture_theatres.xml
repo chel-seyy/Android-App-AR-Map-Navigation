@@ -4,13 +4,43 @@
     android:id="@+id/activity_lt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlacesLectureTheatres">
+    tools:context=".places.PlacesLectureTheatres">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_lt"
+
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
 
-    </android.support.v7.widget.RecyclerView>
+        <Button
+            android:id="@+id/button_level0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="#8aecec"
+            android:text="Basement"
+            android:textColor="@android:color/black" />
 
+        <Button
+            android:id="@+id/button_level1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="#70d2d2"
+            android:text="Level 1"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/button_level2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="#56baba"
+            android:text="Level 2"
+            android:textColor="@android:color/black" />
+
+
+    </LinearLayout>
 </FrameLayout>

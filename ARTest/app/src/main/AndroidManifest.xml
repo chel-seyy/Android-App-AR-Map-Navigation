@@ -24,7 +24,7 @@
             android:value="required" />
 
         <activity
-            android:name=".PlacesToGo"
+            android:name=".places.PlacesToGo"
             android:label="@string/app_name"
             android:launchMode="singleTop">
             <intent-filter>
@@ -34,46 +34,59 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PlacesLectureTheatres"
+            android:name=".places.PlacesLectureTheatres"
             android:label="@string/places_lt"
-            android:parentActivityName=".PlacesToGo">
+            android:parentActivityName=".places.PlacesToGo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".PlacesToGo" />
+                android:value=".places.PlacesToGo" />
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:parentActivityName=".PlacesToGo">
+            android:parentActivityName=".places.PlacesToGo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".PlacesToGo" />
+                android:value=".places.PlacesToGo" />
         </activity>
         <activity android:name=".ARActivity" />
         <activity
             android:name=".CompassActivity"
             android:label="Compass"
-            android:parentActivityName=".PlacesToGo">
+            android:parentActivityName=".places.PlacesToGo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".PlacesToGo" />
+                android:value=".places.PlacesToGo" />
         </activity>
         <activity
             android:name=".WifiActivity"
             android:label="Wifi Scans"
-            android:parentActivityName=".PlacesToGo">
+            android:parentActivityName=".places.PlacesToGo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".PlacesToGo" />
+                android:value=".places.PlacesToGo" />
         </activity>
-
-        <activity android:name=".CollectData"
+        <activity
+            android:name=".CollectData"
             android:label="Collecting Wifi-points"
             android:parentActivityName=".LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".LoginActivity" />
         </activity>
-
+        <activity
+            android:name=".places.PlaceLevel1"
+            android:parentActivityName=".places.PlacesLectureTheatres">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".places.PlacesLectureTheatres" />
+        </activity>
+        <activity android:name=".MapActivity"
+            android:label="Indoor Map"
+            android:parentActivityName=".places.PlacesLectureTheatres">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".places.PlacesLectureTheatres" />
+        </activity>
     </application>
 
 </manifest>
