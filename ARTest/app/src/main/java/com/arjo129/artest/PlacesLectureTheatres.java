@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,10 +28,12 @@ import java.util.List;
 public class PlacesLectureTheatres extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private List<String> list;
+//    private List<String> list;
     private Toast mToast;
     private SearchView searchView;
     private RecyclerAdapter adapter;
+    private List<PlaceSearch>list;
+    private SearchPlaces searchPlaces;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +49,11 @@ public class PlacesLectureTheatres extends AppCompatActivity {
         recyclerView = findViewById(R.id.rv_lt);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        list = Arrays.asList(getResources().getStringArray(R.array.places_lt));
-        adapter = new RecyclerAdapter(this, list);
+//        list = Arrays.asList(getResources().getStringArray(R.array.places_lt));
+        searchPlaces = new SearchPlaces(this);
+        list = searchPlaces.getPlaces(1);
+        Log.d("Size", "Size: "+list.size());
+        adapter = new RecyclerAdapter(this, list, list.size());
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
 
@@ -57,31 +63,31 @@ public class PlacesLectureTheatres extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_lt, menu);
 
-        final MenuItem searchItem = menu.findItem(R.id.action_search_lt);
-        searchView = (SearchView) searchItem.getActionView();
-
-        changeSearchViewTextColor(searchView);
-
-        ((EditText)searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).
-                setHintTextColor(getResources().getColor(R.color.white));
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                if(!searchView.isIconified())
-                    searchView.setIconified(true);
-                searchItem.collapseActionView();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                final List<String>filtermodelist = filter(list, s);
-                adapter.updateList(filtermodelist);
-                return true;
-            }
-        });
+//        final MenuItem searchItem = menu.findItem(R.id.action_search_lt);
+//        searchView = (SearchView) searchItem.getActionView();
+//
+//        changeSearchViewTextColor(searchView);
+//
+//        ((EditText)searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).
+//                setHintTextColor(getResources().getColor(R.color.white));
+//
+//
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String s) {
+//                if(!searchView.isIconified())
+//                    searchView.setIconified(true);
+//                searchItem.collapseActionView();
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String s) {
+//                final List<String>filtermodelist = filter(list, s);
+//                adapter.updateList(filtermodelist);
+//                return true;
+//            }
+//        });
         return true;
     }
 

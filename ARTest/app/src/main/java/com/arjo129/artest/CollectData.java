@@ -175,64 +175,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         });
     }
 
-
-    @SuppressWarnings({"MissingPermission"})
-    public void onStart() {
-        super.onStart();
-        if(locationEngine != null){
-            locationEngine.requestLocationUpdates();
-        }
-        if(locationLayerPlugin != null){
-            locationLayerPlugin.onStart();
-        }
-        mapView.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(locationEngine != null){
-            locationEngine.removeLocationUpdates();
-        }
-        if(locationLayerPlugin != null){
-            locationLayerPlugin.onStop();
-        }
-        mapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mapView.onStop();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
-        if(locationEngine!= null){
-            locationEngine.deactivate();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
-    }
-
     private void setLevelButtons(){
         Button buttonSecondLevel = findViewById(R.id.second_level_button);
         buttonSecondLevel.setOnClickListener(new View.OnClickListener(){
@@ -295,20 +237,20 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 
 
         Log.d("Mapactivity","Building features list");
-        for(int i=0; i<featureList.size(); i++){
-            Feature singleLocation = featureList.get(i);
-            if( singleLocation.hasProperty("name")){
-                String name = singleLocation.getStringProperty("name");
-                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
-                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-//                Log.d("MapActivity", "feature: " +name);
-                LatLng locationLatLng = new LatLng(stringLat, stringLng);
-
-                map.addMarker(new MarkerOptions()
-                        .position(locationLatLng)
-                        .title(name));
-            }
-        }
+//        for(int i=0; i<featureList.size(); i++){
+//            Feature singleLocation = featureList.get(i);
+//            if( singleLocation.hasProperty("name")){
+//                String name = singleLocation.getStringProperty("name");
+//                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
+//                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
+////                Log.d("MapActivity", "feature: " +name);
+//                LatLng locationLatLng = new LatLng(stringLat, stringLng);
+//
+//                map.addMarker(new MarkerOptions()
+//                        .position(locationLatLng)
+//                        .title(name));
+//            }
+//        }
     }
 
     private void loadBuildingLayer(){
@@ -351,6 +293,16 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
+        Intent before = getIntent();
+        if(before.hasExtra("lat") && before.hasExtra("lng")){
+            double lat = before.getDoubleExtra("lat", 0);
+            double lng = before.getDoubleExtra("lng", 0);
+            String place_name = before.getStringExtra("place_name");
+            mapboxMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat,lng))
+                    .setTitle(place_name)
+            );
+        }
 
         map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
 
@@ -416,23 +368,23 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         }
         List<Feature> featureList = featureCollection.features();
         Log.d("Mapactivity","Building features list");
-        for(int i=0; i<featureList.size(); i++){
-            Feature singleLocation = featureList.get(i);
-            if( singleLocation.hasProperty("name")){
-
-                String name = singleLocation.getStringProperty("name");
-                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
-                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-//                Log.d("MapActivity", "feature: " +name);
-                LatLng locationLatLng = new LatLng(stringLat, stringLng);
-
-                mapboxMap.addMarker(new MarkerOptions()
-                        .position(locationLatLng)
-                        .title(name));
-            }
-
-        }
-        enableLocationPlugin();
+//        for(int i=0; i<featureList.size(); i++){
+//            Feature singleLocation = featureList.get(i);
+//            if( singleLocation.hasProperty("name")){
+//
+//                String name = singleLocation.getStringProperty("name");
+//                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
+//                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
+////                Log.d("MapActivity", "feature: " +name);
+//                LatLng locationLatLng = new LatLng(stringLat, stringLng);
+//
+//                mapboxMap.addMarker(new MarkerOptions()
+//                        .position(locationLatLng)
+//                        .title(name));
+//            }
+//
+//        }
+//        enableLocationPlugin();
     }
 
     public void enableLocationPlugin(){
@@ -473,8 +425,12 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 
     private void setCameraPosition(Location location){
         Log.d("Cam position", String.valueOf(location.getLatitude())+", "+String.valueOf(location.getLongitude()));
+        panningTo(location.getLatitude(), location.getLongitude());
+    }
+
+    private void panningTo(double lat, double lng){
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 16));
+                new LatLng(lat, lng), 16));
     }
 
 
@@ -491,6 +447,63 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             locationEngine.removeLocationEngineListener(this);
 
         }
+    }
+
+
+    public void onStart() {
+        super.onStart();
+        if(locationEngine != null){
+            locationEngine.requestLocationUpdates();
+        }
+        if(locationLayerPlugin != null){
+            locationLayerPlugin.onStart();
+        }
+        mapView.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(locationEngine != null){
+            locationEngine.removeLocationUpdates();
+        }
+        if(locationLayerPlugin != null){
+            locationLayerPlugin.onStop();
+        }
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+        if(locationEngine!= null){
+            locationEngine.deactivate();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mapView.onSaveInstanceState(outState);
     }
 
     @Override
