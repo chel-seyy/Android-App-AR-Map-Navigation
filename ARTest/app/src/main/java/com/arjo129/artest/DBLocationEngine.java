@@ -32,6 +32,8 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 public class DBLocationEngine extends LocationEngine {
     public final static String TAG = "DBLocationEngine";
     public static final int DELAY = 1000*30;
+    private Handler mHandler;
+    private Runnable wifiThread;
     private Date lastGoodLocation;
     private Double lat = 1.2952;
     private Double lng = 103.7737;
@@ -46,17 +48,28 @@ public class DBLocationEngine extends LocationEngine {
         Log.d(TAG, "constructed engine");
         setLocation(lat, lng, 0);
         lastGoodLocation =  new Date(2014, 6, 20, 0, 0);
+        mHandler = new Handler();
+        wifiThread  = new Runnable() {
+            @Override
+            public void run() {
+                requestLocationUpdates();
+                mHandler.postDelayed(wifiThread, 30000);
+            }
+        };
+
     }
 
 
     @Override
     public void activate() {
         Log.d(TAG, "Activated");
+        mHandler.postDelayed(wifiThread,30000);
     }
 
     @Override
     public void deactivate() {
         Log.d(TAG, "Deactivated");
+        mHandler.removeCallbacks(wifiThread);
     }
 
     @Override
@@ -143,6 +156,7 @@ public class DBLocationEngine extends LocationEngine {
                         }
                     });
                     for(LocationEngineListener l: this.locationListeners){
+                        Log.d(TAG, "Calling friend");
                         l.onLocationChanged(currentBestLocation);
                     }
                 } catch (Exception e){
@@ -151,8 +165,7 @@ public class DBLocationEngine extends LocationEngine {
                 return null;
             });
             wifiLocation.scanWifiNetworks();
-            Handler mHandler = new Handler();
-            mHandler.postDelayed(this::requestLocationUpdates,30000);
+
         } catch (SecurityException e){
             Toast.makeText(context, "Enable Location Permissions from Settings", Toast.LENGTH_SHORT).show();
         }
@@ -161,7 +174,8 @@ public class DBLocationEngine extends LocationEngine {
 
     @Override
     public void removeLocationUpdates() {
-
+        Log.d(TAG,"Destroying view");
+        //mHandler.removeCallbacks(wifiThread);
     }
 
     @Override

@@ -458,9 +458,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             originLocation = lastlocation;
             setCameraPosition(lastlocation);
         }
-        else {
-            locationEngine.addLocationEngineListener(this);
-        }
+        locationEngine.addLocationEngineListener(this);
     }
 
     private void initializeLocationLayer(){
@@ -488,7 +486,10 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     public void onLocationChanged(Location location) {
         if(location!= null){
             originLocation = location;
+            Log.d(TAG, "Recieved location");
             setCameraPosition(location);
+            int floor = (int)location.getAltitude();
+            initializeNewLevel(floor);
             //locationEngine.removeLocationEngineListener(this);
         }
     }
