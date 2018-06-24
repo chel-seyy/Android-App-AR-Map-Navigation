@@ -67,7 +67,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
-public class CollectData extends AppCompatActivity implements LocationEngineListener,
+public class MapActivity extends AppCompatActivity implements LocationEngineListener,
         OnMapReadyCallback, PermissionsListener{
     private MapView mapView;
     private List<Point> boundingBox;
@@ -84,7 +84,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     private Marker destinationMarker;
     private LatLng destinationCoord;
     private int floor = -1; //Keep track of the floor
-    private String TAG = "CollectData"; // Used for log.d
+    private String TAG = "MapActivity"; // Used for log.d
     private String session_secret;
     private String session_id;
 
@@ -99,80 +99,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
         setLevelButtons();
-
-        //Extract session_id and session_secret as given by LoginActivity
-        Intent current_intent =  getIntent();
-        session_id = current_intent.getStringExtra("session_id");
-        session_secret  = current_intent.getStringExtra("session_secret");
-        //Instantiate the wifilocation class with the context, and a cllback function to
-        //make it easy to post data
-        wifilocation = new WifiLocation(this,(HashMap<String,Integer> map) -> {
-            //Format WIFI list so the server can learn a location
-            JSONObject wifi_list = new JSONObject();
-            for (Map.Entry<String, Integer> item : map.entrySet()) {
-                String key = item.getKey();
-                int value = item.getValue();
-                try {
-                    wifi_list.put(key, value);
-                }
-                catch(Exception e){
-                    Log.d(TAG,e.toString());
-                    return null;
-                }
-                Log.d(TAG, "Got wife bssid: "+ key +" , RSSI:"+ value + "session_secret");
-            }
-            if(destinationCoord == null){
-                return null;
-            }
-            double lng= destinationCoord.getLongitude();
-            double lat= destinationCoord.getLatitude();
-            //Transform the coordinate space into 3x3m grids...
-            int x_coord = (int)Math.round(((lat-1)*110547)/3);
-            int y_coord = (int)Math.round(111320*Math.cos(Math.toRadians(lat))*lng/3);
-            try {
-                //Compose JSON POST request
-                JSONObject encapsulation_layer = new JSONObject();
-                encapsulation_layer.put("session_id", session_id);
-                encapsulation_layer.put("session_secret", session_secret);
-                encapsulation_layer.put("api_key", getString(R.string.server_api_key));
-                encapsulation_layer.put("location", "com1f"+floor+"|"+x_coord+"|"+y_coord);
-                encapsulation_layer.put("x",x_coord);
-                encapsulation_layer.put("y",y_coord);
-                encapsulation_layer.put("floor",floor);
-                encapsulation_layer.put("WIFI",wifi_list);
-                AsyncHttpClient client = new AsyncHttpClient();
-                StringEntity ent = new StringEntity(encapsulation_layer.toString());
-                Log.d(TAG,"Sending request");
-                Log.d(TAG,encapsulation_layer.toString());
-                client.post(this,getString(R.string.server_url)+"learn_location",ent,"application/json",new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                        Log.d(TAG,responseBody.toString());
-                        Log.d(TAG,"Recieved response");
-                        try {
-                            if(responseBody.get("status").equals("failed")){
-                                // Log user out as something went wrong
-                                Intent loginIntent = new Intent(getApplicationContext(),LoginActivity.class);
-                                startActivity(loginIntent);
-                            }
-                            else {
-                                //Continue
-                                setSessionSecret((String)responseBody.get("session_secret"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                Log.d(TAG, "Completed wifi scan");
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-            return null;
-        });
     }
 
     private void setLevelButtons(){
@@ -215,14 +142,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         levelButtons.setVisibility(View.VISIBLE);
     }
 
-//    private void getFeatureCollectionFromJson(int level) throws IOException{
-//        String filename = "com1floor"+String.valueOf(level)+".geojson";
-//        try {
-//            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
-//        } catch (Exception e){
-//            Log.d("MapActivity", "getFeatureCollectionFromJson: "+e);
-//        }
-//    }
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
@@ -297,8 +216,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 
             @Override
             public void onMapClick(@NonNull LatLng point) {
-//                String string = String.format(Locale.ENGLISH,"User clicked at: %s", point.toString());
-//                Toast.makeText(CollectData.this, string, Toast.LENGTH_LONG).show();
 
                 if(destinationMarker != null){
                     mapboxMap.removeMarker(destinationMarker);
@@ -308,8 +225,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
                         .position(destinationCoord)
                         .setTitle(point.toString())
                 );
-                //Performing Wifi Scan how should we add an indicator
-                wifilocation.scanWifiNetworks();
             }
         });
 
@@ -347,6 +262,9 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             }
         });
 
+        // TODO: Enable location but not animate camera sometimes
+//        enableLocationPlugin();
+
         Intent before = getIntent();
         if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
             double lat = before.getDoubleExtra("lat", 0);
@@ -366,31 +284,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             mapboxMap.addSource(indoorBuildingSource);
             loadBuildingLayer();
         }
-
-//        try {
-//            getFeatureCollectionFromJson(0);
-//        }catch (Exception e){
-//            Log.e("MapActivity","onCreate: "+e);
-//        }
-//        List<Feature> featureList = featureCollection.features();
-//        Log.d("Mapactivity","Building features list");
-//        for(int i=0; i<featureList.size(); i++){
-//            Feature singleLocation = featureList.get(i);
-//            if( singleLocation.hasProperty("name")){
-//
-//                String name = singleLocation.getStringProperty("name");
-//                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
-//                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-////                Log.d("MapActivity", "feature: " +name);
-//                LatLng locationLatLng = new LatLng(stringLat, stringLng);
-//
-//                mapboxMap.addMarker(new MarkerOptions()
-//                        .position(locationLatLng)
-//                        .title(name));
-//            }
-//
-//        }
-//        enableLocationPlugin();
     }
 
     public void enableLocationPlugin(){
@@ -408,7 +301,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 
     private void initializeLocationEngine(){
         locationEngine = new DBLocationEngine(this);
-//        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.activate();
         Location lastlocation = locationEngine.getLastLocation();
@@ -528,4 +420,3 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
-

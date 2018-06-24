@@ -1,42 +1,28 @@
-package com.arjo129.artest;
+package com.arjo129.artest.places;
 
-import android.content.ClipData;
-import android.graphics.Color;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.support.v7.widget.SearchView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.Button;
 
-import com.arjo129.artest.RecyclerAdapter.ListItemClickListener;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.arjo129.artest.R;
+import com.arjo129.artest.places.PlaceLevel1;
 
 public class PlacesLectureTheatres extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-//    private List<String> list;
-    private Toast mToast;
-    private SearchView searchView;
-    private RecyclerAdapter adapter;
-    private List<PlaceSearch>list;
-    private SearchPlaces searchPlaces;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mContext = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places_lecture_theatres);
         ActionBar actionBar = this.getSupportActionBar();
@@ -46,16 +32,33 @@ public class PlacesLectureTheatres extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        recyclerView = findViewById(R.id.rv_lt);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-//        list = Arrays.asList(getResources().getStringArray(R.array.places_lt));
-        searchPlaces = new SearchPlaces(this);
-        list = searchPlaces.getPlaces(1);
-        Log.d("Size", "Size: "+list.size());
-        adapter = new RecyclerAdapter(this, list, list.size());
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(adapter);
+        Button level0 = findViewById(R.id.button_level0);
+        Button level1 = findViewById(R.id.button_level1);
+        Button level2 = findViewById(R.id.button_level2);
+        level0.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent act_level = new Intent(mContext, PlaceLevel1.class);
+                act_level.putExtra("level",(int)0);
+                mContext.startActivity(act_level);
+            }
+        });
+        level1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent act_level = new Intent(mContext, PlaceLevel1.class);
+                act_level.putExtra("level",(int)1);
+                mContext.startActivity(act_level);
+            }
+        });
+        level2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent act_level = new Intent(mContext, PlaceLevel1.class);
+                act_level.putExtra("level",(int)2);
+                mContext.startActivity(act_level);
+            }
+        });
 
     }
 
@@ -91,32 +94,32 @@ public class PlacesLectureTheatres extends AppCompatActivity {
         return true;
     }
 
-    private List<String>filter(List<String> p1, String query){
-        query = query.toLowerCase();
-        final List<String> filteredModeList = new ArrayList<>();
-        for(String place: p1){
-            final String text = place.toLowerCase();
-            if(text.startsWith(query)){
-                filteredModeList.add(place);
-            }
-        }
-        return filteredModeList;
-    }
+//    private List<String>filter(List<String> p1, String query){
+//        query = query.toLowerCase();
+//        final List<String> filteredModeList = new ArrayList<>();
+//        for(String place: p1){
+//            final String text = place.toLowerCase();
+//            if(text.startsWith(query)){
+//                filteredModeList.add(place);
+//            }
+//        }
+//        return filteredModeList;
+//    }
 
-    private void changeSearchViewTextColor(View view){
-        if(view!=null){
-            if(view instanceof TextView){
-                ((TextView)view).setTextColor(Color.WHITE);
-                return;
-            }
-            else if(view instanceof ViewGroup){
-                ViewGroup viewGroup = (ViewGroup)view;
-                for(int i=0; i<viewGroup.getChildCount(); i++){
-                    changeSearchViewTextColor(viewGroup.getChildAt(i));
-                }
-            }
-        }
-    }
+//    private void changeSearchViewTextColor(View view){
+//        if(view!=null){
+//            if(view instanceof TextView){
+//                ((TextView)view).setTextColor(Color.WHITE);
+//                return;
+//            }
+//            else if(view instanceof ViewGroup){
+//                ViewGroup viewGroup = (ViewGroup)view;
+//                for(int i=0; i<viewGroup.getChildCount(); i++){
+//                    changeSearchViewTextColor(viewGroup.getChildAt(i));
+//                }
+//            }
+//        }
+//    }
 
 
     @Override

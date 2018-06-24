@@ -1,4 +1,4 @@
-package com.arjo129.artest;
+package com.arjo129.artest.places;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,13 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import com.arjo129.artest.ARActivity;
+import com.arjo129.artest.R;
 
 public class GridAdapter extends BaseAdapter{
     Context context;

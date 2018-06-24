@@ -1,17 +1,13 @@
-package com.arjo129.artest;
+package com.arjo129.artest.places;
 
 
 import android.content.Context;
-import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
-import com.arjo129.artest.CollectData;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.io.IOException;
@@ -27,7 +23,10 @@ public class SearchPlaces  extends AppCompatActivity {
     SearchPlaces(Context context){
         mContext = context;
         places = new HashMap<Integer, List<PlaceSearch>>();
-        loadPlaces();
+        for(int level=0; level<3; level++){
+            List<PlaceSearch> level_places = loadPlaces(level);
+            places.put(level, level_places);
+        }
     }
 
     private String loadJsonFromAsset(String filename){
@@ -46,16 +45,16 @@ public class SearchPlaces  extends AppCompatActivity {
         }
     }
 
-    public void loadPlaces(){
+    public List<PlaceSearch> loadPlaces(int level){
         FeatureCollection featureCollection;
         try {
-            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset("com1floor1.geojson"));
+            String filename =  "com1floor"+level+".geojson";
+            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
         }catch (Exception e){
             Log.e("MapActivity","onCreate: "+e);
-            return;
+            return null;
         }
         List<Feature> featureList = featureCollection.features();
-        int level = 1;
         List<PlaceSearch> level_1_places = new ArrayList<>();
         for(int i=0; i<featureList.size(); i++){
             Feature singleLocation = featureList.get(i);
@@ -69,7 +68,7 @@ public class SearchPlaces  extends AppCompatActivity {
                 level_1_places.add(new PlaceSearch(name, locationLatLng, level) );
             }
         }
-        places.put(level, level_1_places);
+        return level_1_places;
     }
 
     public List<PlaceSearch> getPlaces(int level){

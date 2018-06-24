@@ -1,4 +1,4 @@
-package com.arjo129.artest;
+package com.arjo129.artest.places;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
