@@ -133,16 +133,4 @@ public class PlacesLectureTheatres extends AppCompatActivity {
     }
 
 
-
-//    @Override
-//    public void onListItemClick(int clickedItemIndex) {
-//        if (mToast != null) {
-//            mToast.cancel();
-//        }
-//        String toastMessage = "Going to: " + list.get(clickedItemIndex);
-//        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT);
-//
-//        mToast.show();
-//    }
-
 }

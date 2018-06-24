@@ -17,27 +17,21 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SearchPlaces  extends AppCompatActivity {
-    private HashMap<Integer, List<PlaceSearch>> places;
+    private List<PlaceSearch> places;
     private Context mContext;
 
-    SearchPlaces(Context context){
+    SearchPlaces(Context context, int level){
         mContext = context;
-        places = new HashMap<Integer, List<PlaceSearch>>();
-        for(int level=0; level<3; level++){
-            List<PlaceSearch> level_places = loadPlaces(level);
-            places.put(level, level_places);
-        }
+        places = loadPlaces(level);
     }
 
     private String loadJsonFromAsset(String filename){
         try{
-            Log.d("SearchPlaces","Load Json");
             InputStream is = mContext.getAssets().open(filename);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            Log.d("LoadJson", "loading done");
             return new String(buffer, "UTF-8");
         } catch(IOException e){
             e.printStackTrace();
@@ -51,7 +45,6 @@ public class SearchPlaces  extends AppCompatActivity {
             String filename =  "com1floor"+level+".geojson";
             featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
         }catch (Exception e){
-            Log.e("MapActivity","onCreate: "+e);
             return null;
         }
         List<Feature> featureList = featureCollection.features();
@@ -71,8 +64,8 @@ public class SearchPlaces  extends AppCompatActivity {
         return level_1_places;
     }
 
-    public List<PlaceSearch> getPlaces(int level){
-        return places.get(level);
+    public List<PlaceSearch> getPlaces(){
+        return places;
     }
 
 

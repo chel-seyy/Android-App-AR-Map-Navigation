@@ -101,9 +101,4 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         }
     }
 
-    public void updateList(List<PlaceSearch> newList){
-        list = new ArrayList<>();
-        list.addAll(newList);
-        notifyDataSetChanged();
-    }
 }

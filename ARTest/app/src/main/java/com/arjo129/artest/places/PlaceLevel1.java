@@ -36,12 +36,12 @@ public class PlaceLevel1 extends AppCompatActivity {
         recyclerView = findViewById(R.id.rv_level1);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        searchPlaces = new SearchPlaces(this);
         Intent before = getIntent();
         int level = 0;
         if(before.hasExtra("level")){
             level = getIntent().getIntExtra("level", 0);
-            list = searchPlaces.getPlaces(level);
+            searchPlaces = new SearchPlaces(this, level);
+            list = searchPlaces.getPlaces();
         }
         if(level == 0){
             setTitle("Basement");

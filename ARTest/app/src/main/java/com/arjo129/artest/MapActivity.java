@@ -12,8 +12,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.arjo129.artest.device.WifiLocation;
+import com.arjo129.artest.places.Routing;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mapbox.android.core.location.LocationEngineListener;
@@ -54,8 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
@@ -74,23 +74,20 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private GeoJsonSource indoorBuildingSource;
     private List<List<Point>> boundingBoxList;
     private MapboxMap map;
-    private WifiLocation wifilocation; // Custom class to wrap wifi scans which will be done in multiple placed through this app
     private View levelButtons;
-    private FeatureCollection featureCollection;
+
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private PermissionsManager permissionsManager;
     private Location originLocation;
+
+    private Routing mapRouting;
+
     private Marker destinationMarker;
     private LatLng destinationCoord;
     private int floor = -1; //Keep track of the floor
     private String TAG = "MapActivity"; // Used for log.d
-    private String session_secret;
-    private String session_id;
 
-    void setSessionSecret(String str){
-        session_secret = str;
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +97,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
+        mapRouting = new Routing(this);
     }
 
     private void setLevelButtons(){
@@ -225,6 +223,15 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         .position(destinationCoord)
                         .setTitle(point.toString())
                 );
+
+                if(mapRouting.withinPolygon(point)){
+                    Toast.makeText(MapActivity.this, "Inside Polygon", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MapActivity.this, "Outside Polygon", Toast.LENGTH_SHORT).show();
+                }
+
+                // TODO: Launch the polyline to go
             }
         });
 
@@ -271,13 +278,24 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             double lng = before.getDoubleExtra("lng", 0);
             String place_name = before.getStringExtra("place_name");
             int level = before.getIntExtra("level",0);
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(lat,lng))
-                    .setTitle(place_name)
-            );
+
+            // Load map layout for that level
             indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor"+level+".geojson"));
             mapboxMap.addSource(indoorBuildingSource);
             loadBuildingLayer();
+
+
+            // Place destination marker
+            if(destinationMarker != null){
+                mapboxMap.removeMarker(destinationMarker);
+            }
+            destinationCoord = new LatLng(lat,lng);
+            destinationMarker = mapboxMap.addMarker(new MarkerOptions()
+                    .position(destinationCoord)
+                    .setTitle(place_name)
+            );
+            // TODO: Launch the polyline to go
+
             return;
         } else{
             indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor0.geojson"));
