@@ -111,7 +111,7 @@ public class ARScene {
         //TODO: Calculate Drift, correct drift update location
         if(update && ready){
             update = false;
-            //arrowPath.update();
+            arrowPath1.update();
             try {
                 Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
                         Pose.makeInterpolated(

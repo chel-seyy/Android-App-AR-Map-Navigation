@@ -39,9 +39,9 @@ public class ArrowPath {
         scene.placeItem(arrow,distance,heading, next_path+90,0,true);
     }
     void update(){
-       /*ArrayList<Integer> tbr = new ArrayList<>();
+       ArrayList<Integer> tbr = new ArrayList<>();
        for(int id: arrows){
-            //if (scene.isInFrontOf(id)){
+            if (scene.isInFrontOf(id)){
                 Log.d(TAG,"in front of arrow "+id);
                 scene.removeItem(id);
                 tbr.add(id);
@@ -50,10 +50,10 @@ public class ArrowPath {
                 Log.d(TAG,"behind arrow "+id);
             }
         }
-        for(int id :tbr){
+        for(int id: tbr){
             arrows.remove(Integer.valueOf(id));
         }
-        construct();
-        */
+        //construct();
+
     }
 }
