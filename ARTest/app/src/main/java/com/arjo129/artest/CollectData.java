@@ -489,8 +489,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         if(location!= null){
             originLocation = location;
             setCameraPosition(location);
-            locationEngine.removeLocationEngineListener(this);
-
+            //locationEngine.removeLocationEngineListener(this);
         }
     }
 
