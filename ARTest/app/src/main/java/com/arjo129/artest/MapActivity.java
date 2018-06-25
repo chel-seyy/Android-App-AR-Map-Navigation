@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.arjo129.artest.device.WifiLocation;
-import com.arjo129.artest.places.Routing;
+//import com.arjo129.artest.places.Routing;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mapbox.android.core.location.LocationEngineListener;
@@ -81,7 +81,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private PermissionsManager permissionsManager;
     private Location originLocation;
 
-    private Routing mapRouting;
+    //private Routing mapRouting;
 
     private Marker destinationMarker;
     private LatLng destinationCoord;
@@ -97,7 +97,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
-        mapRouting = new Routing(this);
+        //mapRouting = new Routing(this);
     }
 
     private void setLevelButtons(){
@@ -224,12 +224,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         .setTitle(point.toString())
                 );
 
-                if(mapRouting.withinPolygon(point)){
+                /*if(mapRouting.withinPolygon(point)){
                     Toast.makeText(MapActivity.this, "Inside Polygon", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(MapActivity.this, "Outside Polygon", Toast.LENGTH_SHORT).show();
-                }
+                }*/
 
                 // TODO: Launch the polyline to go
             }
