@@ -1,11 +1,17 @@
 package com.arjo129.artest;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +35,8 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -73,6 +81,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private List<Point> boundingBox;
     private GeoJsonSource indoorBuildingSource;
     private List<List<Point>> boundingBoxList;
+    private Icon green_icon;
+    private List<Marker> routeDrawn;
+
     private MapboxMap map;
     private View levelButtons;
 
@@ -83,8 +94,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private Routing mapRouting;
 
-    private Marker destinationMarker;
-    private LatLng destinationCoord;
+
+    private Marker startMarker, destinationMarker;
+    private LatLng startCoord, destinationCoord;
     private int floor = -1; //Keep track of the floor
     private String TAG = "MapActivity"; // Used for log.d
 
@@ -92,24 +104,94 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.access_token));
-        setContentView(R.layout.activity_collect_data);
+        setContentView(R.layout.activity_map);
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
         mapRouting = new Routing(this);
+
+        Button route_button = findViewById(R.id.start_route_buttton);
+        route_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Log.d("MapActivity", "Clicked route button");
+                if(startMarker != null){
+                    map.removeMarker(startMarker);
+                }
+
+                // Real starting position:
+//                locationLayerPlugin.setLocationLayerEnabled(false);
+
+                // Remember to enable the location plugin!!
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+
+
+//                green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
+
+                /*// Mock starting position:
+                startCoord = new LatLng(1.295252,103.7737);
+                startMarker = map.addMarker(new MarkerOptions()
+                        .position(startCoord)
+//                        .icon(green_icon)
+                );*/
+
+                /*// To check for out of bound markers
+                if(startCoord != null || destinationCoord != null ||
+                        !mapRouting.withinPolygon(startCoord) || !mapRouting.withinPolygon(destinationCoord)){
+                    Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
+                    return;
+                }*/
+
+                // drawing route on map
+                if(destinationMarker != null){
+                    if(routeDrawn!= null && !routeDrawn.isEmpty()){
+                        // erase route if has been drawn
+                        for(Marker marker: routeDrawn){
+                            map.removeMarker(marker);
+                        }
+                    }
+                    routeDrawn = new ArrayList<>();
+                    List<Node> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
+                    drawRoute(drawNodes);
+//                    route_button.setEnabled(false);
+                }
+                else{
+                    Log.d("MapActivity", "no route to plot");
+                }
+
+            }
+        });
+    }
+
+    private void drawRoute(List<Node> waypoints){
+        if(waypoints == null || waypoints.size() <= 0)return;
+        map.removeMarker(startMarker);
+
+        Icon blue_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.blue_marker);
+        for(int i=0; i<waypoints.size();i++){
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .position(waypoints.get(i).coordinate)
+                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
+//                    .icon(blue_icon)
+            );
+            routeDrawn.add(marker);
+        }
     }
 
     private void setLevelButtons(){
+        Button buttonZeroLevel = findViewById(R.id.zero_level_button);
+        Button buttonFirstLevel = findViewById(R.id.first_level_button);
         Button buttonSecondLevel = findViewById(R.id.second_level_button);
         buttonSecondLevel.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 floor = 2;
                 initializeNewLevel(floor);
+//                buttonSecondLevel.setBackgroundColor(Color.GREEN);
+//                buttonFirstLevel.set
             }
         });
-        Button buttonFirstLevel = findViewById(R.id.first_level_button);
         buttonFirstLevel.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -117,7 +199,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 initializeNewLevel(floor);
             }
         });
-        Button buttonZeroLevel = findViewById(R.id.zero_level_button);
         buttonZeroLevel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -189,8 +270,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         map.addLayer(indoorBuildingLineLayer);
         Log.d("MainActtttivity", "line layer built");
     }
-
-
     private String loadJsonFromAsset(String filename){
         try{
             Log.d("LoadJson", "loading....");
@@ -223,13 +302,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         .position(destinationCoord)
                         .setTitle(point.toString())
                 );
-
-                if(mapRouting.withinPolygon(point)){
-                    Toast.makeText(MapActivity.this, "Inside Polygon", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(MapActivity.this, "Outside Polygon", Toast.LENGTH_SHORT).show();
-                }
 
                 // TODO: Launch the polyline to go
             }
@@ -298,7 +370,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
             return;
         } else{
-            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor0.geojson"));
+            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor1.geojson"));
             mapboxMap.addSource(indoorBuildingSource);
             loadBuildingLayer();
         }

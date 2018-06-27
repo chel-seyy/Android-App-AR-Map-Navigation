@@ -34,6 +34,20 @@
     },
     {
       "type": "Feature",
+      "properties": {
+        "junction": 8
+      },
+      "geometry": {
+        "coordinates": [
+          103.77395,
+          1.294809
+        ],
+        "type": "Point"
+      },
+      "id": "0abc3a56cb186109798217cabf907523"
+    },
+    {
+      "type": "Feature",
       "properties": {},
       "geometry": {
         "coordinates": [
@@ -67,12 +81,27 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Artificial Intelligence Lab 1"
+        "junction": 11
       },
       "geometry": {
         "coordinates": [
-          103.774064,
-          1.294832
+          103.773765,
+          1.294769
+        ],
+        "type": "Point"
+      },
+      "id": "100fcad24c6138963c543df15addc73c"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Artificial Intelligence Lab 1",
+        "door": 1
+      },
+      "geometry": {
+        "coordinates": [
+          103.774099,
+          1.294859
         ],
         "type": "Point"
       },
@@ -113,12 +142,73 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Computational Biology 1",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.773936,
+          1.294778
+        ],
+        "type": "Point"
+      },
+      "id": "1310878f003be0dd31e17fa77552a928"
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              103.773706,
+              1.294946
+            ],
+            [
+              103.773734,
+              1.294911
+            ],
+            [
+              103.773666,
+              1.294853
+            ],
+            [
+              103.773638,
+              1.294888
+            ],
+            [
+              103.773706,
+              1.294946
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "13e93b4270fb024497abf441c2fca74b"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "junction": 5
+      },
+      "geometry": {
+        "coordinates": [
+          103.774084,
+          1.294713
+        ],
+        "type": "Point"
+      },
+      "id": "14edf652add55856e8805670f56fd8f6"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Wire Centre"
       },
       "geometry": {
         "coordinates": [
-          103.774021,
-          1.294799
+          103.77401,
+          1.294792
         ],
         "type": "Point"
       },
@@ -159,16 +249,31 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Database 1"
+        "name": "Database 1",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.774192,
-          1.294814
+          103.774158,
+          1.294831
         ],
         "type": "Point"
       },
       "id": "1b6beeb2f09be4c1130ae8a17be00c38"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "junction": 3
+      },
+      "geometry": {
+        "coordinates": [
+          103.773946,
+          1.295061
+        ],
+        "type": "Point"
+      },
+      "id": "2362e6c813fc9b9c0dae56cb11a249ee"
     },
     {
       "type": "Feature",
@@ -237,12 +342,27 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Artificial Intelligence Lab 2",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.774245,
+          1.294688
+        ],
+        "type": "Point"
+      },
+      "id": "25b8f383343b747a3ba2452eaf71093b"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Robot Living Studio"
       },
       "geometry": {
         "coordinates": [
-          103.773847,
-          1.295037
+          103.773836,
+          1.294995
         ],
         "type": "Point"
       },
@@ -283,26 +403,27 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "AHU"
+        "junction": 9
       },
       "geometry": {
         "coordinates": [
-          103.773798,
-          1.294832
+          103.773822,
+          1.294947
         ],
         "type": "Point"
       },
-      "id": "2c4a919a9222b919129627a290e8dd8e"
+      "id": "2db7c2ad708fbf547b8ef52eceeae6bf"
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Database 2"
+        "name": "Database 2",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.774086,
-          1.294787
+          103.77406,
+          1.294761
         ],
         "type": "Point"
       },
@@ -375,12 +496,13 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Database 3"
+        "name": "Database 3",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.774113,
-          1.294914
+          103.774069,
+          1.294942
         ],
         "type": "Point"
       },
@@ -389,12 +511,13 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Artificial Intelligence Lab 2"
+        "name": "Artificial Intelligence Lab 2",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.774196,
-          1.294694
+          103.774157,
+          1.294744
         ],
         "type": "Point"
       },
@@ -407,8 +530,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.774043,
-          1.294576
+          103.774068,
+          1.294594
         ],
         "type": "Point"
       },
@@ -449,6 +572,20 @@
         "type": "Polygon"
       },
       "id": "350da4b121996c1b4cff8bcc9e7662cc"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "junction": 7
+      },
+      "geometry": {
+        "coordinates": [
+          103.774022,
+          1.294726
+        ],
+        "type": "Point"
+      },
+      "id": "3574b65a5fb38473b8810048340d9154"
     },
     {
       "type": "Feature",
@@ -553,8 +690,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773653,
-          1.294928
+          103.77363,
+          1.294905
         ],
         "type": "Point"
       },
@@ -563,16 +700,32 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Embedded Systems Teaching Lab 1"
+        "name": "Embedded Systems Teaching Lab 1",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.773985,
-          1.294904
+          103.774037,
+          1.294935
         ],
         "type": "Point"
       },
       "id": "48d0b8ba2a35fa76b5fc22688b04cbd0"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Database 1",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.774207,
+          1.29477
+        ],
+        "type": "Point"
+      },
+      "id": "544c9708ff6b4449664cba0ab0679392"
     },
     {
       "type": "Feature",
@@ -591,12 +744,13 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Embedded Systems Teaching Lab 2"
+        "name": "Embedded Systems Teaching Lab 2",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.77402,
-          1.29486
+          103.774069,
+          1.294896
         ],
         "type": "Point"
       },
@@ -609,7 +763,7 @@
       },
       "geometry": {
         "coordinates": [
-          103.773825,
+          103.773876,
           1.294766
         ],
         "type": "Point"
@@ -623,12 +777,41 @@
       },
       "geometry": {
         "coordinates": [
-          103.773734,
-          1.295335
+          103.773698,
+          1.295303
         ],
         "type": "Point"
       },
       "id": "5ba9fca59495b94de83ed4a0a8afaa4b"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AHU",
+        "door": 1
+      },
+      "geometry": {
+        "coordinates": [
+          103.774009,
+          1.294718
+        ],
+        "type": "Point"
+      },
+      "id": "5f98ed701b625ea1d1bc3d2a65a8c714"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "junction": 10
+      },
+      "geometry": {
+        "coordinates": [
+          103.773706,
+          1.294847
+        ],
+        "type": "Point"
+      },
+      "id": "6367e8b4ae8bce5c69abf5fe80f90a2c"
     },
     {
       "type": "Feature",
@@ -711,12 +894,27 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Systems & Networking 2",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.773914,
+          1.2949
+        ],
+        "type": "Point"
+      },
+      "id": "6b72f4ed0f6ce883f1c52e0b3db4e9a3"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "MR5"
       },
       "geometry": {
         "coordinates": [
-          103.774096,
-          1.294645
+          103.774072,
+          1.294676
         ],
         "type": "Point"
       },
@@ -729,8 +927,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.77368,
-          1.295394
+          103.773646,
+          1.295364
         ],
         "type": "Point"
       },
@@ -743,8 +941,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773847,
-          1.295216
+          103.773814,
+          1.295193
         ],
         "type": "Point"
       },
@@ -757,8 +955,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773714,
-          1.295174
+          103.773727,
+          1.295183
         ],
         "type": "Point"
       },
@@ -767,12 +965,13 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "AHU"
+        "name": "AHU",
+        "door": 2
       },
       "geometry": {
         "coordinates": [
-          103.773967,
-          1.294664
+          103.77394,
+          1.294631
         ],
         "type": "Point"
       },
@@ -781,12 +980,26 @@
     {
       "type": "Feature",
       "properties": {
+        "junction": 4
+      },
+      "geometry": {
+        "coordinates": [
+          103.774171,
+          1.294785
+        ],
+        "type": "Point"
+      },
+      "id": "730bf8d0c5dd4a2f8cc4c1f155ed3b5c"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Electrical Room 2"
       },
       "geometry": {
         "coordinates": [
-          103.773751,
-          1.295134
+          103.773761,
+          1.295145
         ],
         "type": "Point"
       },
@@ -841,12 +1054,26 @@
     {
       "type": "Feature",
       "properties": {
+        "connector": "stairs"
+      },
+      "geometry": {
+        "coordinates": [
+          103.77426,
+          1.294729
+        ],
+        "type": "Point"
+      },
+      "id": "7ab987423c584390905ca7f112f793b4"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Technical Services"
       },
       "geometry": {
         "coordinates": [
-          103.773726,
-          1.294996
+          103.773749,
+          1.294928
         ],
         "type": "Point"
       },
@@ -855,7 +1082,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Lift"
+        "connector": "Lift"
       },
       "geometry": {
         "coordinates": [
@@ -965,12 +1192,13 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Systems & Networking 8"
+        "name": "Systems & Networking 2",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.773913,
-          1.294943
+          103.773872,
+          1.294947
         ],
         "type": "Point"
       },
@@ -983,12 +1211,27 @@
       },
       "geometry": {
         "coordinates": [
-          103.774131,
-          1.2946
+          103.774141,
+          1.294589
         ],
         "type": "Point"
       },
       "id": "8855777360a22b86833b600cf77defde"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Embedded Systems Teaching Lab 1",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.773942,
+          1.294867
+        ],
+        "type": "Point"
+      },
+      "id": "8ab564b9b1b9b688869c4fd463b6cb37"
     },
     {
       "type": "Feature",
@@ -1021,6 +1264,21 @@
         "type": "Polygon"
       },
       "id": "8cfe502e89fc3f9329c3ed83d39b556d"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Systems & Networking 1",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.774192,
+          1.294613
+        ],
+        "type": "Point"
+      },
+      "id": "914d6f24e81a19c511a00d9529d3eac9"
     },
     {
       "type": "Feature",
@@ -1141,8 +1399,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.77376,
-          1.2953
+          103.773726,
+          1.295271
         ],
         "type": "Point"
       },
@@ -1151,12 +1409,13 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Systems & Networking 1"
+        "name": "Systems & Networking 1",
+        "door": 1
       },
       "geometry": {
         "coordinates": [
-          103.774151,
-          1.294667
+          103.774114,
+          1.294711
         ],
         "type": "Point"
       },
@@ -1165,12 +1424,26 @@
     {
       "type": "Feature",
       "properties": {
+        "junction": 6
+      },
+      "geometry": {
+        "coordinates": [
+          103.774048,
+          1.294749
+        ],
+        "type": "Point"
+      },
+      "id": "a7d1aed32df0b67547e4f345c3d25371"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Systems & Networking 2"
       },
       "geometry": {
         "coordinates": [
-          103.773958,
-          1.29498
+          103.773984,
+          1.295
         ],
         "type": "Point"
       },
@@ -1183,8 +1456,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773816,
-          1.295241
+          103.77378,
+          1.295209
         ],
         "type": "Point"
       },
@@ -1296,6 +1569,21 @@
     },
     {
       "type": "Feature",
+      "properties": {
+        "name": "Database 3",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.774121,
+          1.294875
+        ],
+        "type": "Point"
+      },
+      "id": "bb0a1a29d6e8cf2377c7d1d4a396641f"
+    },
+    {
+      "type": "Feature",
       "properties": {},
       "geometry": {
         "coordinates": [
@@ -1361,6 +1649,20 @@
         "type": "Polygon"
       },
       "id": "bccf6352067deb9173f5a7f8f07d7ce4"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Career Consultation Room"
+      },
+      "geometry": {
+        "coordinates": [
+          103.773687,
+          1.294872
+        ],
+        "type": "Point"
+      },
+      "id": "be1a9ed09ba32bcc29e3b52a6776aed2"
     },
     {
       "type": "Feature",
@@ -1489,12 +1791,12 @@
               1.294946
             ],
             [
-              103.77364,
-              1.294889
+              103.773705,
+              1.294945
             ],
             [
-              103.773667,
-              1.294856
+              103.773734,
+              1.294912
             ],
             [
               103.773809,
@@ -1561,26 +1863,12 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Computer Room 1"
-      },
-      "geometry": {
-        "coordinates": [
-          103.773636,
-          1.295069
-        ],
-        "type": "Point"
-      },
-      "id": "cccd7716fd50d061299a9bd32fea3b90"
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "Supplies Room"
       },
       "geometry": {
         "coordinates": [
-          103.773902,
-          1.295167
+          103.773884,
+          1.295149
         ],
         "type": "Point"
       },
@@ -1593,12 +1881,27 @@
       },
       "geometry": {
         "coordinates": [
-          103.773715,
-          1.295372
+          103.773691,
+          1.295346
         ],
         "type": "Point"
       },
       "id": "d4b2a4d89fa2f65fb53605a87e10640a"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Database 2",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.774133,
+          1.294822
+        ],
+        "type": "Point"
+      },
+      "id": "d6757cf97d26a3b60bd9d68afb89a34f"
     },
     {
       "type": "Feature",
@@ -1671,8 +1974,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773924,
-          1.294702
+          103.773985,
+          1.294743
         ],
         "type": "Point"
       },
@@ -1725,12 +2028,27 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Computational Biology 1"
+        "junction": 1
       },
       "geometry": {
         "coordinates": [
-          103.773839,
-          1.294682
+          103.773789,
+          1.295143
+        ],
+        "type": "Point"
+      },
+      "id": "e0eabecb7caad8290b307d837902d1da"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Computational Biology 1",
+        "door": 1
+      },
+      "geometry": {
+        "coordinates": [
+          103.77386,
+          1.294644
         ],
         "type": "Point"
       },
@@ -1749,6 +2067,50 @@
         "type": "Point"
       },
       "id": "e9528298a31f8f1c537db7465600da4d"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Embedded Systems Teaching Lab 2",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.773978,
+          1.294826
+        ],
+        "type": "Point"
+      },
+      "id": "ed3bb473fe7d9d78056ea29617d30e66"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "junction": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.773838,
+          1.295182
+        ],
+        "type": "Point"
+      },
+      "id": "ee3eb01145bfa2f018909d7b0c861906"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Artificial Intelligence Lab 1",
+        "door": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.774051,
+          1.294796
+        ],
+        "type": "Point"
+      },
+      "id": "f2bd63cf2377bccdd81261195fbed83f"
     },
     {
       "type": "Feature",
@@ -1789,12 +2151,26 @@
       },
       "geometry": {
         "coordinates": [
-          103.773797,
-          1.295276
+          103.773765,
+          1.295249
         ],
         "type": "Point"
       },
       "id": "f8b9f73fc10c3dd9b804a7e0a5734e8f"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "junction": 0
+      },
+      "geometry": {
+        "coordinates": [
+          103.77362,
+          1.295343
+        ],
+        "type": "Point"
+      },
+      "id": "ff6b49eec00b6c31cea15b5f71b11d1a"
     }
   ],
   "type": "FeatureCollection"

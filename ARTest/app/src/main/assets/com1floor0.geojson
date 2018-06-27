@@ -55,7 +55,21 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Stairs"
+        "type": 8
+      },
+      "geometry": {
+        "coordinates": [
+          103.773848,
+          1.294743
+        ],
+        "type": "Point"
+      },
+      "id": "1cd9a836ffb3dea5ab1590d0601c3bc4"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "connector": "Stairs-2"
       },
       "geometry": {
         "coordinates": [
@@ -249,6 +263,20 @@
     {
       "type": "Feature",
       "properties": {
+        "type": 3
+      },
+      "geometry": {
+        "coordinates": [
+          103.773932,
+          1.295016
+        ],
+        "type": "Point"
+      },
+      "id": "2c0e8735be667917e581298c93af691f"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "title": "Technical Room 1"
       },
       "geometry": {
@@ -293,6 +321,20 @@
         "type": "Point"
       },
       "id": "319f6bc2c9a07189478db4f8ecc68074"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": 9
+      },
+      "geometry": {
+        "coordinates": [
+          103.773894,
+          1.294745
+        ],
+        "type": "Point"
+      },
+      "id": "363bc6cd124b966e238f0a2650eae7e2"
     },
     {
       "type": "Feature",
@@ -361,6 +403,20 @@
         "type": "Polygon"
       },
       "id": "3927721723de79c645a8b45c5614d219"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": 2
+      },
+      "geometry": {
+        "coordinates": [
+          103.773844,
+          1.295134
+        ],
+        "type": "Point"
+      },
+      "id": "3d8d995ddae8dfb1fe10a31e2b74e283"
     },
     {
       "type": "Feature",
@@ -453,7 +509,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Handicapped Lift"
+        "connector": "Handicapped Lift"
       },
       "geometry": {
         "coordinates": [
@@ -529,6 +585,20 @@
     {
       "type": "Feature",
       "properties": {
+        "type": 6
+      },
+      "geometry": {
+        "coordinates": [
+          103.774216,
+          1.294658
+        ],
+        "type": "Point"
+      },
+      "id": "5e2738c9c93f2ac9f1edcec50ce31c36"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Data Communications & Networking Lab / Parallel Distributed Computing Lab"
       },
       "geometry": {
@@ -539,6 +609,20 @@
         "type": "Point"
       },
       "id": "6717dc21152067e5a8c187b79add786e"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": 5
+      },
+      "geometry": {
+        "coordinates": [
+          103.774114,
+          1.29478
+        ],
+        "type": "Point"
+      },
+      "id": "704fe13c0ef55f0cb2ad990bc82a071c"
     },
     {
       "type": "Feature",
@@ -591,6 +675,20 @@
     {
       "type": "Feature",
       "properties": {
+        "type": 10
+      },
+      "geometry": {
+        "coordinates": [
+          103.773751,
+          1.294869
+        ],
+        "type": "Point"
+      },
+      "id": "87012cf2b20171c877980fb65fb9499f"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "title": "Store Room 1"
       },
       "geometry": {
@@ -621,6 +719,20 @@
         "type": "Polygon"
       },
       "id": "94f5e8a67dd332fbee8f7318231fccc7"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": 4
+      },
+      "geometry": {
+        "coordinates": [
+          103.774022,
+          1.294893
+        ],
+        "type": "Point"
+      },
+      "id": "97c2d1137200d3547df327a953efdaca"
     },
     {
       "type": "Feature",
@@ -771,6 +883,20 @@
     {
       "type": "Feature",
       "properties": {
+        "connector": "Stairs-1"
+      },
+      "geometry": {
+        "coordinates": [
+          103.773789,
+          1.29524
+        ],
+        "type": "Point"
+      },
+      "id": "b009ef9c93f7f01335ecb6d8634214b2"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Technical Room 2"
       },
       "geometry": {
@@ -917,6 +1043,20 @@
     {
       "type": "Feature",
       "properties": {
+        "type": 7
+      },
+      "geometry": {
+        "coordinates": [
+          103.773924,
+          1.294813
+        ],
+        "type": "Point"
+      },
+      "id": "d56d20763a451f1fb7946061205ecd14"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "AHU-2"
       },
       "geometry": {
@@ -931,12 +1071,12 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Stairs"
+        "type": 1
       },
       "geometry": {
         "coordinates": [
-          103.773765,
-          1.29524
+          103.773759,
+          1.295236
         ],
         "type": "Point"
       },
@@ -1129,6 +1269,20 @@
         "type": "Point"
       },
       "id": "f376ae8a8ce38e8e06121910bfdf7992"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": 11
+      },
+      "geometry": {
+        "coordinates": [
+          103.773698,
+          1.29493
+        ],
+        "type": "Point"
+      },
+      "id": "fb54df5cf5663153e10210618126222d"
     }
   ],
   "type": "FeatureCollection"

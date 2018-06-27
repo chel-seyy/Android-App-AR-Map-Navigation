@@ -31,7 +31,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class DBLocationEngine extends LocationEngine {
     public final static String TAG = "DBLocationEngine";
-    public static final int DELAY = 1000*30;
+    public static final int DELAY = 1000 * 5; // change to 5 seconds
     private Handler mHandler;
     private Runnable wifiThread;
     private Date lastGoodLocation;

@@ -390,7 +390,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 //            }
 //
 //        }
-//        enableLocationPlugin();
+        enableLocationPlugin();
     }
 
     public void enableLocationPlugin(){
