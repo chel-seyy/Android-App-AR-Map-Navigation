@@ -61,4 +61,14 @@
             android:textStyle="bold" />
 
     </LinearLayout>
+
+
+    <!--TODO: instead of the "Scanning wifi"-->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="38dp"
+        android:layout_height="wrap_content"
+        mapbox:layout_anchor="@+id/mapView"
+        mapbox:layout_anchorGravity="right|top" />
 </android.support.design.widget.CoordinatorLayout>

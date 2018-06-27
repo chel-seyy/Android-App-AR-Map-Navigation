@@ -123,9 +123,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 }
 
                 // Real starting position:
-//                locationLayerPlugin.setLocationLayerEnabled(false);
 
                 // Remember to enable the location plugin!!
+                locationLayerPlugin.setLocationLayerEnabled(false);
                 startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
 
@@ -133,10 +133,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 /*// Mock starting position:
                 startCoord = new LatLng(1.295252,103.7737);
+                */
                 startMarker = map.addMarker(new MarkerOptions()
                         .position(startCoord)
 //                        .icon(green_icon)
-                );*/
+                );
 
                 /*// To check for out of bound markers
                 if(startCoord != null || destinationCoord != null ||
@@ -312,7 +313,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 else{
                     Toast.makeText(MapActivity.this, "Outside Polygon", Toast.LENGTH_SHORT).show();
                 }*/
-                
+
                 // TODO: Launch the polyline to go
             }
         });
@@ -352,7 +353,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-//        enableLocationPlugin();
+        enableLocationPlugin();
 
         Intent before = getIntent();
         if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
@@ -406,18 +407,17 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         Location lastlocation = locationEngine.getLastLocation();
         if(lastlocation!=null){
             originLocation = lastlocation;
-            setCameraPosition(lastlocation);
+//            setCameraPosition(lastlocation);
         }
-        else {
-            locationEngine.addLocationEngineListener(this);
-        }
+        locationEngine.addLocationEngineListener(this);
     }
 
     private void initializeLocationLayer(){
         locationLayerPlugin = new LocationLayerPlugin(mapView, map,locationEngine);
         locationLayerPlugin.setLocationLayerEnabled(true);
         locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
-        locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
+        locationLayerPlugin.setRenderMode(RenderMode.COMPASS);
+        getLifecycle().addObserver(locationLayerPlugin);
         Log.d(TAG, "intialized location layer");
     }
 
@@ -442,8 +442,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         if(location!= null){
             originLocation = location;
             setCameraPosition(location);
-            locationEngine.removeLocationEngineListener(this);
-
+            int floor = (int)location.getAltitude();
+            initializeNewLevel(floor);
+            //locationEngine.removeLocationEngineListener(this);
         }
     }
 

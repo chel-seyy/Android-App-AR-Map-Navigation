@@ -71,7 +71,9 @@ public class Routing extends AppCompatActivity {
                 Point.fromLngLat(103.7791351, 1.2945415),
                 Point.fromLngLat(103.7735196, 1.2950287),
                 Point.fromLngLat(103.773687,1.2951863),
-                Point.fromLngLat(103.7735626, 1.29534509));
+                Point.fromLngLat(103.7735626, 1.29534509),
+
+                Point.fromLngLat(103.773678, 1.295476));
         boundingList.add(perimeter);
         boundingSpace = Polygon.fromLngLats(boundingList);
     }
