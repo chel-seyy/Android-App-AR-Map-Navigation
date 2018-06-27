@@ -5,5 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="white">#FFFFFF</color>
     <color name="orange">#f2a24d</color>
-    <color name="green">#4df2a2</color>
+    <color name="green">#5add9e</color>
+    <color name="turquoise">#4ef0f2</color>
+
 </resources>

@@ -128,7 +128,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 //                locationLayerPlugin.setLocationLayerEnabled(false);
 //                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
-
 //                green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
 
                 // Mock starting position:
@@ -140,10 +139,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 );
 
                 // To check for out of bound markers
-//                if(destinationCoord != null && !mapRouting.withinPolygon(destinationCoord)){
-//                    Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
+                if(destinationCoord != null && !mapRouting.withinPolygon(destinationCoord)){
+                    Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 // drawing route on map
                 if(destinationMarker != null){
@@ -185,13 +184,14 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         Button buttonZeroLevel = findViewById(R.id.zero_level_button);
         Button buttonFirstLevel = findViewById(R.id.first_level_button);
         Button buttonSecondLevel = findViewById(R.id.second_level_button);
-        buttonSecondLevel.setOnClickListener(new View.OnClickListener(){
+        buttonZeroLevel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                floor = 2;
+                floor = 0;
                 initializeNewLevel(floor);
-//                buttonSecondLevel.setBackgroundColor(Color.GREEN);
-//                buttonFirstLevel.set
+                buttonZeroLevel.setBackgroundResource(R.color.green);
+                buttonFirstLevel.setBackgroundResource(R.color.turquoise);
+                buttonSecondLevel.setBackgroundResource(R.color.turquoise);
             }
         });
         buttonFirstLevel.setOnClickListener(new View.OnClickListener(){
@@ -199,13 +199,19 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 floor = 1;
                 initializeNewLevel(floor);
+                buttonFirstLevel.setBackgroundResource(R.color.green);
+                buttonSecondLevel.setBackgroundResource(R.color.turquoise);
+                buttonZeroLevel.setBackgroundResource(R.color.turquoise);
             }
         });
-        buttonZeroLevel.setOnClickListener(new View.OnClickListener() {
+        buttonSecondLevel.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                floor = 0;
+                floor = 2;
                 initializeNewLevel(floor);
+                buttonSecondLevel.setBackgroundResource(R.color.green);
+                buttonFirstLevel.setBackgroundResource(R.color.turquoise);
+                buttonZeroLevel.setBackgroundResource(R.color.turquoise);
             }
         });
     }

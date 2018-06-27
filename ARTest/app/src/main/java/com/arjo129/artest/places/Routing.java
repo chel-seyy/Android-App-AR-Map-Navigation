@@ -64,13 +64,16 @@ public class Routing extends AppCompatActivity {
         addToAdjacencyList();
         boundingList = new ArrayList<>();
         List<Point> perimeter = Arrays.asList(Point.fromLngLat(103.773678, 1.295476),
-                Point.fromLngLat(103.77431, 1.2946974),
-                Point.fromLngLat(103.774209, 1.29450826),
-                Point.fromLngLat(103.773961, 1.29458369),
-                Point.fromLngLat(103.7791351, 1.2945415),
-                Point.fromLngLat(103.7735196, 1.2950287),
-                Point.fromLngLat(103.773687,1.2951863),
-                Point.fromLngLat(103.7735626, 1.29534509),
+                Point.fromLngLat(103.7740141, 1.2950704),
+                Point.fromLngLat(103.7743153, 1.294700),
+                Point.fromLngLat(103.7741678, 1.29457401),
+                Point.fromLngLat(103.7740424, 1.29448216),
+                Point.fromLngLat(103.7739611, 1.29458082),
+                Point.fromLngLat(103.7739135, 1.29454267),
+                Point.fromLngLat(103.7737461,1.294742746),
+                Point.fromLngLat(103.7735135, 1.29502694),
+                Point.fromLngLat(103.7736895, 1.29518788),
+                Point.fromLngLat(103.7735521, 1.29534816),
 
                 Point.fromLngLat(103.773678, 1.295476));
         boundingList.add(perimeter);
@@ -175,7 +178,7 @@ public class Routing extends AppCompatActivity {
         Integer parentNode = backtracking.get(current);
 
 //        // NO waypoints - from startpoint to endpoint
-        if(getStartDist(current) > getStartToEndDist() ){
+        if(getStartDist(nearestJunction(startingPoint)) > getStartToEndDist() ){
             Log.d("Routing", "No waypoints- start to end: "+ getStartToEndDist());
             route.add(0, new Node(startingPoint, getStartToEndBearing()));
             return route;
@@ -326,7 +329,6 @@ public class Routing extends AppCompatActivity {
             return null;
         }
     }
-
 
     /*
      * Calculates the bearing from point1 to point2 in clockwise direction
