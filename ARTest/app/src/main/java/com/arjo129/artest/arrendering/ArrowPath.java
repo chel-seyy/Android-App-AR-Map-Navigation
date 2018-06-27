@@ -58,4 +58,9 @@ public class ArrowPath {
         }
         //construct();
     }
+    void destroy(){
+        for(int id: arrows){
+            scene.removeItem(id);
+        }
+    }
 }

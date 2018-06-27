@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Handler;
 
 import static java.lang.Math.PI;
@@ -67,6 +68,8 @@ public class ARScene {
     private ArrowPath arrowPath1,arrowPath2,arrowPath3,arrowPath4;
     private Anchor prevCam = null;
     private float prevHeading = 0;
+    private ArrayList<DirectionInstruction> instructions;
+    private int curr_direction;
     /**
      * Constructs a new ARScene with a compass class
      * @param compass - compass listener which helps orient the device
@@ -83,8 +86,9 @@ public class ARScene {
        });
        context  = ctx;
        dhelper = displayRotationHelper;
-       arrowPath1 = new ArrowPath(context, 4, 30,130,this);
-
+       arrowPath1 = new ArrowPath(context, 4, 60,150,this);
+       instructions = new ArrayList<>();
+       instructions.add(new DirectionInstruction(10,150));
         refreshHandler = new android.os.Handler();
         refreshThread = new Runnable() {
             @Override
@@ -92,11 +96,12 @@ public class ARScene {
                 try {
                     update = true;
                 } finally {
-                    refreshHandler.postDelayed(refreshThread,1000);
+                    refreshHandler.postDelayed(refreshThread,5000);
                 }
             }
         };
         refreshThread.run();
+        curr_direction =0;
     }
 
     /**
@@ -111,7 +116,6 @@ public class ARScene {
         //TODO: Calculate Drift, correct drift update location
         if(update && ready){
             update = false;
-
             try {
                 Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
                         Pose.makeInterpolated(
@@ -130,9 +134,10 @@ public class ARScene {
                     deviceFrame.set(prevRpy[0], prevRpy[1], prevRpy[2], prevRpy[3]);
                     prevCam.detach();
                     double[] prevOrientation = quat2rpy(deviceFrame);
-                    if(abs(compassListener.getBearing() - prevHeading) > 60 && abs(rpy[1] - prevOrientation[1]) >60 ){
+                    if(abs(compassListener.getBearing() - prevHeading) > 45 && abs(Math.toDegrees(rpy[1] - prevOrientation[1])) > 45 ) {
                         //User has turned
-
+                        Log.d(TAG,"User turned!");
+                        onTurn(abs(Math.toDegrees(rpy[1] - prevOrientation[1])));
                     }
                     Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
                     Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
@@ -163,6 +168,24 @@ public class ARScene {
         arrowPath1.construct();
     }
 
+    public void onTurn(double angle){
+        double current_heading = compassListener.getBearing();
+        Log.d(TAG, "drawing....");
+        if(abs(current_heading - instructions.get(curr_direction).direction) < 45){
+            if(curr_direction < instructions.size()) {
+                DirectionInstruction dir = instructions.get(curr_direction);
+                float next_turn = 0;
+                if(curr_direction+1 < instructions.size()){
+                    next_turn = instructions.get(curr_direction).direction;
+                }
+                arrowPath1.destroy();
+                arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn,this);
+                Log.d(TAG, "drawing....");
+                arrowPath1.construct();
+                curr_direction++;
+            }
+        }
+    }
     /**
      * Places an item in our ARScene using distance and
      * @param r - the renderable
