@@ -54,8 +54,7 @@ public class Routing extends AppCompatActivity {
     private HashMap<Integer, Integer> backtracking;
     private List<Double> distances;
     private LatLng start, end;
-
-    private Polygon boundingSpace;
+    List<List<Point>> boundingList;
 
     public Routing(Context context){
         mContext = context;
@@ -63,7 +62,7 @@ public class Routing extends AppCompatActivity {
         junctions = new HashMap<>();
         convertFeatures();
         addToAdjacencyList();
-        List<List<Point>> boundingList = new ArrayList<>();
+        boundingList = new ArrayList<>();
         List<Point> perimeter = Arrays.asList(Point.fromLngLat(103.773678, 1.295476),
                 Point.fromLngLat(103.77431, 1.2946974),
                 Point.fromLngLat(103.774209, 1.29450826),
@@ -75,7 +74,6 @@ public class Routing extends AppCompatActivity {
 
                 Point.fromLngLat(103.773678, 1.295476));
         boundingList.add(perimeter);
-        boundingSpace = Polygon.fromLngLats(boundingList);
     }
 
 //    public List<PlaceSearch> loadPlaces(int level){
@@ -177,7 +175,7 @@ public class Routing extends AppCompatActivity {
         Integer parentNode = backtracking.get(current);
 
 //        // NO waypoints - from startpoint to endpoint
-        if(getEndDist(current) > getStartToEndDist() ){
+        if(getStartDist(current) > getStartToEndDist() ){
             Log.d("Routing", "No waypoints- start to end: "+ getStartToEndDist());
             route.add(0, new Node(startingPoint, getStartToEndBearing()));
             return route;
@@ -289,7 +287,7 @@ public class Routing extends AppCompatActivity {
 
     public Boolean withinPolygon(LatLng point){    //bbox:geojson
         if(TurfJoins.inside(Point.fromLngLat(point.getLongitude(),
-                point.getLatitude()), boundingSpace)){
+                point.getLatitude()), Polygon.fromLngLats(boundingList))){
             return true;
         }
         else{

@@ -125,26 +125,25 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Real starting position:
 
                 // Remember to enable the location plugin!!
-                locationLayerPlugin.setLocationLayerEnabled(false);
-                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+//                locationLayerPlugin.setLocationLayerEnabled(false);
+//                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
 
 //                green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
 
-                /*// Mock starting position:
+                // Mock starting position:
                 startCoord = new LatLng(1.295252,103.7737);
-                */
+
                 startMarker = map.addMarker(new MarkerOptions()
                         .position(startCoord)
 //                        .icon(green_icon)
                 );
 
-                /*// To check for out of bound markers
-                if(startCoord != null || destinationCoord != null ||
-                        !mapRouting.withinPolygon(startCoord) || !mapRouting.withinPolygon(destinationCoord)){
-                    Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
-                    return;
-                }*/
+                // To check for out of bound markers
+//                if(destinationCoord != null && !mapRouting.withinPolygon(destinationCoord)){
+//                    Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
 
                 // drawing route on map
                 if(destinationMarker != null){
@@ -353,7 +352,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-        enableLocationPlugin();
+//        enableLocationPlugin();
 
         Intent before = getIntent();
         if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
