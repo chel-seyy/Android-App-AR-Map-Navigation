@@ -20,8 +20,11 @@ import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.arjo129.artest.arrendering.ARScene;
+import com.arjo129.artest.arrendering.DirectionInstruction;
 import com.arjo129.artest.device.WifiLocation;
 //import com.arjo129.artest.places.Routing;
+import com.arjo129.artest.places.BearingUtils;
 import com.arjo129.artest.places.Routing;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -62,6 +65,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -101,11 +105,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private Routing mapRouting;
 
-
     private Marker startMarker, destinationMarker;
     private LatLng startCoord, destinationCoord;
     private int floor = -1; //Keep track of the floor
-    private String TAG = "MapActivity"; // Used for log.d
+    private String TAG = "MapActivity1"; // Used for log.d
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +121,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         setLevelButtons();
 
         mapRouting = new Routing(this);
+        startCoord = new LatLng(1.295252,103.7737);
+
 
         Button route_button = findViewById(R.id.start_route_buttton);
         route_button.setOnClickListener(new View.OnClickListener(){
@@ -131,13 +136,14 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Real starting position:
 
                 // Remember to enable the location plugin!!
-//                locationLayerPlugin.setLocationLayerEnabled(false);
-//                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                //
+                locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
 //                green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
 
                 // Mock starting position:
-                startCoord = new LatLng(1.295252,103.7737);
+
 
                 startMarker = map.addMarker(new MarkerOptions()
                         .position(startCoord)
@@ -167,6 +173,41 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     Log.d("MapActivity", "no route to plot");
                 }
 
+            }
+        });
+
+        Button startARButton = (Button)findViewById(R.id.start_AR_buttton);
+        startARButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(startMarker != null){
+                    map.removeMarker(startMarker);
+                }
+
+                // Real starting position:
+
+                // Remember to enable the location plugin!!
+                //
+                locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                routeDrawn = new ArrayList<>();
+                Log.d(TAG,"Generating path");
+                List<Node> path = mapRouting.getRoute(startCoord, destinationCoord);
+                ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
+                Node prevNode = null;
+                for(Node node: path){
+                    if(prevNode != null){
+                        float dist = (float) BearingUtils.calculate_distance(node.coordinate,prevNode.coordinate)*1000;
+                        float bearing = (float)(prevNode.bearing + 360)%360;
+                        DirectionInstruction dirInst = new DirectionInstruction(dist, bearing);
+                        directionInstructions.add(dirInst);
+                        Log.d(TAG,"Adding instruction "+dist+"m" + ","+bearing);
+                    }
+                    prevNode = node;
+                }
+                Intent intent = new Intent(MapActivity.this,ARActivity.class);
+                intent.putExtra("Directions",(Serializable)directionInstructions);
+                startActivity(intent);
             }
         });
     }
@@ -343,6 +384,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 // TODO: Launch the polyline to go
             }
+
         });
 
 
@@ -380,7 +422,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-//        enableLocationPlugin();
+        enableLocationPlugin();
 
         Intent before = getIntent();
         if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
@@ -469,7 +511,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     public void onLocationChanged(Location location) {
         if(location!= null){
             originLocation = location;
-            setCameraPosition(location);
+            //setCameraPosition(location);
             int floor = (int)location.getAltitude();
             initializeNewLevel(floor);
             //locationEngine.removeLocationEngineListener(this);
