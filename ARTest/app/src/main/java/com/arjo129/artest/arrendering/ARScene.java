@@ -62,6 +62,7 @@ public class ARScene {
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
     private int curr_direction;
+    private InitialArrow initialArrow;
     /**
      * Constructs a new ARScene with a compass class
      * @param compass - compass listener which helps orient the device
@@ -104,6 +105,7 @@ public class ARScene {
            Log.d(TAG, "drawing....");
            //arrowPath1.construct();
            curr_direction++;
+           initialArrow = new InitialArrow(context,this, dir.direction,compassListener);
        }
 
 
@@ -156,6 +158,12 @@ public class ARScene {
             }
         }
         else if(ready){
+            Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
+                    Pose.makeInterpolated(
+                            Pose.IDENTITY,
+                            Pose.makeRotation(0, 0, (float) Math.sqrt(0.5f), (float) Math.sqrt(0.5f)),
+                            dhelper.getRotation()));
+            initialArrow.update(currPose);
             arrowPath1.update();
         }
         //Let us know when ARCore has some idea of the world...
@@ -169,6 +177,7 @@ public class ARScene {
     }
 
     public void onReady(){
+        initialArrow.construct();
         arrowPath1.construct();
     }
 
@@ -203,19 +212,17 @@ public class ARScene {
         Session sess = frag.getArSceneView().getSession();
         Frame frame = frag.getArSceneView().getArFrame();
         //Get some anchors to anchor our item to
-        Collection<Plane> trackables = sess.getAllTrackables(Plane.class);
-        Anchor anchor = null;
-        for(Plane t: trackables){
-            anchor = t.createAnchor(t.getCenterPose());
-        }
-        if(anchor == null) return -1; //No trackable found yet
-        Log.d(TAG,"Established Anchor");
+        //Collection<Plane> trackables = sess.getAllTrackables(Plane.class);
         //Get the phone's pose in ARCore
         Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
                 Pose.makeInterpolated(
                         Pose.IDENTITY,
                         Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
                         dhelper.getRotation()));
+
+        Anchor anchor = sess.createAnchor(deviceOrientedPose);
+        if(anchor == null) return -1; //No trackable found yet
+        Log.d(TAG,"Established Anchor");
         //Get the phone's pose in relation to the real world
         float heading = compassListener.getBearing();
         float[] devquat = deviceOrientedPose.getRotationQuaternion();
