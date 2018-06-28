@@ -38,6 +38,8 @@ import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Polyline;
+import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -84,9 +86,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private List<List<Point>> boundingBoxList;
     private Icon green_icon;
     private List<Marker> routeDrawn;
+    private List<LatLng>routePolyline;
+    private Polyline polyline;
 
     private MapboxMap map;
     private View levelButtons;
+    private Button[] buttons;
+    private Button buttonZeroLevel, buttonFirstLevel, buttonSecondLevel;
 
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
@@ -167,31 +173,50 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private void drawRoute(List<Node> waypoints){
         if(waypoints == null || waypoints.size() <= 0)return;
-        map.removeMarker(startMarker);
+//        map.removeMarker(startMarker);
+//        map.removeMarker(destinationMarker);
+        if(routePolyline != null && !routePolyline.isEmpty()){
+            map.removePolyline(polyline);
+        }
+        routePolyline = new ArrayList<>();
 
         Icon blue_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.blue_marker);
         for(int i=0; i<waypoints.size();i++){
-            Marker marker = map.addMarker(new MarkerOptions()
-                    .position(waypoints.get(i).coordinate)
-                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
-//                    .icon(blue_icon)
-            );
-            routeDrawn.add(marker);
+            routePolyline.add(waypoints.get(i).coordinate);
+//            Marker marker = map.addMarker(new MarkerOptions()
+//                    .position(waypoints.get(i).coordinate)
+//                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
+////                    .icon(blue_icon)
+//            );
+//            routeDrawn.add(marker);
+        }
+
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .addAll(routePolyline)
+                .color(Color.GRAY)
+                .width(2f);
+        polyline = map.addPolyline(polylineOptions);
+    }
+
+    private void setColorButton(int level){
+        buttons[level].setBackgroundResource(R.color.green);
+        for(int i=0; i<3;i++){
+            if(i!=level){
+                buttons[i].setBackgroundResource(R.color.turquoise);
+            }
         }
     }
 
     private void setLevelButtons(){
-        Button buttonZeroLevel = findViewById(R.id.zero_level_button);
-        Button buttonFirstLevel = findViewById(R.id.first_level_button);
-        Button buttonSecondLevel = findViewById(R.id.second_level_button);
+        buttonZeroLevel = findViewById(R.id.zero_level_button);
+        buttonFirstLevel = findViewById(R.id.first_level_button);
+        buttonSecondLevel = findViewById(R.id.second_level_button);
         buttonZeroLevel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 floor = 0;
                 initializeNewLevel(floor);
-                buttonZeroLevel.setBackgroundResource(R.color.green);
-                buttonFirstLevel.setBackgroundResource(R.color.turquoise);
-                buttonSecondLevel.setBackgroundResource(R.color.turquoise);
+                setColorButton(floor);
             }
         });
         buttonFirstLevel.setOnClickListener(new View.OnClickListener(){
@@ -199,9 +224,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 floor = 1;
                 initializeNewLevel(floor);
-                buttonFirstLevel.setBackgroundResource(R.color.green);
-                buttonSecondLevel.setBackgroundResource(R.color.turquoise);
-                buttonZeroLevel.setBackgroundResource(R.color.turquoise);
+                setColorButton(floor);
             }
         });
         buttonSecondLevel.setOnClickListener(new View.OnClickListener(){
@@ -209,11 +232,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 floor = 2;
                 initializeNewLevel(floor);
-                buttonSecondLevel.setBackgroundResource(R.color.green);
-                buttonFirstLevel.setBackgroundResource(R.color.turquoise);
-                buttonZeroLevel.setBackgroundResource(R.color.turquoise);
+                setColorButton(floor);
             }
         });
+        buttons = new Button[]{buttonZeroLevel, buttonFirstLevel, buttonSecondLevel};
     }
 
     private void hideLevelButton(){
@@ -276,8 +298,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                                 stop(16.5f, 0.5f),
                                 stop(16f,0f))));
         map.addLayer(indoorBuildingLineLayer);
-        Log.d("MainActtttivity", "line layer built");
     }
+
     private String loadJsonFromAsset(String filename){
         try{
             Log.d("LoadJson", "loading....");
@@ -371,6 +393,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor"+level+".geojson"));
             mapboxMap.addSource(indoorBuildingSource);
             loadBuildingLayer();
+            setColorButton(level);
 
 
             // Place destination marker
@@ -382,13 +405,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     .position(destinationCoord)
                     .setTitle(place_name)
             );
-            // TODO: Launch the polyline to go
 
             return;
         } else{
             indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor1.geojson"));
             mapboxMap.addSource(indoorBuildingSource);
             loadBuildingLayer();
+            setColorButton(1);
         }
     }
 

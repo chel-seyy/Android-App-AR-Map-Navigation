@@ -44,7 +44,6 @@ public class Routing extends AppCompatActivity {
 
     private Double inf = Double.POSITIVE_INFINITY;  // change to long? if dist gets Large...
     private static final Double bearing = 41.3;
-    private List<List<Integer>> adjacentVertices;
     private static final int current_level = 1;
     private Context mContext;
     private HashMap<String, List<LatLng>> rooms;
@@ -128,6 +127,7 @@ public class Routing extends AppCompatActivity {
             unvisitedJunctions.remove(nextJunction);
             if(!unvisitedJunctions.contains(nearestJunction(endingPoint))){
                 destinationReached = true;
+                break;
             }
             for(Pair<Integer,Double> neighborDist: adjacencyList.get(nextJunction)){
                 Integer neighbor = neighborDist.first;
@@ -139,14 +139,16 @@ public class Routing extends AppCompatActivity {
                     distances.set(neighbor, toDistance + distances.get(nextJunction));
                     // going from NextJunction to neighbor
                     backtracking.put(neighbor, nextJunction);
-//                    Log.d("Routingbacktrack", "nei:"+neighbor+" nextj:"+nextJunction);
+//                    Log.d("Routing", "nei:"+neighbor+" nextj:"+nextJunction);
 
                 }
             }
             // Select unvisited node with the least distance
             Integer potentialNJ = null;
             double minDist = inf;
+
             for(Integer v: unvisitedJunctions){
+//                Log.d("Routing","dist: "+ distances.get(v)+ " ("+v+") "+ Boolean.valueOf(distances.get(v) <minDist));
                 if (distances.get(v) < minDist){
                     minDist = distances.get(v);
                     potentialNJ = v;
@@ -160,14 +162,7 @@ public class Routing extends AppCompatActivity {
             }
         }
 
-        /////
-        Log.d("Routing", "End: somepoint");
-        Integer curret = nearestJunction(endingPoint);
-        while(curret!= null){
-            Log.d("Routing", "-"+curret);
-            curret = backtracking.get(curret);
-        }
-        /////
+
         List<Node> route = new ArrayList<>(); // start, junctions/waypoints, end
 
         // Backtracking the waypoints, starting from EndPoint
