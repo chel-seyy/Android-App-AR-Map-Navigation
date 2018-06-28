@@ -2,13 +2,15 @@ package com.arjo129.artest;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-public class Node {
+import java.io.Serializable;
+
+public class Node implements Serializable {
     LatLng coordinate;
-    Double bearing;     // Difference in bearing to the next node
+    double bearing;     // Difference in bearing to the next node
 //    boolean startPoint;
 //    boolean endPoint;
 
-    public Node(LatLng coordinate, Double bearing){
+    public Node(LatLng coordinate, double bearing){
 //        this.startPoint = false;
 //        this.endPoint = false;
         this.coordinate = coordinate;
