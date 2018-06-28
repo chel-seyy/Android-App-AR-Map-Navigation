@@ -4,17 +4,13 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.arjo129.artest.DisplayRotationHelper;
-import com.arjo129.artest.R;
 import com.arjo129.artest.device.CompassListener;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
-import com.google.ar.core.Trackable;
 import com.google.ar.core.exceptions.NotTrackingException;
-import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.Scene;
@@ -23,14 +19,10 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.ux.ArFragment;
-import com.google.ar.schemas.lull.Quat;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Handler;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;

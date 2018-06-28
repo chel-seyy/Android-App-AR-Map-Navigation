@@ -99,7 +99,7 @@ public class DBLocationEngine extends LocationEngine {
         currentBestLocation = new Location(LocationManager.GPS_PROVIDER);
         currentBestLocation.setLatitude(lat);
         currentBestLocation.setLongitude(lng);
-        //currentBestLocation.setAltitude(alt);
+        currentBestLocation.setAltitude(alt);
         //currentBestLocation.setAccuracy(accuracy);
         currentBestLocation.setTime(System.currentTimeMillis());
         Log.d(TAG, "Set: "+currentBestLocation.toString());
@@ -144,6 +144,7 @@ public class DBLocationEngine extends LocationEngine {
                             try{
                                 JSONArray predictions = responseBody.getJSONArray("predictions");
                                 alt = (double)predictions.getJSONObject(0).getInt("floor");
+                                Log.d(TAG,"floor: "+alt);
                                 lat = predictions.getJSONObject(0).getDouble("lat");
                                 lng = predictions.getJSONObject(0).getDouble("lng");
                                 accuracy = (float) predictions.getJSONObject(0).getDouble("probability");
