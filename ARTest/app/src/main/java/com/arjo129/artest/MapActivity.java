@@ -3,6 +3,7 @@ package com.arjo129.artest;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -53,6 +54,8 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.turf.TurfJoins;
 import com.mapbox.android.core.location.LocationEngine;
@@ -78,6 +81,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOpacity;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
@@ -121,6 +125,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         setLevelButtons();
 
         mapRouting = new Routing(this);
+
+        // Mock starting position:
         startCoord = new LatLng(1.295252,103.7737);
 
 
@@ -136,13 +142,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Real starting position:
 
                 // Remember to enable the location plugin!!
-                //
-                locationLayerPlugin.setLocationLayerEnabled(false);
-                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
-//                green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
+                /*locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());*/
 
-                // Mock starting position:
+//
 
 
                 startMarker = map.addMarker(new MarkerOptions()
@@ -188,8 +192,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 // Remember to enable the location plugin!!
                 //
-                locationLayerPlugin.setLocationLayerEnabled(false);
-                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+//                locationLayerPlugin.setLocationLayerEnabled(false);
+//                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
                 routeDrawn = new ArrayList<>();
                 Log.d(TAG,"Generating path");
                 List<Node> path = mapRouting.getRoute(startCoord, destinationCoord);
@@ -221,13 +225,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         }
         routePolyline = new ArrayList<>();
 
-        Icon blue_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.blue_marker);
+
         for(int i=0; i<waypoints.size();i++){
             routePolyline.add(waypoints.get(i).coordinate);
 //            Marker marker = map.addMarker(new MarkerOptions()
 //                    .position(waypoints.get(i).coordinate)
 //                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
-////                    .icon(blue_icon)
 //            );
 //            routeDrawn.add(marker);
         }
@@ -330,7 +333,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         stop(16f,0f))));
 
         map.addLayer(indoorBuildingLayer);
-        Log.d("MainActtttivity", "main layer built");
+
         LineLayer indoorBuildingLineLayer = new LineLayer("indoor-building-line","indoor-building")
                 .withProperties(lineColor(Color.parseColor("#50667f")),
                         lineWidth(0.5f),
@@ -357,9 +360,82 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         }
     }
 
+    private void convertFeatures() {
+        int level = 1;
+        FeatureCollection featureCollection;
+        try {
+            String filename = "com1floor" + level + ".geojson";
+            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
+        } catch (Exception e) {
+            Log.d("MapActivity", "converting failed");
+            return;
+        }
+        List<Feature> featureList = featureCollection.features();
+        List<Feature> toilets = new ArrayList<>();
+        List<Feature> stairs = new ArrayList<>();
+        List<Feature> lifts = new ArrayList<>();
+
+        for (int i = 0; i < featureList.size(); i++) {
+            Feature singleLocation = featureList.get(i);
+            Double stringLng, stringLat;
+            LatLng locationLatLng;
+            if(singleLocation.hasProperty("connector")){//door coordinates (can have > 1)
+                String type = singleLocation.getStringProperty("connector");
+                if(type.contains("stairs")){
+                    stairs.add(singleLocation);
+                }
+                else{
+                    lifts.add(singleLocation);
+                }
+            }
+            else if(singleLocation.hasProperty("toilet")){
+                toilets.add(singleLocation);
+            }
+        }
+        map.addSource(new GeoJsonSource("toilet-source", FeatureCollection.fromFeatures(toilets)));
+        map.addSource(new GeoJsonSource("stair-source", FeatureCollection.fromFeatures(stairs)));
+        map.addSource(new GeoJsonSource("elevator-source", FeatureCollection.fromFeatures(lifts)));
+    }
+
+    /*
+     * Adding Symbol Layers
+     */
+    private void addIcons(){
+
+        convertFeatures();
+
+        Bitmap stairs = BitmapFactory.decodeResource(
+                MapActivity.this.getResources(), R.drawable.staircase_marker);
+        map.addImage("staircase-image", stairs);
+
+        Bitmap toilet_icon = BitmapFactory.decodeResource(
+                MapActivity.this.getResources(), R.drawable.toilet_marker);
+        map.addImage("toilet-image", toilet_icon);
+
+        Bitmap elevator_icon = BitmapFactory.decodeResource(
+                MapActivity.this.getResources(), R.drawable.elevator_marker);
+        map.addImage("elevator-image", elevator_icon);
+
+        SymbolLayer stairs_layer = new SymbolLayer("stairs.layer.id", "stair-source");
+        SymbolLayer toilets_layer = new SymbolLayer("toilets.layer.id", "toilet-source");
+        SymbolLayer elevator_layer = new SymbolLayer("elevator.layer.id", "elevator-source");
+
+        map.addLayer(stairs_layer);
+        map.addLayer(toilets_layer);
+        map.addLayer(elevator_layer);
+        stairs_layer.withProperties(PropertyFactory.iconImage("staircase-image"),
+                iconSize((float) 0.4));
+        toilets_layer.withProperties(PropertyFactory.iconImage("toilet-image"),
+                iconSize((float) 0.2));
+        elevator_layer.withProperties(PropertyFactory.iconImage("elevator-image"),
+                iconSize((float) 0.25));
+    }
+
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
+        addIcons();
+
         map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
 
             @Override
@@ -368,6 +444,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 if(destinationMarker != null){
                     mapboxMap.removeMarker(destinationMarker);
                 }
+                Bitmap green_marker = BitmapFactory.decodeResource(
+                        MapActivity.this.getResources(), R.drawable.green_marker);
+
                 destinationCoord = point;
                 destinationMarker = mapboxMap.addMarker(new MarkerOptions()
                         .position(destinationCoord)
@@ -387,7 +466,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
         });
 
-
+        /*
+         * Camera bounding box
+         */
         levelButtons = findViewById(R.id.floor_level_buttons);
         boundingBox = new ArrayList<>();
         boundingBox.add(Point.fromLngLat(103.775,1.2925)); // 1.295, 103.774
@@ -422,8 +503,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-        enableLocationPlugin();
+//        enableLocationPlugin();
 
+
+
+        /*
+         * Location entered
+         */
         Intent before = getIntent();
         if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
             double lat = before.getDoubleExtra("lat", 0);

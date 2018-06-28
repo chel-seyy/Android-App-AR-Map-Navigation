@@ -35,6 +35,20 @@
     {
       "type": "Feature",
       "properties": {
+        "connector": "stairs-5"
+      },
+      "geometry": {
+        "coordinates": [
+          103.773877,
+          1.29521
+        ],
+        "type": "Point"
+      },
+      "id": "06e333e5e67682bfa2a5841ed713c353"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "junction": 8
       },
       "geometry": {
@@ -696,6 +710,34 @@
     },
     {
       "type": "Feature",
+      "properties": {
+        "connector": "stairs-3"
+      },
+      "geometry": {
+        "coordinates": [
+          103.77378,
+          1.294746
+        ],
+        "type": "Point"
+      },
+      "id": "48e81dfeb294c3739a381c55bd23798a"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "connector": "stairs"
+      },
+      "geometry": {
+        "coordinates": [
+          103.77392,
+          1.295129
+        ],
+        "type": "Point"
+      },
+      "id": "490a1b569ae55e5ca4a6bbc0741c6771"
+    },
+    {
+      "type": "Feature",
       "properties": {},
       "geometry": {
         "coordinates": [
@@ -748,12 +790,12 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Male Toilet"
+        "toilet": "Male Toilet"
       },
       "geometry": {
         "coordinates": [
-          103.773666,
-          1.295433
+          103.773668,
+          1.295438
         ],
         "type": "Point"
       },
@@ -824,8 +866,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773702,
-          1.29484
+          103.773683,
+          1.294824
         ],
         "type": "Point"
       },
@@ -866,12 +908,12 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Male/Female/Handicapped toilet"
+        "toilet": "Male/Female/Handicapped toilet"
       },
       "geometry": {
         "coordinates": [
-          103.773746,
-          1.294758
+          103.773755,
+          1.294759
         ],
         "type": "Point"
       },
@@ -1026,12 +1068,12 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Female toilet"
+        "toilet": "Female toilet"
       },
       "geometry": {
         "coordinates": [
-          103.773888,
-          1.295204
+          103.773893,
+          1.295191
         ],
         "type": "Point"
       },
@@ -1104,8 +1146,22 @@
       },
       "geometry": {
         "coordinates": [
-          103.773598,
-          1.294918
+          103.774047,
+          1.294997
+        ],
+        "type": "Point"
+      },
+      "id": "7e2f85379269f009a42c3d90a047710d"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "connector": "Lift"
+      },
+      "geometry": {
+        "coordinates": [
+          103.773601,
+          1.294927
         ],
         "type": "Point"
       },
@@ -1470,6 +1526,20 @@
     {
       "type": "Feature",
       "properties": {
+        "connector": "stairs-2"
+      },
+      "geometry": {
+        "coordinates": [
+          103.773775,
+          1.294726
+        ],
+        "type": "Point"
+      },
+      "id": "a18e83ffb58b751b1f17dac8b52354b0"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "junction": 6
       },
       "geometry": {
@@ -1709,6 +1779,20 @@
         "type": "Point"
       },
       "id": "be1a9ed09ba32bcc29e3b52a6776aed2"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "connector": "stairs-4"
+      },
+      "geometry": {
+        "coordinates": [
+          103.773585,
+          1.294951
+        ],
+        "type": "Point"
+      },
+      "id": "bf4635c304f557d915ac9c3e538c4d90"
     },
     {
       "type": "Feature",
@@ -2066,8 +2150,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773915,
-          1.294564
+          103.773916,
+          1.29457
         ],
         "type": "Point"
       },
@@ -2109,8 +2193,8 @@
       },
       "geometry": {
         "coordinates": [
-          103.773689,
-          1.29483
+          103.773704,
+          1.29484
         ],
         "type": "Point"
       },
