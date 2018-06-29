@@ -233,6 +233,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 //    }
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
+        Log.d(TAG, "initialize floor: "+level);
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
 //        map.removeAnnotations();
 //        featureCollection = null;
@@ -290,6 +291,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
+            Log.d(TAG, filename);
             Log.d("LOadJson", filename);
             return new String(buffer, "UTF-8");
         } catch(IOException e){
@@ -458,7 +460,9 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             originLocation = location;
             Log.d(TAG, "Recieved location");
             setCameraPosition(location);
-            int floor = (int)location.getAltitude();
+            // Buggy Line: floor != altitude
+//            int floor = (int)location.getAltitude();
+
             initializeNewLevel(floor);
             //locationEngine.removeLocationEngineListener(this);
         }

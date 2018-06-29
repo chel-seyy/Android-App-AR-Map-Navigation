@@ -80,9 +80,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".places.PlacesLectureTheatres" />
         </activity>
+<<<<<<< HEAD
+        <activity android:name=".MapActivity"
+            android:label="Map"
+=======
         <activity
             android:name=".MapActivity"
             android:label="Indoor Map"
+>>>>>>> 6a870ddd10bb0c04daa64d338ef77ecdafd460e6
             android:parentActivityName=".places.PlacesLectureTheatres">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

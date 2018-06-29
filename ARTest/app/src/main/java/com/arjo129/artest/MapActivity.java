@@ -235,6 +235,17 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 startActivity(intent);
             }
         });
+
+
+        Button locationButton = findViewById(R.id.get_location_button);
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Find Location again, and animate camera
+                locationLayerPlugin.setLocationLayerEnabled(true);
+                locationEngine.requestLocationUpdates();
+            }
+        });
     }
 
     @Override
@@ -463,6 +474,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
      */
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
+        Log.d(TAG, "initializing level: "+ level);
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
 //        map.removeAnnotations();
 //        featureCollection = null;
@@ -656,6 +668,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         if(location!= null){
             originLocation = location;
             //setCameraPosition(location);
+
+            // Buggy Line: floor != altitude
+//            int floor = (int)location.getAltitude();
+
             int floor = (int)location.getAltitude();
             Log.d(TAG,"got :"+ location.getAltitude()+ "cast to" + floor);
             initializeNewLevel(floor);
