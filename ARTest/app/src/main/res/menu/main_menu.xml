@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/activity_compass"
-        android:icon="@drawable/ic_compass"
-        android:title="@string/activity_compass"
-        app:showAsAction="ifRoom"
-        />
+    <!--<item-->
+        <!--android:id="@+id/activity_compass"-->
+        <!--android:icon="@drawable/ic_compass"-->
+        <!--android:title="@string/activity_compass"-->
+        <!--app:showAsAction="ifRoom"-->
+        <!--/>-->
 
     <item
         android:id="@+id/activity_login"
@@ -15,9 +15,9 @@
         android:title="@string/activity_login"
         app:showAsAction="ifRoom"/>
 
-    <item
-        android:id="@+id/activity_wifi"
-        android:title="@string/activity_wifi"
-        android:icon="@drawable/ic_wifi"
-        app:showAsAction="ifRoom"/>
+    <!--<item-->
+        <!--android:id="@+id/activity_wifi"-->
+        <!--android:title="@string/activity_wifi"-->
+        <!--android:icon="@drawable/ic_wifi"-->
+        <!--app:showAsAction="ifRoom"/>-->
 </menu>

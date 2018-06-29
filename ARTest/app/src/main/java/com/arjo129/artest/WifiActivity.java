@@ -40,7 +40,7 @@ public class WifiActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wifi);
+//        setContentView(R.layout.activity_wifi);
 
         buttonScan = findViewById(R.id.buttonScan);
         buttonScan.setOnClickListener(new View.OnClickListener(){
@@ -83,7 +83,7 @@ public class WifiActivity extends AppCompatActivity {
         if(gps_enabled && network_enabled){
             registerReceiver(wifi_receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             wifi.startScan();
-            Toast.makeText(this, "Scanning....", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Scanning....", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -103,7 +103,7 @@ public class WifiActivity extends AppCompatActivity {
     };
 
 
-
+    // TODO: Dialog keeps coming up even when cancelled
     public void enableLocation(){
         LocationManager lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
         try{
