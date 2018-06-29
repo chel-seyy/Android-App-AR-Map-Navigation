@@ -6,13 +6,19 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 
+import com.arjo129.artest.datacollection.UploadConfirmation;
+import com.arjo129.artest.datacollection.WifiFingerprint;
 import com.arjo129.artest.device.WifiLocation;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -49,6 +55,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +94,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     private String TAG = "CollectData"; // Used for log.d
     private String session_secret;
     private String session_id;
-
+    private ArrayList<WifiFingerprint> fingerprints;
     void setSessionSecret(String str){
         session_secret = str;
     }
@@ -99,9 +106,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
         setLevelButtons();
-
+        fingerprints = new ArrayList();
         //Extract session_id and session_secret as given by LoginActivity
         Intent current_intent =  getIntent();
         session_id = current_intent.getStringExtra("session_id");
@@ -128,6 +134,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             }
             double lng= destinationCoord.getLongitude();
             double lat= destinationCoord.getLatitude();
+            WifiFingerprint wifiFingerprint = new WifiFingerprint(lat,lng,floor,map);
+            fingerprints.add(wifiFingerprint);
             //Transform the coordinate space into 3x3m grids...
             int x_coord = (int)Math.round(((lat-1)*110547)/3);
             int y_coord = (int)Math.round(111320*Math.cos(Math.toRadians(lat))*lng/3);
@@ -146,7 +154,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
                 StringEntity ent = new StringEntity(encapsulation_layer.toString());
                 Log.d(TAG,"Sending request");
                 Log.d(TAG,encapsulation_layer.toString());
-                client.post(this,getString(R.string.server_url)+"learn_location",ent,"application/json",new JsonHttpResponseHandler() {
+               /* client.post(this,getString(R.string.server_url)+"learn_location",ent,"application/json",new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                         Log.d(TAG,responseBody.toString());
@@ -165,7 +173,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
                             e.printStackTrace();
                         }
                     }
-                });
+                });*/
                 Log.d(TAG, "Completed wifi scan");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -528,5 +536,25 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.collectdata, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        // When the home button is pressed, take the user back to the VisualizerActivity
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+        }
+        else if(id == R.id.uploadToServer){
+            Intent mapIntent = new Intent(this, UploadConfirmation.class);
+            mapIntent.putExtra("fingerprints",(Serializable)fingerprints);
+            startActivity(mapIntent);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
 
