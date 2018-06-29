@@ -100,6 +100,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private MapboxMap map;
     private View levelButtons;
     private Button[] buttons;
+    private Button routeButton;
     private Button buttonZeroLevel, buttonFirstLevel, buttonSecondLevel;
 
     private LocationLayerPlugin locationLayerPlugin;
@@ -123,11 +124,29 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
+        if(savedInstanceState != null){
+            floor = savedInstanceState.getInt("floor");
+            double start_lat = savedInstanceState.getDouble("start_lat");
+            double start_lng = savedInstanceState.getDouble("start_lng");
+            double dest_lat = savedInstanceState.getDouble("dest_lat");
+            double dest_lng = savedInstanceState.getDouble("dest_lng");
+            if(start_lat != 0.0 && start_lng != 0.0){
+                startCoord = new LatLng(start_lat, start_lng);
+            }
+            if(dest_lat != 0.0 && dest_lng != 0.0){
+                destinationCoord = new LatLng(dest_lat, dest_lng);
+            }
+
+        }
 
         mapRouting = new Routing(this);
 
         // Mock starting position:
-        startCoord = new LatLng(1.295252,103.7737);
+        if(startCoord == null){
+            Log.d("MapActivity", "Start coord");
+            startCoord = new LatLng(1.295252,103.7737);
+
+        }
 
 
         Button route_button = findViewById(R.id.start_route_buttton);
@@ -146,24 +165,18 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 /*locationLayerPlugin.setLocationLayerEnabled(false);
                 startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());*/
 
-//
-
-
                 startMarker = map.addMarker(new MarkerOptions()
                         .position(startCoord)
 //                        .icon(green_icon)
                 );
 
-                // To check for out of bound markers
-                if(destinationCoord != null && !mapRouting.withinPolygon(destinationCoord)){
-                    Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
+                if(checkOutBoundMarkers()){
                     return;
                 }
 
                 // drawing route on map
                 if(destinationMarker != null){
                     if(routeDrawn!= null && !routeDrawn.isEmpty()){
-                        // erase route if has been drawn
                         for(Marker marker: routeDrawn){
                             map.removeMarker(marker);
                         }
@@ -216,6 +229,144 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
     }
 
+    @Override
+    public void onMapReady(MapboxMap mapboxMap) {
+        map = mapboxMap;
+        addIcons();
+        // Adding markers from before
+        if(startCoord!= null) {
+            startMarker = map.addMarker(new MarkerOptions()
+                    .position(startCoord)
+            );
+        }
+        if(destinationCoord != null){
+            destinationMarker = map.addMarker(new MarkerOptions()
+                    .position(destinationCoord)
+            );
+        }
+
+        map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
+
+            @Override
+            public void onMapClick(@NonNull LatLng point) {
+
+                if(destinationMarker != null){
+                    mapboxMap.removeMarker(destinationMarker);
+                }
+                Bitmap green_marker = BitmapFactory.decodeResource(
+                        MapActivity.this.getResources(), R.drawable.green_marker);
+
+                destinationCoord = point;
+                destinationMarker = mapboxMap.addMarker(new MarkerOptions()
+                        .position(destinationCoord)
+                        .setTitle(point.toString())
+                );
+
+
+                /*if(mapRouting.withinPolygon(point)){
+                    Toast.makeText(MapActivity.this, "Inside Polygon", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MapActivity.this, "Outside Polygon", Toast.LENGTH_SHORT).show();
+                }*/
+
+                // TODO: Launch the polyline to go
+            }
+
+        });
+
+        /*
+         * Camera bounding box
+         */
+        levelButtons = findViewById(R.id.floor_level_buttons);
+        boundingBox = new ArrayList<>();
+        boundingBox.add(Point.fromLngLat(103.775,1.2925)); // 1.295, 103.774
+        boundingBox.add(Point.fromLngLat(103.775,1.2969));
+        boundingBox.add(Point.fromLngLat(103.773,1.2969));
+        boundingBox.add(Point.fromLngLat(103.773,1.2925));
+        boundingBoxList = new ArrayList<>();
+        boundingBoxList.add(boundingBox);
+
+        mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+
+                if(mapboxMap.getCameraPosition().zoom > 16){
+                    if(TurfJoins.inside(Point.fromLngLat(mapboxMap.getCameraPosition().target.getLongitude(),
+                            mapboxMap.getCameraPosition().target.getLatitude()), Polygon.fromLngLats(boundingBoxList))){
+
+                        if(levelButtons.getVisibility()!=View.VISIBLE){
+                            showLevelButton();
+                        }
+                    } else{
+                        if(levelButtons.getVisibility() ==View.VISIBLE){
+                            Log.d("CameraMove", "Outside the polygon");
+                            hideLevelButton();
+                        }
+                    }
+                } else if (levelButtons.getVisibility() == View.VISIBLE){
+                    Log.d("CameraMove", "Too far");
+                    hideLevelButton();
+                }
+            }
+        });
+
+        // TODO: Enable location but not animate camera sometimes
+//        enableLocationPlugin();
+
+
+
+        /*
+         * Location entered
+         */
+        Intent before = getIntent();
+        if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
+            double lat = before.getDoubleExtra("lat", 0);
+            double lng = before.getDoubleExtra("lng", 0);
+            String place_name = before.getStringExtra("place_name");
+            int level = before.getIntExtra("level",0);
+
+            // Load map layout for that level
+            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor"+level+".geojson"));
+            mapboxMap.addSource(indoorBuildingSource);
+            loadBuildingLayer();
+            setColorButton(level);
+
+
+            // Place destination marker
+            if(destinationMarker != null){
+                mapboxMap.removeMarker(destinationMarker);
+            }
+            destinationCoord = new LatLng(lat,lng);
+            destinationMarker = mapboxMap.addMarker(new MarkerOptions()
+                    .position(destinationCoord)
+                    .setTitle(place_name)
+            );
+
+            return;
+        } else{
+            if(floor != -1){    // SavedinstanceState
+                indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor"+floor+".geojson"));
+                setColorButton(floor);
+            }
+            else{
+                indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor1.geojson"));
+                setColorButton(1);
+            }
+            mapboxMap.addSource(indoorBuildingSource);
+            loadBuildingLayer();
+        }
+    }
+
+    private boolean checkOutBoundMarkers(){
+        // To check for out of bound markers
+        if(destinationCoord != null && !mapRouting.withinPolygon(destinationCoord)){
+            Toast.makeText(MapActivity.this, "Out of COM1!", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return false;
+    }
+
     private void drawRoute(List<Node> waypoints){
         if(waypoints == null || waypoints.size() <= 0)return;
 //        map.removeMarker(startMarker);
@@ -242,14 +393,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         polyline = map.addPolyline(polylineOptions);
     }
 
-    private void setColorButton(int level){
-        buttons[level].setBackgroundResource(R.color.green);
-        for(int i=0; i<3;i++){
-            if(i!=level){
-                buttons[i].setBackgroundResource(R.color.turquoise);
-            }
-        }
-    }
+    /*
+     * Buttons
+     *
+     */
 
     private void setLevelButtons(){
         buttonZeroLevel = findViewById(R.id.zero_level_button);
@@ -281,7 +428,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
         buttons = new Button[]{buttonZeroLevel, buttonFirstLevel, buttonSecondLevel};
     }
-
     private void hideLevelButton(){
         AlphaAnimation animation = new AlphaAnimation(1.0f,0.0f);
         animation.setDuration(500); // millisecs
@@ -294,7 +440,19 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         levelButtons.startAnimation(animation);
         levelButtons.setVisibility(View.VISIBLE);
     }
+    private void setColorButton(int level){
+        buttons[level].setBackgroundResource(R.color.green);
+        for(int i=0; i<3;i++){
+            if(i!=level){
+                buttons[i].setBackgroundResource(R.color.turquoise);
+            }
+        }
+    }
 
+
+    /*
+     * Floor layout initialization
+     */
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
@@ -431,118 +589,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 iconSize((float) 0.25));
     }
 
-    @Override
-    public void onMapReady(MapboxMap mapboxMap) {
-        map = mapboxMap;
-        addIcons();
 
-        map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
-
-            @Override
-            public void onMapClick(@NonNull LatLng point) {
-
-                if(destinationMarker != null){
-                    mapboxMap.removeMarker(destinationMarker);
-                }
-                Bitmap green_marker = BitmapFactory.decodeResource(
-                        MapActivity.this.getResources(), R.drawable.green_marker);
-
-                destinationCoord = point;
-                destinationMarker = mapboxMap.addMarker(new MarkerOptions()
-                        .position(destinationCoord)
-                        .setTitle(point.toString())
-                );
-
-
-                /*if(mapRouting.withinPolygon(point)){
-                    Toast.makeText(MapActivity.this, "Inside Polygon", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(MapActivity.this, "Outside Polygon", Toast.LENGTH_SHORT).show();
-                }*/
-
-                // TODO: Launch the polyline to go
-            }
-
-        });
-
-        /*
-         * Camera bounding box
-         */
-        levelButtons = findViewById(R.id.floor_level_buttons);
-        boundingBox = new ArrayList<>();
-        boundingBox.add(Point.fromLngLat(103.775,1.2925)); // 1.295, 103.774
-        boundingBox.add(Point.fromLngLat(103.775,1.2969));
-        boundingBox.add(Point.fromLngLat(103.773,1.2969));
-        boundingBox.add(Point.fromLngLat(103.773,1.2925));
-        boundingBoxList = new ArrayList<>();
-        boundingBoxList.add(boundingBox);
-
-        mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-
-                if(mapboxMap.getCameraPosition().zoom > 16){
-                    if(TurfJoins.inside(Point.fromLngLat(mapboxMap.getCameraPosition().target.getLongitude(),
-                            mapboxMap.getCameraPosition().target.getLatitude()), Polygon.fromLngLats(boundingBoxList))){
-
-                        if(levelButtons.getVisibility()!=View.VISIBLE){
-                            showLevelButton();
-                        }
-                    } else{
-                        if(levelButtons.getVisibility() ==View.VISIBLE){
-                            Log.d("CameraMove", "Outside the polygon");
-                            hideLevelButton();
-                        }
-                    }
-                } else if (levelButtons.getVisibility() == View.VISIBLE){
-                    Log.d("CameraMove", "Too far");
-                    hideLevelButton();
-                }
-            }
-        });
-
-        // TODO: Enable location but not animate camera sometimes
-//        enableLocationPlugin();
-
-
-
-        /*
-         * Location entered
-         */
-        Intent before = getIntent();
-        if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
-            double lat = before.getDoubleExtra("lat", 0);
-            double lng = before.getDoubleExtra("lng", 0);
-            String place_name = before.getStringExtra("place_name");
-            int level = before.getIntExtra("level",0);
-
-            // Load map layout for that level
-            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor"+level+".geojson"));
-            mapboxMap.addSource(indoorBuildingSource);
-            loadBuildingLayer();
-            setColorButton(level);
-
-
-            // Place destination marker
-            if(destinationMarker != null){
-                mapboxMap.removeMarker(destinationMarker);
-            }
-            destinationCoord = new LatLng(lat,lng);
-            destinationMarker = mapboxMap.addMarker(new MarkerOptions()
-                    .position(destinationCoord)
-                    .setTitle(place_name)
-            );
-
-            return;
-        } else{
-            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor1.geojson"));
-            mapboxMap.addSource(indoorBuildingSource);
-            loadBuildingLayer();
-            setColorButton(1);
-        }
-    }
-
+    /*
+     * Location Engine & Plugin
+     *
+     */
     public void enableLocationPlugin(){
         if(PermissionsManager.areLocationPermissionsGranted(this)){
             initializeLocationEngine();
@@ -554,7 +605,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             permissionsManager.requestLocationPermissions(this);
         }
     }
-
 
     private void initializeLocationEngine(){
         locationEngine = new DBLocationEngine(this);
@@ -659,6 +709,16 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
+
+        outState.putInt("floor", floor);
+        if(startCoord!= null){
+            outState.putDouble("start_lat", startCoord.getLatitude());
+            outState.putDouble("start_lng", startCoord.getLongitude());
+        }
+        if(destinationCoord!= null){
+            outState.putDouble("dest_lat", destinationCoord.getLatitude());
+            outState.putDouble("dest_lng", destinationCoord.getLongitude());
+        }
     }
 
     @Override
