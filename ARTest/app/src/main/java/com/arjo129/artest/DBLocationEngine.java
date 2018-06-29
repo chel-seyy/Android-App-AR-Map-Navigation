@@ -53,7 +53,7 @@ public class DBLocationEngine extends LocationEngine {
             @Override
             public void run() {
                 requestLocationUpdates();
-                mHandler.postDelayed(wifiThread, 30000);
+                mHandler.postDelayed(wifiThread, DELAY);
             }
         };
 
@@ -63,7 +63,7 @@ public class DBLocationEngine extends LocationEngine {
     @Override
     public void activate() {
         Log.d(TAG, "Activated");
-        mHandler.postDelayed(wifiThread,30000);
+        mHandler.postDelayed(wifiThread,DELAY);
     }
 
     @Override
@@ -99,6 +99,7 @@ public class DBLocationEngine extends LocationEngine {
         currentBestLocation = new Location(LocationManager.GPS_PROVIDER);
         currentBestLocation.setLatitude(lat);
         currentBestLocation.setLongitude(lng);
+
         //currentBestLocation.setAltitude(alt);
         //currentBestLocation.setAccuracy(accuracy);
         currentBestLocation.setTime(System.currentTimeMillis());

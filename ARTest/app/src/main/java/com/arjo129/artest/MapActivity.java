@@ -204,8 +204,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 // Remember to enable the location plugin!!
                 //
-//                locationLayerPlugin.setLocationLayerEnabled(false);
-//                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
                 routeDrawn = new ArrayList<>();
                 Log.d(TAG,"Generating path");
                 List<Node> path = mapRouting.getRoute(startCoord, destinationCoord);
@@ -224,6 +224,17 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 Intent intent = new Intent(MapActivity.this,ARActivity.class);
                 intent.putExtra("Directions",(Serializable)directionInstructions);
                 startActivity(intent);
+            }
+        });
+
+
+        Button locationButton = findViewById(R.id.get_location_button);
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Find Location again, and animate camera
+                locationLayerPlugin.setLocationLayerEnabled(true);
+                locationEngine.requestLocationUpdates();
             }
         });
     }
@@ -454,6 +465,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
      */
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
+        Log.d(TAG, "initializing level: "+ level);
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
 //        map.removeAnnotations();
 //        featureCollection = null;
@@ -647,7 +659,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         if(location!= null){
             originLocation = location;
             //setCameraPosition(location);
-            int floor = (int)location.getAltitude();
+            // Buggy Line: floor != altitude
+//            int floor = (int)location.getAltitude();
             initializeNewLevel(floor);
             //locationEngine.removeLocationEngineListener(this);
         }
