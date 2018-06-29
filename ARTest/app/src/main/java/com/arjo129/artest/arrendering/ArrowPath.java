@@ -35,7 +35,7 @@ public class ArrowPath {
             Log.d(TAG, "drawing arrow "+i);
             int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
             arrows.add(id);
-        }n
+        }
         scene.placeItem(arrow,distance,heading, next_path+90,0,true);
     }
     void update(){
