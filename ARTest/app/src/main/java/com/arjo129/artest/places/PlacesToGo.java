@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageButton;
 
 import com.arjo129.artest.CompassActivity;
 import com.arjo129.artest.LoginActivity;
@@ -24,7 +26,7 @@ public class PlacesToGo extends AppCompatActivity
         implements EasyPermissions.PermissionCallbacks{
 
     private static final int LOCATION_PERMISSION = 22;
-    private GridView gridView;
+    /*private GridView gridView;
     String[] places = {
             "Lecture Theatres",
             "Favourites",
@@ -36,15 +38,22 @@ public class PlacesToGo extends AppCompatActivity
             R.mipmap.ic_happy_star_foreground,
             R.mipmap.ic_recents_foreground
 
-    };
+    };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places_to_go);
-        gridView = (GridView)findViewById(R.id.grid_view);
+        /*gridView = (GridView)findViewById(R.id.grid_view);
         GridAdapter gridAdapter = new GridAdapter(this, places, images);
-        gridView.setAdapter(gridAdapter);
+        gridView.setAdapter(gridAdapter);*/
+        ImageButton imageButton = findViewById(R.id.imageButton);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                wifiScanning();
+            }
+        });
     }
 
     @Override
@@ -60,20 +69,22 @@ public class PlacesToGo extends AppCompatActivity
             Intent loginIntent = new Intent(this, LoginActivity.class);
             startActivity(loginIntent);
         }
-        if(item.getItemId() == R.id.activity_compass){
-            Intent compassIntent = new Intent(this, CompassActivity.class);
-            startActivity(compassIntent);
-        }
-        if(item.getItemId() == R.id.activity_wifi){
-            wifiScanning();
-        }
+//        if(item.getItemId() == R.id.activity_compass){
+//            Intent compassIntent = new Intent(this, CompassActivity.class);
+//            startActivity(compassIntent);
+//        }
+//        if(item.getItemId() == R.id.activity_wifi){
+//            wifiScanning();
+//        }
         return super.onOptionsItemSelected(item);
     }
     @AfterPermissionGranted(LOCATION_PERMISSION)
     private void wifiScanning(){
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};
         if(EasyPermissions.hasPermissions(this, perms)){
-            openWifiIntent();
+//            openWifiIntent();
+            Intent favsAct = new Intent(PlacesToGo.this,PlacesLectureTheatres.class);
+            PlacesToGo.this.startActivity(favsAct);
 
         }
         else EasyPermissions.requestPermissions(this, "We need permissions to do Wifi Scanning",

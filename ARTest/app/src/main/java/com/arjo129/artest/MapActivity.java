@@ -141,12 +141,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
         mapRouting = new Routing(this);
 
-        // Mock starting position:
+        /*// Mock starting position:
         if(startCoord == null){
             Log.d("MapActivity", "Start coord");
             startCoord = new LatLng(1.295252,103.7737);
 
-        }
+        }*/
 
 
         Button route_button = findViewById(R.id.start_route_buttton);
@@ -161,9 +161,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Real starting position:
 
                 // Remember to enable the location plugin!!
-
-                /*locationLayerPlugin.setLocationLayerEnabled(false);
-                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());*/
+                locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
                 startMarker = map.addMarker(new MarkerOptions()
                         .position(startCoord)
@@ -312,7 +311,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-//        enableLocationPlugin();
+        enableLocationPlugin();
 
 
 

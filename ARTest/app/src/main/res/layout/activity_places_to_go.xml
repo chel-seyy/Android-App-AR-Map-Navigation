@@ -1,18 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".places.PlacesToGo">
 
-    <GridView
-        android:id="@+id/grid_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#f7c17b"
-        android:columnWidth="160dp"
-        android:gravity="center"
-        android:numColumns="auto_fit"
-        android:padding="12dp" />
+    <!--<GridView-->
+        <!--android:id="@+id/grid_view"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="#f7c17b"-->
+        <!--android:columnWidth="160dp"-->
+        <!--android:gravity="center"-->
+        <!--android:numColumns="auto_fit"-->
+        <!--android:padding="12dp" />-->
 
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        style="@android:style/Widget.Holo.Light.ImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="218dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:adjustViewBounds="false"
+        android:cropToPadding="true"
+        android:scaleType="centerCrop"
+        android:background="@null"
+        app:srcCompat="@mipmap/ic_location_gps_foreground" />
 </LinearLayout>
