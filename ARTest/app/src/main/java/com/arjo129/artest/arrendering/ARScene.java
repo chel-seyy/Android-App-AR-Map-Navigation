@@ -4,17 +4,13 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.arjo129.artest.DisplayRotationHelper;
-import com.arjo129.artest.R;
 import com.arjo129.artest.device.CompassListener;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
-import com.google.ar.core.Trackable;
 import com.google.ar.core.exceptions.NotTrackingException;
-import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.Scene;
@@ -23,14 +19,10 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.ux.ArFragment;
-import com.google.ar.schemas.lull.Quat;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Handler;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -70,6 +62,7 @@ public class ARScene {
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
     private int curr_direction;
+    private InitialArrow initialArrow;
     /**
      * Constructs a new ARScene with a compass class
      * @param compass - compass listener which helps orient the device
@@ -112,6 +105,7 @@ public class ARScene {
            Log.d(TAG, "drawing....");
            //arrowPath1.construct();
            curr_direction++;
+           initialArrow = new InitialArrow(context,this, dir.direction,compassListener);
        }
 
 
@@ -164,6 +158,12 @@ public class ARScene {
             }
         }
         else if(ready){
+            Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
+                    Pose.makeInterpolated(
+                            Pose.IDENTITY,
+                            Pose.makeRotation(0, 0, (float) Math.sqrt(0.5f), (float) Math.sqrt(0.5f)),
+                            dhelper.getRotation()));
+            initialArrow.update(currPose);
             arrowPath1.update();
         }
         //Let us know when ARCore has some idea of the world...
@@ -177,6 +177,7 @@ public class ARScene {
     }
 
     public void onReady(){
+        initialArrow.construct();
         arrowPath1.construct();
     }
 
@@ -211,19 +212,17 @@ public class ARScene {
         Session sess = frag.getArSceneView().getSession();
         Frame frame = frag.getArSceneView().getArFrame();
         //Get some anchors to anchor our item to
-        Collection<Plane> trackables = sess.getAllTrackables(Plane.class);
-        Anchor anchor = null;
-        for(Plane t: trackables){
-            anchor = t.createAnchor(t.getCenterPose());
-        }
-        if(anchor == null) return -1; //No trackable found yet
-        Log.d(TAG,"Established Anchor");
+        //Collection<Plane> trackables = sess.getAllTrackables(Plane.class);
         //Get the phone's pose in ARCore
         Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
                 Pose.makeInterpolated(
                         Pose.IDENTITY,
                         Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
                         dhelper.getRotation()));
+
+        Anchor anchor = sess.createAnchor(deviceOrientedPose);
+        if(anchor == null) return -1; //No trackable found yet
+        Log.d(TAG,"Established Anchor");
         //Get the phone's pose in relation to the real world
         float heading = compassListener.getBearing();
         float[] devquat = deviceOrientedPose.getRotationQuaternion();

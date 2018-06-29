@@ -1,4 +1,4 @@
-package com.arjo129.artest;
+package com.arjo129.artest.arrendering;
 
 import android.app.Activity;
 import android.content.Context;

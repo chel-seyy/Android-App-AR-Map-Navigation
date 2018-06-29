@@ -659,8 +659,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         if(location!= null){
             originLocation = location;
             //setCameraPosition(location);
+
             // Buggy Line: floor != altitude
 //            int floor = (int)location.getAltitude();
+
+            int floor = (int)location.getAltitude();
+            Log.d(TAG,"got :"+ location.getAltitude()+ "cast to" + floor);
             initializeNewLevel(floor);
             //locationEngine.removeLocationEngineListener(this);
         }

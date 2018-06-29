@@ -145,6 +145,7 @@ public class DBLocationEngine extends LocationEngine {
                             try{
                                 JSONArray predictions = responseBody.getJSONArray("predictions");
                                 alt = (double)predictions.getJSONObject(0).getInt("floor");
+                                Log.d(TAG,"floor: "+alt);
                                 lat = predictions.getJSONObject(0).getDouble("lat");
                                 lng = predictions.getJSONObject(0).getDouble("lng");
                                 accuracy = (float) predictions.getJSONObject(0).getDouble("probability");
