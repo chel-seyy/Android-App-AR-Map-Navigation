@@ -204,19 +204,28 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 // Remember to enable the location plugin!!
                 //
-//                locationLayerPlugin.setLocationLayerEnabled(false);
-//                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
                 routeDrawn = new ArrayList<>();
                 Log.d(TAG,"Generating path");
                 List<Node> path = mapRouting.getRoute(startCoord, destinationCoord);
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
+                float prev_dir = -1;
                 for(Node node: path){
                     if(prevNode != null){
                         float dist = (float) BearingUtils.calculate_distance(node.coordinate,prevNode.coordinate)*1000;
                         float bearing = (float)(prevNode.bearing + 360)%360;
-                        DirectionInstruction dirInst = new DirectionInstruction(dist, bearing);
-                        directionInstructions.add(dirInst);
+
+                        if(prev_dir > 0 &&Math.abs(bearing - prev_dir) < 45){
+                            directionInstructions.get(directionInstructions.size()-1).distance+=dist;
+                            directionInstructions.get(directionInstructions.size()-1).direction=bearing;
+                        }
+                        else {
+                            DirectionInstruction dirInst = new DirectionInstruction(dist, bearing);
+                            directionInstructions.add(dirInst);
+                        }
+                        prev_dir = bearing;
                         Log.d(TAG,"Adding instruction "+dist+"m" + ","+bearing);
                     }
                     prevNode = node;

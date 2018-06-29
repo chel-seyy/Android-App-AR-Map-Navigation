@@ -98,11 +98,11 @@ public class ARScene {
            DirectionInstruction dir = instructions.get(curr_direction);
            float next_turn = 0;
            if(curr_direction+1 < instructions.size()){
-               next_turn = instructions.get(curr_direction).direction;
+               next_turn = instructions.get(curr_direction+1).direction;
            }
            //arrowPath1.destroy();
            arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn,this);
-           Log.d(TAG, "drawing....");
+           Log.d(TAG, "drawing...."+dir.direction+","+next_turn);
            //arrowPath1.construct();
            curr_direction++;
            initialArrow = new InitialArrow(context,this, dir.direction,compassListener);

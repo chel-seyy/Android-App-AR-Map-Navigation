@@ -53,7 +53,7 @@ public class DBLocationEngine extends LocationEngine {
             @Override
             public void run() {
                 requestLocationUpdates();
-                mHandler.postDelayed(wifiThread, 30000);
+                mHandler.postDelayed(wifiThread, DELAY);
             }
         };
 
@@ -63,7 +63,7 @@ public class DBLocationEngine extends LocationEngine {
     @Override
     public void activate() {
         Log.d(TAG, "Activated");
-        mHandler.postDelayed(wifiThread,30000);
+        mHandler.postDelayed(wifiThread,DELAY);
     }
 
     @Override

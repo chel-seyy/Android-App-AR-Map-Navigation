@@ -31,11 +31,11 @@ public class ArrowPath {
     }
 
     void construct(){
-        for(int i =1 ; i < distance; i+=3){
+        for(int i =1 ; i < distance; i+=5){
             Log.d(TAG, "drawing arrow "+i);
             int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
             arrows.add(id);
-        }
+        }n
         scene.placeItem(arrow,distance,heading, next_path+90,0,true);
     }
     void update(){
