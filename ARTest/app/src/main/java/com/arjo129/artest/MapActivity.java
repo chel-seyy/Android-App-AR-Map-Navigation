@@ -19,12 +19,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.arjo129.artest.arrendering.ARScene;
 import com.arjo129.artest.arrendering.DirectionInstruction;
 import com.arjo129.artest.device.WifiLocation;
-//import com.arjo129.artest.places.Routing;
 import com.arjo129.artest.places.BearingUtils;
 import com.arjo129.artest.places.Routing;
 import com.loopj.android.http.AsyncHttpClient;
@@ -102,7 +102,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private Button[] buttons;
     private Button routeButton;
     private Button buttonZeroLevel, buttonFirstLevel, buttonSecondLevel;
-
+    private ProgressBar progressBar;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private PermissionsManager permissionsManager;
@@ -124,6 +124,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
+        progressBar = findViewById(R.id.progressBar);
         if(savedInstanceState != null){
             floor = savedInstanceState.getInt("floor");
             double start_lat = savedInstanceState.getDouble("start_lat");
@@ -244,6 +245,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Find Location again, and animate camera
                 locationLayerPlugin.setLocationLayerEnabled(true);
                 locationEngine.requestLocationUpdates();
+                setCameraPosition(originLocation);
             }
         });
     }
@@ -385,7 +387,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         }
         return false;
     }
-
     private void drawRoute(List<Node> waypoints){
         if(waypoints == null || waypoints.size() <= 0)return;
 //        map.removeMarker(startMarker);
@@ -412,10 +413,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         polyline = map.addPolyline(polylineOptions);
     }
 
-    /*
-     * Buttons
-     *
-     */
 
     private void setLevelButtons(){
         buttonZeroLevel = findViewById(R.id.zero_level_button);
@@ -469,9 +466,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
 
 
-    /*
-     * Floor layout initialization
-     */
+
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
         Log.d(TAG, "initializing level: "+ level);
@@ -502,7 +497,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 //            }
 //        }
     }
-
     private void loadBuildingLayer(){
         FillLayer indoorBuildingLayer = new FillLayer("indoor-building-fill","indoor-building").withProperties(
                 fillColor(Color.parseColor("#eeeeee")), fillOpacity(interpolate(exponential(1f),zoom(),
@@ -521,7 +515,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                                 stop(16f,0f))));
         map.addLayer(indoorBuildingLineLayer);
     }
-
     private String loadJsonFromAsset(String filename){
         try{
             Log.d("LoadJson", "loading....");
@@ -537,7 +530,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             return null;
         }
     }
-
     private void convertFeatures() {
         int level = 1;
         FeatureCollection featureCollection;
@@ -575,9 +567,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         map.addSource(new GeoJsonSource("elevator-source", FeatureCollection.fromFeatures(lifts)));
     }
 
-    /*
-     * Adding Symbol Layers
-     */
+
     private void addIcons(){
 
         convertFeatures();
@@ -610,11 +600,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
 
 
-    /*
-     * Location Engine & Plugin
-     *
-     */
+
     public void enableLocationPlugin(){
+        Log.d(TAG, "Enable Location Plugin");
         if(PermissionsManager.areLocationPermissionsGranted(this)){
             initializeLocationEngine();
             initializeLocationLayer();
@@ -654,24 +642,24 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private void panningTo(double lat, double lng){
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(lat, lng), 16));
+                new LatLng(lat, lng), 18));
     }
 
 
     @Override
     public void onConnected() {
+        Log.d(TAG, "onConnected");
         locationEngine.requestLocationUpdates();
     }
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.d(TAG, "onLocationChanged");
         if(location!= null){
             originLocation = location;
-            //setCameraPosition(location);
 
             // Buggy Line: floor != altitude
 //            int floor = (int)location.getAltitude();
-
             int floor = (int)location.getAltitude();
             Log.d(TAG,"got :"+ location.getAltitude()+ "cast to" + floor);
             initializeNewLevel(floor);

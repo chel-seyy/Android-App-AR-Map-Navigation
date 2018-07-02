@@ -24,17 +24,15 @@ public class WifiLocation {
     private List<ScanResult> results;
     private Context context;
     private WifiManager wifi;
-    private boolean gps_enabled = false;
-    private boolean network_enabled = false;
     private boolean scan_finished = false;
     private boolean destroyed = true;
+    private boolean isRegistered = false;
     private Function<HashMap<String,Integer>, Void> function;
 
     public WifiLocation(Context ctx, Function<HashMap<String, Integer>, Void> handler) {
         context = ctx;
         function = handler;
         wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-//        scanWifiNetworks();
     }
     public void scanWifiNetworks(){
         scan_finished = false;
@@ -55,13 +53,13 @@ public class WifiLocation {
                 scan_finished = true;
             }
         };
-        enableLocation();
-        if(gps_enabled && network_enabled){
-            context.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-            wifi.startScan();
-            destroyed = false;
-            Toast.makeText(context, "Scanning....", Toast.LENGTH_SHORT).show();
-        }
+
+        context.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        isRegistered = true;
+        wifi.startScan();
+        destroyed = false;
+//            Toast.makeText(context, "Scanning....", Toast.LENGTH_SHORT).show();
+
     }
 
     public boolean isConnected(){
@@ -69,43 +67,10 @@ public class WifiLocation {
     }
 
     public void stopListening(){
-        if(!destroyed) {
+        if(!destroyed && isRegistered) {
             context.unregisterReceiver(wifi_receiver);
             destroyed = true;
-        }
-    }
-
-    public void enableLocation(){
-        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        try{
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        }catch (Exception e){
-            Log.d("WifiGPS", "GPS cannot be enabled");
-        }
-        try{
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        }catch (Exception e){
-            Log.d("WifiGPS", "Network cannot be enabled");
-        }
-
-        if(!gps_enabled && !network_enabled){
-            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-            dialog.setPositiveButton(context.getResources().getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    context.startActivity(myIntent);
-                    //get gps
-                }
-            });
-            dialog.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    //onBackPressed();
-                }
-            });
-            dialog.show();
-
+            isRegistered = false;
         }
     }
 }

@@ -2,10 +2,14 @@ package com.arjo129.artest;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -35,19 +39,24 @@ public class DBLocationEngine extends LocationEngine {
     private Handler mHandler;
     private Runnable wifiThread;
     private Date lastGoodLocation;
-    private Double lat = 1.2952;
-    private Double lng = 103.7737;
+    private Double lat = 1.2948682;
+    private Double lng = 103.773740;
     private Double alt = 1.0;
     private float accuracy = 55;
     private WifiLocation wifiLocation;
     private Context context;
     public Location currentBestLocation;
+    private boolean loading = true;
+    private boolean gps_enabled = false;
+    private boolean network_enabled = false;
 
     DBLocationEngine(Context context){
         this.context = context;
         Log.d(TAG, "constructed engine");
         setLocation(lat, lng, 0);
         lastGoodLocation =  new Date(2014, 6, 20, 0, 0);
+
+        enableLocation();
         mHandler = new Handler();
         wifiThread  = new Runnable() {
             @Override
@@ -57,6 +66,10 @@ public class DBLocationEngine extends LocationEngine {
             }
         };
 
+    }
+
+    private boolean isLocationEnabled(){
+        return gps_enabled && network_enabled;
     }
 
 
@@ -70,7 +83,9 @@ public class DBLocationEngine extends LocationEngine {
     public void deactivate() {
         Log.d(TAG, "Deactivated");
         mHandler.removeCallbacks(wifiThread);
-        wifiLocation.stopListening();
+        if(wifiLocation != null){
+            wifiLocation.stopListening();
+        }
     }
 
     @Override
@@ -95,7 +110,8 @@ public class DBLocationEngine extends LocationEngine {
         return currentBestLocation;
     }
 
-    public void setLocation(Double lat, Double lng, float accuracy){
+    private void setLocation(Double lat, Double lng, float accuracy){
+        loading = false;
         Log.d(TAG, "Setting location now: "+lat+" " +lng+" "+accuracy);
         currentBestLocation = new Location(LocationManager.GPS_PROVIDER);
         currentBestLocation.setLatitude(lat);
@@ -106,12 +122,17 @@ public class DBLocationEngine extends LocationEngine {
         Log.d(TAG, "Set: "+currentBestLocation.toString());
     }
 
+    public boolean stillLoading(){
+        return loading;
+    }
+
     @Override
     public void requestLocationUpdates() throws SecurityException{
+        if(!isLocationEnabled()){
+            return;
+        }
         Log.d(TAG, "Requesting Location Updates");
         try{
-            // Works here:
-//            Log.d(TAG, "Finished: "+lat+" " +lng+" "+accuracy);
             //Build a wifiLocation request
             wifiLocation = new WifiLocation(context, (HashMap<String, Integer> map)->{
                 //Format WIFI list to pretty JSON
@@ -151,7 +172,6 @@ public class DBLocationEngine extends LocationEngine {
                                 accuracy = (float) predictions.getJSONObject(0).getDouble("probability");
                                 lastGoodLocation = date;
                                 setLocation(lat,lng,accuracy);
-                                //   Does not work here
                             } catch(JSONException e){
                                 e.printStackTrace();
                             }
@@ -166,7 +186,9 @@ public class DBLocationEngine extends LocationEngine {
                 }
                 return null;
             });
+
             wifiLocation.scanWifiNetworks();
+
 
         } catch (SecurityException e){
             Toast.makeText(context, "Enable Location Permissions from Settings", Toast.LENGTH_SHORT).show();
@@ -178,11 +200,48 @@ public class DBLocationEngine extends LocationEngine {
     public void removeLocationUpdates() {
         Log.d(TAG,"Destroying view");
         mHandler.removeCallbacks(wifiThread);
-        wifiLocation.stopListening();
+        if(wifiLocation != null){
+            wifiLocation.stopListening();
+        }
     }
 
     @Override
     public Type obtainType() {
         return null;
+    }
+
+    public void enableLocation(){
+        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        try{
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        }catch (Exception e){
+            Log.d("WifiGPS", "GPS cannot be enabled");
+        }
+        try{
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        }catch (Exception e){
+            Log.d("WifiGPS", "Network cannot be enabled");
+        }
+
+        if(!gps_enabled && !network_enabled) {
+            Log.d("WifiLocation", Boolean.toString(gps_enabled)+ ", "+ Boolean.toString(network_enabled));
+            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+            dialog.setPositiveButton(context.getResources().getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    context.startActivity(myIntent);
+                    //get gps
+                }
+            });
+            dialog.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    //onBackPressed();
+                }
+            });
+            dialog.show();
+
+        }
     }
 }
