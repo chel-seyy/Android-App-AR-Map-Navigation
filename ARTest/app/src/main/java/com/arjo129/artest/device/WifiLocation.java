@@ -27,6 +27,7 @@ public class WifiLocation {
     private boolean gps_enabled = false;
     private boolean network_enabled = false;
     private boolean scan_finished = false;
+    private boolean destroyed = true;
     private Function<HashMap<String,Integer>, Void> function;
 
     public WifiLocation(Context ctx, Function<HashMap<String, Integer>, Void> handler) {
@@ -58,6 +59,7 @@ public class WifiLocation {
         if(gps_enabled && network_enabled){
             context.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             wifi.startScan();
+            destroyed = false;
             Toast.makeText(context, "Scanning....", Toast.LENGTH_SHORT).show();
         }
     }
@@ -67,7 +69,10 @@ public class WifiLocation {
     }
 
     public void stopListening(){
-        context.unregisterReceiver(wifi_receiver);
+        if(!destroyed) {
+            context.unregisterReceiver(wifi_receiver);
+            destroyed = true;
+        }
     }
 
     public void enableLocation(){

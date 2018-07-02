@@ -37,7 +37,7 @@ public class DBLocationEngine extends LocationEngine {
     private Date lastGoodLocation;
     private Double lat = 1.2952;
     private Double lng = 103.7737;
-    private Double alt = 0.0;
+    private Double alt = 1.0;
     private float accuracy = 55;
     private WifiLocation wifiLocation;
     private Context context;
