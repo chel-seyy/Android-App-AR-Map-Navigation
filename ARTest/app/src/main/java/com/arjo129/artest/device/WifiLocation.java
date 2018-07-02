@@ -66,6 +66,10 @@ public class WifiLocation {
         return scan_finished;
     }
 
+    public void stopListening(){
+        context.unregisterReceiver(wifi_receiver);
+    }
+
     public void enableLocation(){
         LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         try{

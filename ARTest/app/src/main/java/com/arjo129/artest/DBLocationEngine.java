@@ -70,6 +70,7 @@ public class DBLocationEngine extends LocationEngine {
     public void deactivate() {
         Log.d(TAG, "Deactivated");
         mHandler.removeCallbacks(wifiThread);
+        wifiLocation.stopListening();
     }
 
     @Override
@@ -99,8 +100,7 @@ public class DBLocationEngine extends LocationEngine {
         currentBestLocation = new Location(LocationManager.GPS_PROVIDER);
         currentBestLocation.setLatitude(lat);
         currentBestLocation.setLongitude(lng);
-
-        //currentBestLocation.setAltitude(alt);
+        currentBestLocation.setAltitude(alt);
         //currentBestLocation.setAccuracy(accuracy);
         currentBestLocation.setTime(System.currentTimeMillis());
         Log.d(TAG, "Set: "+currentBestLocation.toString());
@@ -177,7 +177,8 @@ public class DBLocationEngine extends LocationEngine {
     @Override
     public void removeLocationUpdates() {
         Log.d(TAG,"Destroying view");
-        //mHandler.removeCallbacks(wifiThread);
+        mHandler.removeCallbacks(wifiThread);
+        wifiLocation.stopListening();
     }
 
     @Override

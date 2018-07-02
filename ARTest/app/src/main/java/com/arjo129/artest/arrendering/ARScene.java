@@ -57,8 +57,7 @@ public class ARScene {
     private boolean update = false, ready =false;
     private int item_counter  = 0;
     private Context context;
-    private ModelRenderable testViewRenderable;
-    private ArrowPath arrowPath1,arrowPath2,arrowPath3,arrowPath4;
+    private ArrowPath arrowPath1;
     private Anchor prevCam = null;
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
@@ -150,9 +149,9 @@ public class ARScene {
                         Log.d(TAG,"User turned!");
                         onTurn(abs(Math.toDegrees(rpy[1] - prevOrientation[1])));
                     }
-                    Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
-                    Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
-                    Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
+                    //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
+                    //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
+                    //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
                     //float arNorth = ((float)Math.toDegrees(rpy[1])+360)%360+360-compassListener.getBearing();
                    // Log.d(TAG,"ARNorth: "+arNorth%360+ ", arangle:"+(float)(Math.toDegrees(rpy[1])+360)%360+ ", heading: "+(360-compassListener.getBearing()));
                 }
@@ -197,7 +196,7 @@ public class ARScene {
         Quaternion deviceFrame = new Quaternion();
         deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
         double[] rpy = quat2rpy(deviceFrame);
-        float arNorth = (((float)Math.toDegrees(rpy[1])+360)%360+360+bearing)%360;
+        float arNorth = (360+bearing+((float)Math.toDegrees(rpy[1])+360)%360)%360;
         Quaternion northMark = Quaternion.axisAngle(Vector3.up(),arNorth);
         Pose pose = Pose.makeRotation(northMark.x,northMark.y,northMark.z,northMark.w);
         if(northAnchors.size() < 8 && compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH){
@@ -225,6 +224,10 @@ public class ARScene {
         arrowPath1.construct();
     }
 
+    /**
+     * This function is called when the user turns... This forces the AR to update.
+     * @param angle
+     */
     public void onTurn(double angle){
         double current_heading = compassListener.getBearing();
         Quaternion currentCompass = fromRPY(current_heading, 0,0);
@@ -233,7 +236,7 @@ public class ARScene {
             Vector3 currentHeading = Quaternion.rotateVector(currentCompass, Vector3.forward());
             Vector3 desiredHeading = Quaternion.rotateVector(desiredAngle, Vector3.forward());
             float angleBetweenVectors = Vector3.angleBetweenVectors(currentHeading, desiredHeading);
-            Log.d(TAG, "onTurn Called");
+            Log.d(TAG, "onTurn Called:"+angleBetweenVectors);
             if (abs(angleBetweenVectors) < 45) {
                 if (curr_direction < instructions.size()) {
                     DirectionInstruction dir = instructions.get(curr_direction);
