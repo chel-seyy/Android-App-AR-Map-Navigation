@@ -124,7 +124,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
-        progressBar = findViewById(R.id.progressBar);
+//        progressBar = findViewById(R.id.progressBar);
         if(savedInstanceState != null){
             floor = savedInstanceState.getInt("floor");
             double start_lat = savedInstanceState.getDouble("start_lat");
@@ -244,6 +244,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 // Find Location again, and animate camera
                 locationLayerPlugin.setLocationLayerEnabled(true);
+                ((DBLocationEngine)locationEngine).enableLocation();
                 locationEngine.requestLocationUpdates();
                 setCameraPosition(originLocation);
             }
