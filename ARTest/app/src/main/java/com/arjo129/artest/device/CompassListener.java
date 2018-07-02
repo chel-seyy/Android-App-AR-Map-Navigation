@@ -20,6 +20,7 @@ public class CompassListener implements SensorEventListener {
     public float azimuth = 0f;
     public float currentHeading = 0;
     private float correctAzimuth = 0f;
+    public int accuracy = -1;
     public CompassListener(Context ctx){
         mSensorManager = (SensorManager)ctx.getSystemService(Context.SENSOR_SERVICE);
         startListening();
@@ -43,6 +44,7 @@ public class CompassListener implements SensorEventListener {
             currentHeading = ((float)Math.toDegrees(orientation[0])+360)%360;
             ARScene.fromRPY(orientation[0],orientation[1],orientation[2]);
             Log.d(TAG, "" + succ + " " + currentHeading);
+            accuracy = sensorEvent.accuracy;
         }
 
     }

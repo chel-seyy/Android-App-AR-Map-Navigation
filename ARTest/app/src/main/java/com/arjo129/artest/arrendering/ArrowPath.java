@@ -14,6 +14,7 @@ public class ArrowPath {
     float distance;
     float heading;
     float next_path;
+    int lastArrow;
     ARScene scene;
     ModelRenderable arrow;
     ArrayList<Integer> arrows;
@@ -36,7 +37,7 @@ public class ArrowPath {
             int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
             arrows.add(id);
         }
-        scene.placeItem(arrow,distance,heading, next_path+90,0,true);
+        lastArrow = scene.placeItem(arrow,distance,heading, next_path+90,0,true);
     }
     void update(){
        ArrayList<Integer> tbr = new ArrayList<>();
@@ -62,5 +63,6 @@ public class ArrowPath {
         for(int id: arrows){
             scene.removeItem(id);
         }
+        scene.removeItem(lastArrow);
     }
 }

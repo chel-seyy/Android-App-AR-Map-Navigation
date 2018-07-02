@@ -1,6 +1,7 @@
 package com.arjo129.artest.arrendering;
 
 import android.content.Context;
+import android.hardware.SensorManager;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -61,6 +62,8 @@ public class ARScene {
     private Anchor prevCam = null;
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
+    //These anchors are used for storing the northern part of the list
+    private ArrayList<Anchor> northAnchors;
     private int curr_direction;
     private InitialArrow initialArrow;
     /**
@@ -71,6 +74,7 @@ public class ARScene {
      */
     public ARScene(Context ctx, CompassListener compass, ArFragment fg, DisplayRotationHelper displayRotationHelper, ArrayList<DirectionInstruction> inst){
        compassListener = compass;
+       northAnchors = new ArrayList<>();
        frag = fg;
        //Set the ARFragement to listen to me
        frag.getArSceneView().getScene().setOnUpdateListener(frameTime -> {
@@ -140,7 +144,8 @@ public class ARScene {
                     deviceFrame.set(prevRpy[0], prevRpy[1], prevRpy[2], prevRpy[3]);
                     prevCam.detach();
                     double[] prevOrientation = quat2rpy(deviceFrame);
-                    if(abs(compassListener.getBearing() - prevHeading) > 45 && abs(Math.toDegrees(rpy[1] - prevOrientation[1])) > 45 ) {
+                    filterNorthAnchors(compassListener.getBearing());
+                    if(abs(compassListener.getBearing() - prevHeading) > 45 || abs(Math.toDegrees(rpy[1] - prevOrientation[1])) > 45 ) {
                         //User has turned
                         Log.d(TAG,"User turned!");
                         onTurn(abs(Math.toDegrees(rpy[1] - prevOrientation[1])));
@@ -176,6 +181,45 @@ public class ARScene {
         }
     }
 
+    /**
+     * Creates a set of north pointing Anchors in the AR World, thus allowing multiple compass readings
+     * to be recorded and combined with visual information. This will (hopefully) improve the
+     */
+    private void filterNorthAnchors(float bearing) {
+        Session sess = frag.getArSceneView().getSession();
+        Frame frame = frag.getArSceneView().getArFrame();
+        Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
+                Pose.makeInterpolated(
+                        Pose.IDENTITY,
+                        Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
+                        dhelper.getRotation()));
+        float[] devquat = deviceOrientedPose.getRotationQuaternion();
+        Quaternion deviceFrame = new Quaternion();
+        deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
+        double[] rpy = quat2rpy(deviceFrame);
+        float arNorth = (((float)Math.toDegrees(rpy[1])+360)%360+360+bearing)%360;
+        Quaternion northMark = Quaternion.axisAngle(Vector3.up(),arNorth);
+        Pose pose = Pose.makeRotation(northMark.x,northMark.y,northMark.z,northMark.w);
+        if(northAnchors.size() < 8 && compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH){
+            Log.d(TAG,"Adding north Anchor to improve compass pose");
+            Anchor a = sess.createAnchor(pose);
+            northAnchors.add(a);
+        }
+        else if(compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH){
+
+        }
+        Vector3 northDirection = new Vector3(0,0,0);
+        for(Anchor a: northAnchors){
+            float[] quaternion = a.getPose().getRotationQuaternion();
+            Quaternion quaternion1 = new Quaternion();
+            quaternion1.set(quaternion[0],quaternion[1],quaternion[2],quaternion[3]);
+            northDirection = Vector3.add(northDirection,Quaternion.rotateVector(quaternion1,Vector3.forward()));
+        }
+        Vector3 curr_north = Quaternion.rotateVector(northMark,Vector3.forward());
+        float angle = Vector3.angleBetweenVectors(curr_north,northDirection);
+        Log.d(TAG,"angular difference: "+angle+" sensor accuracy:"+compassListener.accuracy);
+    }
+
     public void onReady(){
         initialArrow.construct();
         arrowPath1.construct();
@@ -183,19 +227,25 @@ public class ARScene {
 
     public void onTurn(double angle){
         double current_heading = compassListener.getBearing();
-        Log.d(TAG, "drawing....");
-        if(abs(current_heading - instructions.get(curr_direction).direction) < 45){
-            if(curr_direction < instructions.size()) {
-                DirectionInstruction dir = instructions.get(curr_direction);
-                float next_turn = 0;
-                if(curr_direction+1 < instructions.size()){
-                    next_turn = instructions.get(curr_direction).direction;
+        Quaternion currentCompass = fromRPY(current_heading, 0,0);
+        if(instructions.size() < curr_direction) {
+            Quaternion desiredAngle = fromRPY(instructions.get(curr_direction).direction, 0, 0);
+            Vector3 currentHeading = Quaternion.rotateVector(currentCompass, Vector3.forward());
+            Vector3 desiredHeading = Quaternion.rotateVector(desiredAngle, Vector3.forward());
+            float angleBetweenVectors = Vector3.angleBetweenVectors(currentHeading, desiredHeading);
+            if (abs(angleBetweenVectors) < 45) {
+                if (curr_direction < instructions.size()) {
+                    DirectionInstruction dir = instructions.get(curr_direction);
+                    float next_turn = 0;
+                    if (curr_direction + 1 < instructions.size()) {
+                        next_turn = instructions.get(curr_direction).direction;
+                    }
+                    arrowPath1.destroy();
+                    arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn, this);
+                    Log.d(TAG, "drawing....");
+                    arrowPath1.construct();
+                    curr_direction++;
                 }
-                arrowPath1.destroy();
-                arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn,this);
-                Log.d(TAG, "drawing....");
-                arrowPath1.construct();
-                curr_direction++;
             }
         }
     }
