@@ -228,11 +228,12 @@ public class ARScene {
     public void onTurn(double angle){
         double current_heading = compassListener.getBearing();
         Quaternion currentCompass = fromRPY(current_heading, 0,0);
-        if(instructions.size() < curr_direction) {
+        if(instructions.size() > curr_direction) {
             Quaternion desiredAngle = fromRPY(instructions.get(curr_direction).direction, 0, 0);
             Vector3 currentHeading = Quaternion.rotateVector(currentCompass, Vector3.forward());
             Vector3 desiredHeading = Quaternion.rotateVector(desiredAngle, Vector3.forward());
             float angleBetweenVectors = Vector3.angleBetweenVectors(currentHeading, desiredHeading);
+            Log.d(TAG, "onTurn Called");
             if (abs(angleBetweenVectors) < 45) {
                 if (curr_direction < instructions.size()) {
                     DirectionInstruction dir = instructions.get(curr_direction);
