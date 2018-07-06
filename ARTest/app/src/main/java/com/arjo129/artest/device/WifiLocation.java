@@ -69,9 +69,11 @@ public class WifiLocation {
     }
 
     public void stopListening(){
-        if(!destroyed) {
+        try {
             context.unregisterReceiver(wifi_receiver);
             destroyed = true;
+        } catch (IllegalArgumentException e){
+            //BAD PRACTICE BUT WILL TEMPORARILY RESOLVE THE CRASH
         }
     }
 

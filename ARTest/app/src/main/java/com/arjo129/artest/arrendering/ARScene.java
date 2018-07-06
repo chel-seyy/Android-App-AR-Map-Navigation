@@ -4,6 +4,7 @@ import android.content.Context;
 import android.hardware.SensorManager;
 import android.util.Log;
 import android.util.SparseArray;
+import android.widget.Toast;
 
 import com.arjo129.artest.device.CompassListener;
 import com.google.ar.core.Anchor;
@@ -35,21 +36,6 @@ public class ARScene {
     private static final String TAG = "ARScene";
     private Runnable refreshThread;
     private android.os.Handler refreshHandler;
-    /*class GeoNode {
-            public Renderable rend;
-            public double lat,lng,h,bear;
-            public Anchor anch;
-            public Node node;
-            public boolean render;
-            GeoNode(Node n, Renderable rend, double lat, double lng, double h, double bearing){
-                this.rend = rend;
-                this.lat = lat;
-                this.node = n;
-                this.lng = lng;
-                this.h = h;
-                this.bear = bearing;
-            }
-        }*/
     private CompassListener compassListener;
     private DisplayRotationHelper dhelper;
     private ArFragment frag;
@@ -58,11 +44,12 @@ public class ARScene {
     private int item_counter  = 0;
     private Context context;
     private ArrowPath arrowPath1;
-    private Anchor prevCam = null;
+    private Anchor prevCam = null, prevStartPoint;
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
     //These anchors are used for storing the northern part of the list
     private ArrayList<Anchor> northAnchors;
+    private  VisualCompass visualCompass;
     private int curr_direction;
     private InitialArrow initialArrow;
     /**
@@ -94,6 +81,7 @@ public class ARScene {
                 }
             }
         };
+       visualCompass = new VisualCompass(compassListener);
        refreshThread.run();
        curr_direction =0;
        if(inst.size() > 0){
@@ -110,8 +98,9 @@ public class ARScene {
            curr_direction++;
            initialArrow = new InitialArrow(context,this, dir.direction,compassListener);
        }
-
-
+       for(DirectionInstruction dir: instructions){
+           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction);
+       }
     }
     /**
      * This method performs the actual update of the scene
@@ -126,29 +115,20 @@ public class ARScene {
         if(update && ready){
             update = false;
             try {
-                Pose currPose = frame.getCamera().getDisplayOrientedPose().compose(
-                        Pose.makeInterpolated(
-                                Pose.IDENTITY,
-                                Pose.makeRotation(0, 0, (float) Math.sqrt(0.5f), (float) Math.sqrt(0.5f)),
-                                dhelper.getRotation()));
+                Pose currPose = frame.getCamera().getDisplayOrientedPose();
                 Anchor tmp = sess.createAnchor(currPose);
                 if (prevCam != null) {
-                    Pose prevPose = prevCam.getPose();
-                    float[] devquat = currPose.getRotationQuaternion();
-                    Quaternion deviceFrame = new Quaternion();
-                    deviceFrame.set(devquat[0], devquat[1], devquat[2], devquat[3]);
-                    double[] rpy = quat2rpy(deviceFrame);
-                    float[] prevRpy = prevPose.getRotationQuaternion();
-                    deviceFrame = new Quaternion();
-                    deviceFrame.set(prevRpy[0], prevRpy[1], prevRpy[2], prevRpy[3]);
-                    prevCam.detach();
-                    double[] prevOrientation = quat2rpy(deviceFrame);
-                    filterNorthAnchors(compassListener.getBearing());
-                    if(abs(compassListener.getBearing() - prevHeading) > 45 || abs(Math.toDegrees(rpy[1] - prevOrientation[1])) > 45 ) {
+                    //Compute change in quaternion
+                    Pose prevPose = prevCam.getPose().inverse().compose(frame.getCamera().getPose());
+                    Log.d(TAG,"Z-axis"+prevPose.getZAxis());
+                    if(abs(compassListener.getBearing() - prevHeading) > 45
+                            /*|| abs(Math.toDegrees(rpy[1] - prevOrientation[1])) > 45*/ ) {
                         //User has turned
-                        Log.d(TAG,"User turned!");
-                        onTurn(abs(Math.toDegrees(rpy[1] - prevOrientation[1])));
+                        //Log.d(TAG,"User turned! VIS:"+abs(Math.toDegrees(rpy[1] - prevOrientation[1])));
+                        onTurn();
                     }
+                    prevCam.detach();
+                    //visualCompass.getHeading((float) Math.toDegrees(rpy[1] - prevOrientation[1] ));
                     //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
                     //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
                     //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
@@ -200,7 +180,7 @@ public class ARScene {
         Quaternion northMark = Quaternion.axisAngle(Vector3.up(),arNorth);
         Pose pose = Pose.makeRotation(northMark.x,northMark.y,northMark.z,northMark.w);
         if(northAnchors.size() < 8 && compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH){
-            Log.d(TAG,"Adding north Anchor to improve compass pose");
+            //Log.d(TAG,"Adding north Anchor to improve compass pose");
             Anchor a = sess.createAnchor(pose);
             northAnchors.add(a);
         }
@@ -221,6 +201,9 @@ public class ARScene {
 
     public void onReady(){
         initialArrow.construct();
+        Pose pose = frag.getArSceneView().getArFrame().getCamera().getPose();
+        frag.getArSceneView().getSession().createAnchor(pose);
+        prevStartPoint = frag.getArSceneView().getSession().createAnchor(pose);
         arrowPath1.construct();
     }
 
@@ -228,15 +211,19 @@ public class ARScene {
      * This function is called when the user turns... This forces the AR to update.
      * @param angle
      */
-    public void onTurn(double angle){
+    public void onTurn(){
         double current_heading = compassListener.getBearing();
-        Quaternion currentCompass = fromRPY(current_heading, 0,0);
+        Quaternion currentCompass = Quaternion.axisAngle(Vector3.up(),(float) current_heading);
+
         if(instructions.size() > curr_direction) {
-            Quaternion desiredAngle = fromRPY(instructions.get(curr_direction).direction, 0, 0);
+            Quaternion desiredAngle = Quaternion.axisAngle(Vector3.up(),instructions.get(curr_direction).direction);
             Vector3 currentHeading = Quaternion.rotateVector(currentCompass, Vector3.forward());
             Vector3 desiredHeading = Quaternion.rotateVector(desiredAngle, Vector3.forward());
             float angleBetweenVectors = Vector3.angleBetweenVectors(currentHeading, desiredHeading);
+            //Toast.makeText(context,"Turn detected: "+angleBetweenVectors, Toast.LENGTH_SHORT);
             Log.d(TAG, "onTurn Called:"+angleBetweenVectors);
+            Log.d(TAG, "Compass: "+ current_heading +","+compassListener.accuracy);
+            Log.d(TAG,"Target heading:" + instructions.get(curr_direction).direction);
             if (abs(angleBetweenVectors) < 45) {
                 if (curr_direction < instructions.size()) {
                     DirectionInstruction dir = instructions.get(curr_direction);
@@ -246,7 +233,7 @@ public class ARScene {
                     }
                     arrowPath1.destroy();
                     arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn, this);
-                    Log.d(TAG, "drawing....");
+                    Log.d(TAG, "drawing..."+dir.direction);
                     arrowPath1.construct();
                     curr_direction++;
                 }
@@ -276,7 +263,7 @@ public class ARScene {
 
         Anchor anchor = sess.createAnchor(deviceOrientedPose);
         if(anchor == null) return -1; //No trackable found yet
-        Log.d(TAG,"Established Anchor");
+        //Log.d(TAG,"Established Anchor");
         //Get the phone's pose in relation to the real world
         float heading = compassListener.getBearing();
         float[] devquat = deviceOrientedPose.getRotationQuaternion();
@@ -285,7 +272,6 @@ public class ARScene {
         double[] rpy = quat2rpy(deviceFrame);
         //Rotate around y axis...
         //Log.d(TAG,"angle: "+heading+" world heading:"+(float)rpy[1]*180/3.1415f);
-        float arNorth = ((float)Math.toDegrees(rpy[1])+360)%360+360-compassListener.getBearing();
         //Log.d(TAG,"ARNorth: "+arNorth+ ", arangle:"+(float)Math.toDegrees(rpy[1])+ ", heading: "+heading);
         //Rotate to camera pose, then rotate to north, then rotate by x degrees
         float rotAngle = ((360-rotation)+heading+((float)Math.toDegrees(rpy[1])+360)%360)%360;
@@ -299,7 +285,7 @@ public class ARScene {
         node.setWorldRotation(qt);
         //Set angle
         float angrad = ((360-angle)+heading+((float)Math.toDegrees(rpy[1])+360)%360)%360;
-        Log.d(TAG,"drawing..."+rotAngle+" intended angle:"+angle+" angrad:"+angrad);
+        //Log.d(TAG,"drawing..."+rotAngle+" intended angle:"+angle+" angrad:"+angrad);
         Vector3 pos = new Vector3 (-(float)dist*(float)Math.sin(Math.toRadians(angrad)),0,-(float)dist*(float)Math.cos(Math.toRadians(angrad)));
         float[] vec = deviceOrientedPose.getTranslation();
         Vector3 camPos = new Vector3(vec[0],vec[1],vec[2]);

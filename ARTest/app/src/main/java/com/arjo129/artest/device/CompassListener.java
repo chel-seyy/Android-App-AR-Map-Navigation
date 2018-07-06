@@ -19,7 +19,9 @@ public class CompassListener implements SensorEventListener {
     public  float[] orientation = new float[3];
     public float azimuth = 0f;
     public float currentHeading = 0;
-    private float correctAzimuth = 0f;
+    private float rotation = 0f;
+    private long timestamp;
+    private boolean collected_ts = false;
     public int accuracy = -1;
     public CompassListener(Context ctx){
         mSensorManager = (SensorManager)ctx.getSystemService(Context.SENSOR_SERVICE);
@@ -41,16 +43,18 @@ public class CompassListener implements SensorEventListener {
             SensorManager.getRotationMatrixFromVector(rotMatrix, sensorEvent.values);
             boolean succ = SensorManager.remapCoordinateSystem(rotMatrix, SensorManager.AXIS_X, SensorManager.AXIS_Z,outMatrix);
             SensorManager.getOrientation(outMatrix, orientation);
+            float prevHeading = currentHeading;
             currentHeading = ((float)Math.toDegrees(orientation[0])+360)%360;
+            if(collected_ts) rotation = (currentHeading-prevHeading)/(sensorEvent.timestamp-timestamp);
             ARScene.fromRPY(orientation[0],orientation[1],orientation[2]);
-            Log.d(TAG, "" + succ + " " + currentHeading);
             accuracy = sensorEvent.accuracy;
+            Log.d(TAG, "" + succ + " " + currentHeading + " " +accuracy+" "+rotation);
+            timestamp = sensorEvent.timestamp;
+            collected_ts = true;
         }
 
     }
     public float getBearing(){
-        float eastX = mGeomagnetic[0];
-        float eastZ = mGeomagnetic[2];
         // negative because positive rotation about Y rotates X away from Z
         return currentHeading;
     }
