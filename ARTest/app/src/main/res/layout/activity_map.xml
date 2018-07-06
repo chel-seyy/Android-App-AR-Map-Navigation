@@ -10,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
-        mapbox:mapbox_cameraTargetLat="1.295"
-        mapbox:mapbox_cameraTargetLng="103.774"
-        mapbox:mapbox_cameraZoom="17"
+        mapbox:mapbox_cameraTargetLat="1.294759"
+        mapbox:mapbox_cameraTargetLng="103.774045"
+        mapbox:mapbox_cameraZoom="18"
         />
 
 
@@ -96,5 +96,6 @@
         <!--android:layout_width="38dp"-->
         <!--android:layout_height="wrap_content"-->
         <!--mapbox:layout_anchor="@+id/mapView"-->
-        <!--mapbox:layout_anchorGravity="right|top" />-->
+        <!--android:visibility="gone"-->
+        <!--/>-->
 </android.support.design.widget.CoordinatorLayout>

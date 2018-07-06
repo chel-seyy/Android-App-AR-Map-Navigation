@@ -46,21 +46,25 @@ public class Routing extends AppCompatActivity {
     private static final Double bearing = 41.3;
     private static final int current_level = 1;
     private Context mContext;
-    private HashMap<String, List<LatLng>> rooms;
+//    private HashMap<String, List<LatLng>> rooms;
+    private HashMap<Integer, HashMap<Integer, LatLng>> levelJunctions;
     private HashMap<Integer, LatLng> junctions;
-
-    private List<List<Pair<Integer, Double>>>adjacencyList;
+    private HashMap<Integer, List<List<Pair<Integer, Double>>>> floorAdjacencyList;
     private HashMap<Integer, Integer> backtracking;
     private List<Double> distances;
     private LatLng start, end;
+    private int floor = -1;
     List<List<Point>> boundingList;
 
     public Routing(Context context){
         mContext = context;
-        rooms = new HashMap<>();
-        junctions = new HashMap<>();
-        convertFeatures();
-        addToAdjacencyList();
+//        rooms = new HashMap<>();
+        levelJunctions = new HashMap<>();
+        floorAdjacencyList = new HashMap<>();
+        for(int i=0; i<3; i++){
+            convertFeatures(i);
+            addToAdjacencyList(i);
+        }
         boundingList = new ArrayList<>();
         List<Point> perimeter = Arrays.asList(Point.fromLngLat(103.773678, 1.295476),
                 Point.fromLngLat(103.7740141, 1.2950704),
@@ -74,7 +78,7 @@ public class Routing extends AppCompatActivity {
                 Point.fromLngLat(103.7736895, 1.29518788),
                 Point.fromLngLat(103.7735521, 1.29534816),
 
-                Point.fromLngLat(103.773678, 1.295476));
+                Point.fromLngLat(103.773678, 1.295476)); // TODO
         boundingList.add(perimeter);
     }
 
@@ -111,7 +115,10 @@ public class Routing extends AppCompatActivity {
     public List<Node> getRoute(LatLng startingPoint, LatLng endingPoint){
         start = startingPoint;
         end = endingPoint;
+        floor = (int)startingPoint.getAltitude();
+        junctions = levelJunctions.get(floor);
         backtracking = new HashMap<>();
+        List<List<Pair<Integer, Double>>> adjacencyList = floorAdjacencyList.get(floor);
         distances = IntStream.range(0, adjacencyList.size())
                 .boxed().map(x -> inf).collect(Collectors.toList());
 
@@ -129,6 +136,7 @@ public class Routing extends AppCompatActivity {
                 destinationReached = true;
                 break;
             }
+//            Log.d("Routing", "Vertex: "+nextJunction);
             for(Pair<Integer,Double> neighborDist: adjacencyList.get(nextJunction)){
                 Integer neighbor = neighborDist.first;
                 Double toDistance = neighborDist.second;
@@ -139,7 +147,7 @@ public class Routing extends AppCompatActivity {
                     distances.set(neighbor, toDistance + distances.get(nextJunction));
                     // going from NextJunction to neighbor
                     backtracking.put(neighbor, nextJunction);
-//                    Log.d("Routing", "nei:"+neighbor+" nextj:"+nextJunction);
+                    Log.d("Routing", "neighbor:"+neighbor);
 
                 }
             }
@@ -148,7 +156,6 @@ public class Routing extends AppCompatActivity {
             double minDist = inf;
 
             for(Integer v: unvisitedJunctions){
-//                Log.d("Routing","dist: "+ distances.get(v)+ " ("+v+") "+ Boolean.valueOf(distances.get(v) <minDist));
                 if (distances.get(v) < minDist){
                     minDist = distances.get(v);
                     potentialNJ = v;
@@ -210,7 +217,6 @@ public class Routing extends AppCompatActivity {
         double shortestDist = 1000;
         Integer nearest = null;
         for(Integer junction: junctions.keySet()){
-
             if(calculate_distance(startingPoint, junctions.get(junction)) < shortestDist){
                 shortestDist = calculate_distance(startingPoint, junctions.get(junction));
                 nearest = junction;
@@ -219,10 +225,11 @@ public class Routing extends AppCompatActivity {
         return nearest;
     }
 
-    private void addToAdjacencyList(){
-        adjacencyList = new ArrayList<>();
+    private void addToAdjacencyList(int level){
+        Log.d("Routing", "adding to list-> level: "+level);
+        List<List<Pair<Integer, Double>>> adjacencyList = new ArrayList<>();
         try{
-            DataInputStream textFileStream = new DataInputStream(mContext.getAssets().open(String.format("neighborsList.txt")));
+            DataInputStream textFileStream = new DataInputStream(mContext.getAssets().open(String.format("floor"+level+".txt")));
             Scanner scanner = new Scanner(textFileStream);
             int i=0;
             while(scanner.hasNextLine()){
@@ -232,20 +239,21 @@ public class Routing extends AppCompatActivity {
                 for(String s: vertices){
                     Integer vertex = Integer.valueOf(s);
                     Log.d("ROuting", "vertex: "+i+" -> "+vertex);
-                    neighbors.add(Pair.create(vertex, calculate_distance(junctions.get(i), junctions.get(vertex))));
+
+                    neighbors.add(Pair.create(vertex, calculate_distance(levelJunctions.get(level).get(i),
+                            levelJunctions.get(level).get(vertex))));
                 }
                 adjacencyList.add(neighbors);
                 i++;
             }
             scanner.close();
-
+            floorAdjacencyList.put(level, adjacencyList);
         } catch (IOException e){
             e.printStackTrace();
         }
     }
 
-    private void convertFeatures(){
-        int level = 1;
+    private void convertFeatures(int level){
         FeatureCollection featureCollection;
         try {
             String filename =  "com1floor"+level+".geojson";
@@ -255,13 +263,13 @@ public class Routing extends AppCompatActivity {
             return;
         }
         List<Feature> featureList = featureCollection.features();
-
+        HashMap<Integer, LatLng> junctions = new HashMap<>();
         for(int i=0; i<featureList.size(); i++) {
             Feature singleLocation = featureList.get(i);
             Double stringLng, stringLat;
             LatLng locationLatLng;
 
-            if(singleLocation.hasProperty("name")){//door coordinates (can have > 1)
+            /*if(singleLocation.hasProperty("name")){//door coordinates (can have > 1)
                 stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
                 stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
                 locationLatLng = new LatLng(stringLat, stringLng);
@@ -273,7 +281,7 @@ public class Routing extends AppCompatActivity {
                     rooms.get(title).add(locationLatLng);
                 }
             }
-            else if(singleLocation.hasProperty("junction")){
+            else*/ if(singleLocation.hasProperty("junction")){
                 stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
                 stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
                 locationLatLng = new LatLng(stringLat, stringLng);
@@ -281,6 +289,7 @@ public class Routing extends AppCompatActivity {
                 junctions.put(vertex, locationLatLng);
             }
         }
+        levelJunctions.put(level, junctions);
     }
 
     public Boolean withinPolygon(LatLng point){    //bbox:geojson
