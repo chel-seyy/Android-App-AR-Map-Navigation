@@ -119,16 +119,20 @@ public class ARScene {
                 Anchor tmp = sess.createAnchor(currPose);
                 if (prevCam != null) {
                     //Compute change in quaternion
-                    Pose prevPose = prevCam.getPose().inverse().compose(frame.getCamera().getPose());
-                    Log.d(TAG,"Z-axis"+prevPose.getZAxis());
+                    Pose deltaPose = prevCam.getPose().inverse().compose(currPose);
+                    Vector3 cameraZ = new Vector3(deltaPose.getZAxis()[0],deltaPose.getZAxis()[1],deltaPose.getZAxis()[2]);
+                    //Project z-axis onto x-z plane.
+                    float zProjection = Vector3.dot(Vector3.back(), cameraZ.normalized());
+                    float xProjection = Vector3.dot(Vector3.right(), cameraZ.normalized());
+                    float deltaZ = (float) Math.toDegrees(Math.atan2(xProjection,zProjection));
                     if(abs(compassListener.getBearing() - prevHeading) > 45
-                            /*|| abs(Math.toDegrees(rpy[1] - prevOrientation[1])) > 45*/ ) {
+                            || deltaZ > 45 ) {
                         //User has turned
                         //Log.d(TAG,"User turned! VIS:"+abs(Math.toDegrees(rpy[1] - prevOrientation[1])));
                         onTurn();
                     }
                     prevCam.detach();
-                    //visualCompass.getHeading((float) Math.toDegrees(rpy[1] - prevOrientation[1] ));
+                    visualCompass.getHeading(deltaZ);
                     //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
                     //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
                     //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
@@ -209,7 +213,7 @@ public class ARScene {
 
     /**
      * This function is called when the user turns... This forces the AR to update.
-     * @param angle
+     *
      */
     public void onTurn(){
         double current_heading = compassListener.getBearing();

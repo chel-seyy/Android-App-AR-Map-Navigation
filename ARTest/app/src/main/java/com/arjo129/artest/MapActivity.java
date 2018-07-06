@@ -165,8 +165,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Real starting position:
 
                 // Remember to enable the location plugin!!
-//                locationLayerPlugin.setLocationLayerEnabled(false);
-//                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                locationLayerPlugin.setLocationLayerEnabled(false);
+                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
 
                 startCoord.setAltitude(floor);
                 startRouteFloor = floor;
@@ -284,7 +284,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             @Override
             public void onMapClick(@NonNull LatLng point) {
 
-                if(destinationMarker != null){
+                if (destinationMarker != null) {
                     mapboxMap.removeMarker(destinationMarker);
                 }
                 Bitmap green_marker = BitmapFactory.decodeResource(
@@ -296,7 +296,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         .setTitle(point.toString())
                 );
             }
-
         });
 
         /*
@@ -376,6 +375,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             loadBuildingLayer();
         }
         initializeIconsLayer(floor);
+        enableLocationPlugin();
     }
 
     private boolean checkOutBoundMarkers(){
@@ -740,6 +740,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     public void onPause() {
         super.onPause();
         mapView.onPause();
+
     }
 
     @Override
