@@ -88,6 +88,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
 public class MapActivity extends AppCompatActivity implements LocationEngineListener,
         OnMapReadyCallback, PermissionsListener{
+
+    private final static boolean isChelseyDebugging = false;
     private MapView mapView;
     private List<Point> boundingBox;
     private GeoJsonSource indoorBuildingSource, toiletSource, elevatorSource, stairSource;
@@ -110,6 +112,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private Location originLocation;
 
     private Routing mapRouting;
+    private boolean settingUp = true;
 
     private Marker startMarker, destinationMarker;
     private LatLng startCoord, destinationCoord;
@@ -147,7 +150,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         if(startCoord == null){
             Log.d("MapActivity", "Start coord");
             startCoord = new LatLng(1.295252,103.7737);
-            Log.d(TAG, "Start cord set altitude floor: "+ floor);
+//            Log.d(TAG, "Start cord set altitude floor: "+ floor);
              // CAUTION!!
 
         }
@@ -162,13 +165,18 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     map.removeMarker(startMarker);
                 }
 
-                // Real starting position:
-
                 // Remember to enable the location plugin!!
-                locationLayerPlugin.setLocationLayerEnabled(false);
-                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                if(isChelseyDebugging) {
+                    startCoord = locationLayerDisabledAndReturnLocation();
+                }
+                else { //Arjo Debugging/Real thing
+                    locationLayerPlugin.setLocationLayerEnabled(false);
+                    startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                }
 
+                // Location cannot detect the floor user is on (Manual setting)
                 startCoord.setAltitude(floor);
+                Log.d(TAG, "Start coord level: " + floor);
                 startRouteFloor = floor;
                 startMarker = map.addMarker(new MarkerOptions()
                         .position(startCoord)
@@ -204,16 +212,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         startARButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(startMarker != null){
-                    map.removeMarker(startMarker);
-                }
 
-                // Real starting position:
-
-                // Remember to enable the location plugin!!
-                //
-                locationLayerPlugin.setLocationLayerEnabled(false);
-                startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                startCoord = locationLayerDisabledAndReturnLocation();
                 routeDrawn = new ArrayList<>();
                 Log.d(TAG,"Generating path");
                 List<Node> path = mapRouting.getRoute(startCoord, destinationCoord);
@@ -261,6 +261,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 }
             }
         });
+    }
+
+    public LatLng locationLayerDisabledAndReturnLocation() {
+        locationLayerPlugin.setLocationLayerEnabled(false);
+        return new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
     }
 
     @Override
@@ -335,7 +340,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-//        enableLocationPlugin();
+        enableLocationPlugin();
 
 
 
@@ -375,7 +380,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             loadBuildingLayer();
         }
         initializeIconsLayer(floor);
-        enableLocationPlugin();
+
     }
 
     private boolean checkOutBoundMarkers(){
@@ -551,7 +556,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
     private String loadJsonFromAsset(String filename){
         try{
-            Log.d("LoadJson", "loading....");
+//            Log.d("LoadJson", "loading....");
             InputStream is = getAssets().open(filename);
             int size = is.available();
             byte[] buffer = new byte[size];
@@ -570,7 +575,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         List<Feature> stairsFeatures = filterFeatures(level, "stair");
         List<Feature> elevatorFeatures = filterFeatures(level, "lift");
         Log.d(TAG, String.valueOf(map.getSources().size()));
-        if(map.getSources().size() <= 3){
+        if (settingUp){
             Log.d(TAG, "Adding new sources");
             stairSource = new GeoJsonSource("stair-source", FeatureCollection.fromFeatures(stairsFeatures));
             elevatorSource = new GeoJsonSource("elevator-source", FeatureCollection.fromFeatures(elevatorFeatures));
@@ -578,8 +583,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             map.addSource(stairSource);
             map.addSource(elevatorSource);
             map.addSource(toiletSource);
+            settingUp = false;
         } else {
-            Log.d(TAG, "Setting new sources");
             stairSource.setGeoJson(FeatureCollection.fromFeatures(stairsFeatures));
             elevatorSource.setGeoJson(FeatureCollection.fromFeatures(elevatorFeatures));
             toiletSource.setGeoJson(FeatureCollection.fromFeatures(toiletsFeatures));
@@ -606,7 +611,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         SymbolLayer stairs_layer = new SymbolLayer("stairs.layer.id", "stair-source");
         SymbolLayer toilets_layer = new SymbolLayer("toilets.layer.id", "toilet-source");
         SymbolLayer elevator_layer = new SymbolLayer("elevator.layer.id", "elevator-source");
-
         map.addLayer(stairs_layer);
         map.addLayer(toilets_layer);
         map.addLayer(elevator_layer);
@@ -687,7 +691,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private void panningTo(double lat, double lng){
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(lat, lng), 18));
+                new LatLng(lat, lng), 18.5));
     }
 
 

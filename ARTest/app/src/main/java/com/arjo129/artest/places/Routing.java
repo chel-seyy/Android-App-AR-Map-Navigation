@@ -226,7 +226,7 @@ public class Routing extends AppCompatActivity {
     }
 
     private void addToAdjacencyList(int level){
-        Log.d("Routing", "adding to list-> level: "+level);
+//        Log.d("Routing", "adding to list-> level: "+level);
         List<List<Pair<Integer, Double>>> adjacencyList = new ArrayList<>();
         try{
             DataInputStream textFileStream = new DataInputStream(mContext.getAssets().open(String.format("floor"+level+".txt")));
@@ -238,7 +238,7 @@ public class Routing extends AppCompatActivity {
                 List<Pair<Integer,Double>> neighbors = new ArrayList<>();
                 for(String s: vertices){
                     Integer vertex = Integer.valueOf(s);
-                    Log.d("ROuting", "vertex: "+i+" -> "+vertex);
+//                    Log.d("ROuting", "vertex: "+i+" -> "+vertex);
 
                     neighbors.add(Pair.create(vertex, calculate_distance(levelJunctions.get(level).get(i),
                             levelJunctions.get(level).get(vertex))));
