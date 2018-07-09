@@ -47,9 +47,10 @@ public class ARScene {
     private Anchor prevCam = null, prevStartPoint;
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
-    //These anchors are used for storing the northern part of the list
-    private ArrayList<Anchor> northAnchors;
+    //TODO: Test the following filters
     private  VisualCompass visualCompass;
+    private  VisualAnchorCompass visualAnchorCompass;
+    //The navigation stack
     private int curr_direction;
     private InitialArrow initialArrow;
     /**
@@ -60,7 +61,6 @@ public class ARScene {
      */
     public ARScene(Context ctx, CompassListener compass, ArFragment fg, DisplayRotationHelper displayRotationHelper, ArrayList<DirectionInstruction> inst){
        compassListener = compass;
-       northAnchors = new ArrayList<>();
        frag = fg;
        //Set the ARFragement to listen to me
        frag.getArSceneView().getScene().setOnUpdateListener(frameTime -> {
@@ -82,6 +82,7 @@ public class ARScene {
             }
         };
        visualCompass = new VisualCompass(compassListener);
+       visualAnchorCompass = new VisualAnchorCompass(compassListener);
        refreshThread.run();
        curr_direction =0;
        if(inst.size() > 0){
@@ -133,6 +134,7 @@ public class ARScene {
                     }
                     prevCam.detach();
                     visualCompass.getHeading(deltaZ);
+                    visualAnchorCompass.getHeading(sess,frame);
                     //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
                     //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
                     //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
@@ -162,45 +164,6 @@ public class ARScene {
                 onReady();
             }
         }
-    }
-
-    /**
-     * Creates a set of north pointing Anchors in the AR World, thus allowing multiple compass readings
-     * to be recorded and combined with visual information. This will (hopefully) improve the
-     */
-    private void filterNorthAnchors(float bearing) {
-        Session sess = frag.getArSceneView().getSession();
-        Frame frame = frag.getArSceneView().getArFrame();
-        Pose deviceOrientedPose = frame.getCamera().getDisplayOrientedPose().compose(
-                Pose.makeInterpolated(
-                        Pose.IDENTITY,
-                        Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
-                        dhelper.getRotation()));
-        float[] devquat = deviceOrientedPose.getRotationQuaternion();
-        Quaternion deviceFrame = new Quaternion();
-        deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
-        double[] rpy = quat2rpy(deviceFrame);
-        float arNorth = (360+bearing+((float)Math.toDegrees(rpy[1])+360)%360)%360;
-        Quaternion northMark = Quaternion.axisAngle(Vector3.up(),arNorth);
-        Pose pose = Pose.makeRotation(northMark.x,northMark.y,northMark.z,northMark.w);
-        if(northAnchors.size() < 8 && compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH){
-            //Log.d(TAG,"Adding north Anchor to improve compass pose");
-            Anchor a = sess.createAnchor(pose);
-            northAnchors.add(a);
-        }
-        else if(compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH){
-
-        }
-        Vector3 northDirection = new Vector3(0,0,0);
-        for(Anchor a: northAnchors){
-            float[] quaternion = a.getPose().getRotationQuaternion();
-            Quaternion quaternion1 = new Quaternion();
-            quaternion1.set(quaternion[0],quaternion[1],quaternion[2],quaternion[3]);
-            northDirection = Vector3.add(northDirection,Quaternion.rotateVector(quaternion1,Vector3.forward()));
-        }
-        Vector3 curr_north = Quaternion.rotateVector(northMark,Vector3.forward());
-        float angle = Vector3.angleBetweenVectors(curr_north,northDirection);
-        Log.d(TAG,"angular difference: "+angle+" sensor accuracy:"+compassListener.accuracy);
     }
 
     public void onReady(){

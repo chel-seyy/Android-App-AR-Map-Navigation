@@ -57,7 +57,7 @@ public class VisualCompass {
             debug_float += " ,";
             debug_float += measurements[i];
         }
-        Log.d(TAG,debug_float);
+       // Log.d(TAG,debug_float);
         Log.d(TAG,"heading "+visual_heading+","+compassListener.getBearing()+","+dvisual);
         return visual_heading;
     }
