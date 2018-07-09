@@ -38,12 +38,14 @@ public class VisualAnchorCompass {
         anchorIdx++;
         anchorIdx%=SIZE;
         numAnchors = Math.min(numAnchors+1,8);
+        //TODO: try with various deletion schemes
         for(int i = 0; i < numAnchors; i++){
             Pose deltaCam = camAnchors[i].getPose().inverse().compose(rotationCam);
             float currentCameraDelta = getAngleFromPose(deltaCam);
-            Log.d(TAG,"camshift: "+currentCameraDelta+", heading: "+headings[i]);
+            measurements[i]= ((360-currentCameraDelta)+headings[i]+360)%360;
         }
-        return 0.0f;
+        Log.d(TAG, "Average: "+averageAngle());
+        return averageAngle();
     }
 
     private float getAngleFromPose(Pose pose){
