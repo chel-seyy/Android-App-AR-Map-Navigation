@@ -262,7 +262,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onMapClick(@NonNull LatLng point) {
                 // TODO: Change this part when location enabled
                 startCoord = locationLayerDisabledAndReturnLocation();
-
+                // Mock Start location tapped
                 /*if (startMarker == null) {
                     startCoord = point;
                     startCoord.setAltitude(floor);
@@ -316,7 +316,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-//        enableLocationPlugin();
+        enableLocationPlugin();
 
         // Mock starting position:
 //        startCoord = new LatLng(1.295252,103.7737);
