@@ -67,10 +67,10 @@ public class WifiLocation {
     }
 
     public void stopListening(){
-        if(!destroyed && isRegistered) {
+      /*  if(!destroyed && isRegistered) {
             context.unregisterReceiver(wifi_receiver);
             destroyed = true;
             isRegistered = false;
-        }
+        }*/
     }
 }

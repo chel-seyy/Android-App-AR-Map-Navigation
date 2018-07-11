@@ -23,7 +23,7 @@ public class ArrowPath {
         scene = arScene;
         distance = dist;
         heading = angle;
-        next_path =next_angle;
+        next_path = next_angle;
         ModelRenderable.builder()
                 .setSource(ctx, R.raw.model)
                 .build()

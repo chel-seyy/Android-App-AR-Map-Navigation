@@ -93,6 +93,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
 public class MapActivity extends AppCompatActivity implements LocationEngineListener,
         OnMapReadyCallback, PermissionsListener {
+
+    private final static boolean isChelseyDebugging = false;
     private MapView mapView;
     private MapboxMap map;
     private List<Point> boundingBox;
@@ -160,10 +162,19 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         route_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+
+                Log.d("MapActivity", "Clicked route button");
+
+
+                startCoord = locationLayerDisabledAndReturnLocation();
+                // Manual setting: FLoor ???
+                startCoord.setAltitude(floor);
+                Log.d(TAG, "Start coord level: " + floor);
+                startRouteFloor = floor;
+
 //                if(checkOutBoundMarkers()){
 //                    return;
 //                }
-
                 if (destinationCoord != null) {
                     // TODO: floor set altitude in Location coordinate
                     HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
@@ -250,23 +261,22 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             @Override
             public void onMapClick(@NonNull LatLng point) {
                 // TODO: Change this part when location enabled
-                if (startMarker == null) {
-//                    startCoord = locationLayerDisabledAndReturnLocation();
+                startCoord = locationLayerDisabledAndReturnLocation();
 
+                /*if (startMarker == null) {
                     startCoord = point;
                     startCoord.setAltitude(floor);
                     Log.d(TAG, "Start coord level: " + floor);
                     startRouteFloor = floor;
-                } else {
-                    destinationCoord = point;
-                    Log.d(TAG, "Dest coord level: " + floor);
-                    destinationCoord.setAltitude(floor);
-                    destRouteFloor = floor;
-                }
+                } else {*/
+                destinationCoord = point;
+                Log.d(TAG, "Dest coord level: " + floor);
+                destinationCoord.setAltitude(floor);
+                destRouteFloor = floor;
+
                 //////////////////////////////
                 refreshMarkers();
             }
-
         });
 
         /*
@@ -747,6 +757,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     public void onPause() {
         super.onPause();
         mapView.onPause();
+
     }
 
     @Override
