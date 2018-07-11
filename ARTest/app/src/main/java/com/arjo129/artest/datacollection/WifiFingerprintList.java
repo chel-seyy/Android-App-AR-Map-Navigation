@@ -11,6 +11,7 @@ public class WifiFingerprintList {
 
     public ArrayList<WifiFingerprint> wifiFingerprints;
     private WifiFingerprintList() {
+        if(wifiFingerprints == null) wifiFingerprints = new ArrayList<>();
     }
     public void removeFingerprint(int i){
         wifiFingerprints.remove(i);

@@ -19,6 +19,7 @@ import android.widget.Button;
 
 import com.arjo129.artest.datacollection.UploadConfirmation;
 import com.arjo129.artest.datacollection.WifiFingerprint;
+import com.arjo129.artest.datacollection.WifiFingerprintList;
 import com.arjo129.artest.device.WifiLocation;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -74,7 +75,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
-public class CollectData extends AppCompatActivity implements LocationEngineListener,
+public class CollectData extends AppCompatActivity implements
         OnMapReadyCallback, PermissionsListener{
     private MapView mapView;
     private List<Point> boundingBox;
@@ -94,7 +95,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
     private String TAG = "CollectData"; // Used for log.d
     private String session_secret;
     private String session_id;
-    private ArrayList<WifiFingerprint> fingerprints;
+    //private ArrayList<WifiFingerprint> fingerprints;
+    private WifiFingerprintList fingerprints;
     void setSessionSecret(String str){
         session_secret = str;
     }
@@ -107,7 +109,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
-        fingerprints = new ArrayList();
+        fingerprints = WifiFingerprintList.getInstance();
         //Extract session_id and session_secret as given by LoginActivity
         Intent current_intent =  getIntent();
         session_id = current_intent.getStringExtra("session_id");
@@ -135,7 +137,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
             double lng= destinationCoord.getLongitude();
             double lat= destinationCoord.getLatitude();
             WifiFingerprint wifiFingerprint = new WifiFingerprint(lat,lng,floor,map);
-            fingerprints.add(wifiFingerprint);
+            fingerprints.addFingerprint(wifiFingerprint);
             //Transform the coordinate space into 3x3m grids...
             int x_coord = (int)Math.round(((lat-1)*110547)/3);
             int y_coord = (int)Math.round(111320*Math.cos(Math.toRadians(lat))*lng/3);
@@ -400,75 +402,8 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 //            }
 //
 //        }
-        enableLocationPlugin();
+        //enableLocationPlugin();
     }
-
-    public void enableLocationPlugin(){
-        if(PermissionsManager.areLocationPermissionsGranted(this)){
-            initializeLocationEngine();
-            initializeLocationLayer();
-            getLifecycle().addObserver(locationLayerPlugin);
-        }
-        else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
-        }
-    }
-
-
-    private void initializeLocationEngine(){
-        locationEngine = new DBLocationEngine(this);
-//        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
-        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
-        locationEngine.activate();
-        Location lastlocation = locationEngine.getLastLocation();
-        if(lastlocation!=null){
-            originLocation = lastlocation;
-            setCameraPosition(lastlocation);
-        }
-        locationEngine.addLocationEngineListener(this);
-    }
-
-    private void initializeLocationLayer(){
-        locationLayerPlugin = new LocationLayerPlugin(mapView, map,locationEngine);
-        locationLayerPlugin.setLocationLayerEnabled(true);
-        locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
-        locationLayerPlugin.setRenderMode(RenderMode.COMPASS);
-        getLifecycle().addObserver(locationLayerPlugin);
-        Log.d(TAG, "intialized location layer");
-    }
-
-    private void setCameraPosition(Location location){
-        Log.d("Cam position", String.valueOf(location.getLatitude())+", "+String.valueOf(location.getLongitude()));
-        panningTo(location.getLatitude(), location.getLongitude());
-    }
-
-    private void panningTo(double lat, double lng){
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(lat, lng), 16));
-    }
-
-
-    @Override
-    public void onConnected() {
-        locationEngine.requestLocationUpdates();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if(location!= null){
-            originLocation = location;
-            Log.d(TAG, "Recieved location");
-            setCameraPosition(location);
-            // Buggy Line: floor != altitude
-//            int floor = (int)location.getAltitude();
-
-            initializeNewLevel(floor);
-            //locationEngine.removeLocationEngineListener(this);
-        }
-    }
-
-
     public void onStart() {
         super.onStart();
         if(locationEngine != null){
@@ -533,7 +468,7 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
 
     @Override
     public void onPermissionResult(boolean granted) {
-        if(granted) enableLocationPlugin();
+
     }
 
     @Override
@@ -554,7 +489,6 @@ public class CollectData extends AppCompatActivity implements LocationEngineList
         }
         else if(id == R.id.uploadToServer){
             Intent mapIntent = new Intent(this, UploadConfirmation.class);
-            mapIntent.putExtra("fingerprints",(Serializable)fingerprints);
             startActivity(mapIntent);
         }
         return super.onOptionsItemSelected(item);
