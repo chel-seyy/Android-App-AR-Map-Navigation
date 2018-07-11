@@ -128,7 +128,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Stairs-2"
+        "connector": "Stairs-2",
+        "type": 2
       },
       "geometry": {
         "coordinates": [
@@ -477,7 +478,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Handicapped Lift"
+        "connector": "Handicapped Lift",
+        "type": 1
       },
       "geometry": {
         "coordinates": [
@@ -878,7 +880,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Stairs-1"
+        "connector": "Stairs-1",
+        "type": 0
       },
       "geometry": {
         "coordinates": [

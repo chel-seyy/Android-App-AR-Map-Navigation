@@ -13,6 +13,8 @@ import android.location.LocationManager;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,11 +46,14 @@ import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Polyline;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
@@ -87,33 +92,40 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
 public class MapActivity extends AppCompatActivity implements LocationEngineListener,
-        OnMapReadyCallback, PermissionsListener{
+        OnMapReadyCallback, PermissionsListener {
     private MapView mapView;
+    private MapboxMap map;
     private List<Point> boundingBox;
+    private static final LatLngBounds COM1_BOUNDS = new LatLngBounds.Builder()
+            .include(new LatLng(1.2957635, 103.7730444))
+            .include(new LatLng(1.2943826, 103.7745324))
+            .build();
+
     private GeoJsonSource indoorBuildingSource, toiletSource, elevatorSource, stairSource;
 
     private List<List<Point>> boundingBoxList;
     private Icon green_icon;
-    private List<Marker> routeDrawn;
-    private List<LatLng>routePolyline;
-    private Polyline polyline;
+    //    private List<Marker> routeDrawn;
+    //    private List<LatLng>routePolyline;
+    private HashMap<Integer, List<LatLng>> routePolylines;
+    private HashMap<Integer, Polyline> polylines;
+    //    private Polyline polyline;
     private int startRouteFloor, destRouteFloor;
+    private Marker startMarker, destinationMarker;
+    private LatLng startCoord, destinationCoord;
 
-    private MapboxMap map;
     private View levelButtons;
     private Button[] buttons;
     private Button buttonZeroLevel, buttonFirstLevel, buttonSecondLevel;
-    private ProgressBar progressBar;
+//    private ProgressBar progressBar;
+
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
     private PermissionsManager permissionsManager;
     private Location originLocation;
-
     private Routing mapRouting;
     private boolean settingUp = true;
 
-    private Marker startMarker, destinationMarker;
-    private LatLng startCoord, destinationCoord;
     private int floor = -1; //Keep track of the floor
     private String TAG = "MapActivity1"; // Used for log.d
 
@@ -126,7 +138,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         setLevelButtons();
-//        progressBar = findViewById(R.id.progressBar);
         if(savedInstanceState != null){
             floor = savedInstanceState.getInt("floor");
             double start_lat = savedInstanceState.getDouble("start_lat");
@@ -144,59 +155,22 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
         mapRouting = new Routing(this);
 
-        // Mock starting position:
-        if(startCoord == null){
-            Log.d("MapActivity", "Start coord");
-            startCoord = new LatLng(1.295252,103.7737);
-//            Log.d(TAG, "Start cord set altitude floor: "+ floor);
-             // CAUTION!!
-
-        }
-
 
         Button route_button = findViewById(R.id.start_route_buttton);
         route_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Log.d("MapActivity", "Clicked route button");
-                if(startMarker != null){
-                    map.removeMarker(startMarker);
-                }
-
-                // Remember to enable the location plugin!!
-                startCoord = locationLayerDisabledAndReturnLocation();
-
-                // Location cannot detect the floor user is on (Manual setting)
-                startCoord.setAltitude(floor);
-                Log.d(TAG, "Start coord level: " + floor);
-                startRouteFloor = floor;
-                startMarker = map.addMarker(new MarkerOptions()
-                        .position(startCoord)
-//                        .icon(green_icon)
-                );
-
 //                if(checkOutBoundMarkers()){
 //                    return;
 //                }
 
-                // drawing route on map
-                if(destinationMarker != null){
-                    destRouteFloor = floor;
-                    if(routeDrawn!= null && !routeDrawn.isEmpty()){
-                        for(Marker marker: routeDrawn){
-                            map.removeMarker(marker);
-                        }
-                    }
-                    routeDrawn = new ArrayList<>();
+                if (destinationCoord != null) {
                     // TODO: floor set altitude in Location coordinate
-                    List<Node> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
+                    HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
                     buildRoute(drawNodes);
-//                    route_button.setEnabled(false);
-                }
-                else{
+                } else {
                     Log.d("MapActivity", "no route to plot");
                 }
-
             }
         });
 
@@ -206,9 +180,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
 
                 startCoord = locationLayerDisabledAndReturnLocation();
-                routeDrawn = new ArrayList<>();
                 Log.d(TAG,"Generating path");
-                List<Node> path = mapRouting.getRoute(startCoord, destinationCoord);
+                HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
+                buildRoute(drawNodes);
+                List<Node> path = drawNodes.get(floor);
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
                 float prev_dir = -1;
@@ -236,7 +211,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             }
         });
 
-
         Button locationButton = findViewById(R.id.get_location_button);
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -260,38 +234,37 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         return new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
     }
 
+    private void settingMapView() {
+        green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
+        map.setMinZoomPreference(18);
+        map.setMaxZoomPreference(22);
+        map.setLatLngBoundsForCameraTarget(COM1_BOUNDS);
+    }
+
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
-        /*// Adding markers from before
-        if(startCoord != null) {
-            startCoord.setAltitude(floor);
-            startMarker = map.addMarker(new MarkerOptions()
-                    .position(startCoord)
-            );
-        }
-        if(destinationCoord != null){
-            destinationMarker = map.addMarker(new MarkerOptions()
-                    .position(destinationCoord)
-            );
-        }*/
-
+        settingMapView();
         map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
 
             @Override
             public void onMapClick(@NonNull LatLng point) {
+                // TODO: Change this part when location enabled
+                if (startMarker == null) {
+//                    startCoord = locationLayerDisabledAndReturnLocation();
 
-                if(destinationMarker != null){
-                    mapboxMap.removeMarker(destinationMarker);
+                    startCoord = point;
+                    startCoord.setAltitude(floor);
+                    Log.d(TAG, "Start coord level: " + floor);
+                    startRouteFloor = floor;
+                } else {
+                    destinationCoord = point;
+                    Log.d(TAG, "Dest coord level: " + floor);
+                    destinationCoord.setAltitude(floor);
+                    destRouteFloor = floor;
                 }
-                Bitmap green_marker = BitmapFactory.decodeResource(
-                        MapActivity.this.getResources(), R.drawable.green_marker);
-
-                destinationCoord = point;
-                destinationMarker = mapboxMap.addMarker(new MarkerOptions()
-                        .position(destinationCoord)
-                        .setTitle(point.toString())
-                );
+                //////////////////////////////
+                refreshMarkers();
             }
 
         });
@@ -333,9 +306,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         });
 
         // TODO: Enable location but not animate camera sometimes
-        enableLocationPlugin();
+//        enableLocationPlugin();
 
-
+        // Mock starting position:
+//        startCoord = new LatLng(1.295252,103.7737);
+//        startCoord.setAltitude(1.0);
+//        startRouteFloor = 1;
 
         /*
          * Location entered
@@ -353,16 +329,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             loadBuildingLayer();
             setColorButton(floor);
 
-
-            // Place destination marker
-            if(destinationMarker != null){
-                mapboxMap.removeMarker(destinationMarker);
-            }
             destinationCoord = new LatLng(lat,lng);
-            destinationMarker = mapboxMap.addMarker(new MarkerOptions()
-                    .position(destinationCoord)
-                    .setTitle(place_name)
-            );
+            destinationCoord.setAltitude(floor);
+            destRouteFloor = floor;
         } else{
             if(floor == -1){    // SavedinstanceState
                 floor = 1;
@@ -372,6 +341,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             mapboxMap.addSource(indoorBuildingSource);
             loadBuildingLayer();
         }
+        refreshLevel();
         initializeIconsLayer(floor);
 
     }
@@ -384,33 +354,50 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         }
         return false;
     }
-    private void buildRoute(List<Node> waypoints){
+    private void buildRoute(HashMap<Integer, List<Node>> waypoints){
         if(waypoints == null || waypoints.size() <= 0)return;
-//        map.removeMarker(startMarker);
-//        map.removeMarker(destinationMarker);
-        removeRoute();
-
-        routePolyline = new ArrayList<>();
-        for(int i=0; i<waypoints.size();i++){
-            routePolyline.add(waypoints.get(i).coordinate);
-            /*Marker marker = map.addMarker(new MarkerOptions()
-                    .position(waypoints.get(i).coordinate)
-                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
-            );
-            routeDrawn.add(marker);*/
+        removeAllRoutes();
+        routePolylines = new HashMap<>();
+        polylines = new HashMap<>();
+        for (Integer level: waypoints.keySet()) {
+            List<LatLng> routePolyline = new ArrayList<>();
+            for (Node node: waypoints.get(level)){
+                routePolyline.add(node.coordinate);
+//            Marker marker = map.addMarker(new MarkerOptions()
+//                    .position(waypoints.get(i).coordinate)
+//                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
+//            );
+//            routeDrawn.add(marker);
+            }
+            Log.d(TAG, "Lvl " + level + routePolyline);
+            routePolylines.put(level, routePolyline);
         }
-        drawRoute();
+        refreshLevel();
     }
-    private void drawRoute(){
+
+    private void drawRoute(int level){
+        List<LatLng> routePolyline = routePolylines.get(level);
+        Log.d(TAG, "Drawing level " + level + " polylines: " + routePolyline);
         PolylineOptions polylineOptions = new PolylineOptions()
                 .addAll(routePolyline)
                 .color(Color.GRAY)
                 .width(2f);
-        polyline = map.addPolyline(polylineOptions);
+        Polyline polyline = map.addPolyline(polylineOptions);
+        polylines.put(level, polyline);
     }
-    private void removeRoute(){
-        if(map.getPolylines().size() > 0){
-            map.removePolyline(polyline);
+    private void removeRoute(int level){
+        Log.d(TAG, "Removing level " + level + " polylines");
+        if(map.getPolylines().size() > 0 && polylines.get(level) != null){
+            map.removePolyline(polylines.get(level));
+        }
+    }
+
+    private void removeAllRoutes() {
+        if (polylines == null || polylines.isEmpty()) {
+            return;
+        }
+        for (Integer level: polylines.keySet()){
+            removeRoute(level);
         }
     }
 
@@ -424,7 +411,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 floor = 0;
                 initializeNewLevel(floor);
-                setColorButton(floor);
                 refreshLevel();
             }
         });
@@ -433,7 +419,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 floor = 1;
                 initializeNewLevel(floor);
-                setColorButton(floor);
                 refreshLevel();
             }
         });
@@ -442,39 +427,57 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 floor = 2;
                 initializeNewLevel(floor);
-                setColorButton(floor);
                 refreshLevel();
             }
         });
         buttons = new Button[]{buttonZeroLevel, buttonFirstLevel, buttonSecondLevel};
     }
     private void refreshLevel() {
-        if (startCoord != null && startMarker != null){
-            map.removeMarker(startMarker);
-            if (floor == startRouteFloor) {
-                startMarker = map.addMarker(new MarkerOptions()
-                        .position(startCoord)
-                );
-            }
-        }
-
-        if (destinationCoord != null && destinationMarker != null){
-            map.removeMarker(destinationMarker);
-            if (floor == destRouteFloor) {
-                destinationMarker = map.addMarker(new MarkerOptions()
-                        .position(destinationCoord)
-                );
-            }
-        }
-
-        if (routePolyline != null){
-            if (floor == startRouteFloor || floor == destRouteFloor) {
-                drawRoute();
-            } else {
-                removeRoute();
+        refreshMarkers();
+        if (routePolylines != null){
+            for (Integer level: routePolylines.keySet()){
+                if (floor == level) {
+                    Log.d(TAG, "add level " + level);
+                    drawRoute(level);
+                } else {
+                    Log.d(TAG, "remove level " + level);
+                    removeRoute(level);
+                }
             }
         }
     }
+
+    private void refreshMarkers() {
+        List<Marker>markers = map.getMarkers();
+        for (Marker marker: markers) {
+            map.removeMarker(marker);
+        }
+        /////////////////////////////////////////////////////
+        Log.d(TAG, "Refreshing markers at lvl " + floor);
+        if (startCoord != null){
+            if (floor == startRouteFloor) {
+                startMarker = map.addMarker(new MarkerOptions()
+                        .position(startCoord)
+                        .setTitle("Start point")
+                );
+                Log.d(TAG, "Added start marker");
+            }
+        }
+
+        if (destinationCoord != null){
+            if (floor == destRouteFloor) {
+                destinationMarker = map.addMarker(new MarkerOptions()
+                        .position(destinationCoord)
+                        .setTitle(destinationCoord.toString())
+                        .setIcon(green_icon)
+                );
+                Log.d(TAG, "Added dest marker");
+            }
+        }
+        /////////////////
+        Log.d(TAG, "markers: " + map.getMarkers().size());
+    }
+
     private void hideLevelButton(){
         AlphaAnimation animation = new AlphaAnimation(1.0f,0.0f);
         animation.setDuration(500); // millisecs
@@ -496,13 +499,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         }
     }
 
-
-
     private void initializeNewLevel(int level){
         String filename = "com1floor" + String.valueOf(level) + ".geojson";
         Log.d(TAG, "initializing level: " + level);
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
         initializeNewIcons(level);
+        setColorButton(level);
 //        map.removeAnnotations();
 //        featureCollection = null;
 //        try {
@@ -529,6 +531,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 //            }
 //        }
     }
+
+
     private void loadBuildingLayer(){
         FillLayer indoorBuildingLayer = new FillLayer("indoor-building-fill","indoor-building").withProperties(
                 fillColor(Color.parseColor("#eeeeee")), fillOpacity(interpolate(exponential(1f),zoom(),
@@ -649,6 +653,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             initializeLocationEngine();
             initializeLocationLayer();
             getLifecycle().addObserver(locationLayerPlugin);
+//            map.getUiSettings().setZoomGesturesEnabled(true);
+//            map.getUiSettings().setZoomControlsEnabled(true);
+//            map.getUiSettings().setDoubleTapGesturesEnabled(true);
         }
         else {
             permissionsManager = new PermissionsManager(this);
@@ -669,7 +676,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
 
     private void initializeLocationLayer(){
-        locationLayerPlugin = new LocationLayerPlugin(mapView, map,locationEngine);
+        LocationLayerOptions options = LocationLayerOptions.builder(this)
+                .maxZoom(22)
+                .build();
+        locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine, options);
         locationLayerPlugin.setLocationLayerEnabled(true);
         locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
         locationLayerPlugin.setRenderMode(RenderMode.COMPASS);
@@ -754,10 +764,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mapView.onDestroy();
         if(locationEngine!= null){
             locationEngine.deactivate();
         }
+        mapView.onDestroy();
     }
 
     @Override
