@@ -44,9 +44,13 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="C:\Users\Chelsey\Desktop\Orbital\Pics\green_marker.jpg" />
-                                      <entry key="outputName" value="green_marker" />
+                                      <entry key="backgroundAssetType" value="COLOR" />
+                                      <entry key="backgroundColor" value="000000" />
+                                      <entry key="foregroundImage" value="C:\Users\Chelsey\Downloads\my_launcher (3)\web_hi_res_512.png" />
+                                      <entry key="legacyIconShape" value="NONE" />
+                                      <entry key="outputName" value="my_launcher2" />
+                                      <entry key="showSafeZone" value="false" />
+                                      <entry key="webIconShape" value="NONE" />
                                     </map>
                                   </option>
                                 </PersistentState>

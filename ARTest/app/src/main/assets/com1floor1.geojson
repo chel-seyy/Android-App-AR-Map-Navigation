@@ -35,7 +35,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs-5"
+        "connector": "stairs-5",
+        "type": 3
       },
       "geometry": {
         "coordinates": [
@@ -711,7 +712,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs-3"
+        "connector": "stairs-3",
+        "type": 5
       },
       "geometry": {
         "coordinates": [
@@ -725,7 +727,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs"
+        "connector": "stairs",
+        "type": 0
       },
       "geometry": {
         "coordinates": [
@@ -1114,7 +1117,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs"
+        "connector": "stairs",
+        "type": 2
       },
       "geometry": {
         "coordinates": [
@@ -1142,7 +1146,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Lift"
+        "connector": "Lift",
+        "type": 1
       },
       "geometry": {
         "coordinates": [
@@ -1156,7 +1161,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Lift"
+        "connector": "Lift",
+        "type": 8
       },
       "geometry": {
         "coordinates": [
@@ -1526,7 +1532,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs-2"
+        "connector": "stairs-2",
+        "type": 6
       },
       "geometry": {
         "coordinates": [
@@ -1783,7 +1790,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs-4"
+        "connector": "stairs-4",
+        "type": 4
       },
       "geometry": {
         "coordinates": [
@@ -2146,7 +2154,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs-1"
+        "connector": "stairs-1",
+        "type": 7
       },
       "geometry": {
         "coordinates": [

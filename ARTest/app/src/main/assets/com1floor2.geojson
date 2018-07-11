@@ -436,7 +436,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Stair 1"
+        "connector": "Stair 1",
+        "type": 7
       },
       "geometry": {
         "coordinates": [
@@ -984,7 +985,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Stair 2"
+        "connector": "Stair 2",
+        "type": 6
       },
       "geometry": {
         "coordinates": [
@@ -1380,7 +1382,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Lift"
+        "connector": "Lift",
+        "type": 8
       },
       "geometry": {
         "coordinates": [
@@ -1601,7 +1604,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "Stair 3"
+        "connector": "Stair 3",
+        "type": 5
       },
       "geometry": {
         "coordinates": [
@@ -1882,7 +1886,8 @@
     {
       "type": "Feature",
       "properties": {
-        "connector": "stairs"
+        "connector": "stairs",
+        "type": 4
       },
       "geometry": {
         "coordinates": [
