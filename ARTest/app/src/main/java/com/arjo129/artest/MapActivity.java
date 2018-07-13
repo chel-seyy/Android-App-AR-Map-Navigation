@@ -94,7 +94,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 public class MapActivity extends AppCompatActivity implements LocationEngineListener,
         OnMapReadyCallback, PermissionsListener {
 
-    private final static boolean isChelseyDebugging = false;
     private MapView mapView;
     private MapboxMap map;
     private List<Point> boundingBox;
@@ -107,11 +106,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private List<List<Point>> boundingBoxList;
     private Icon green_icon;
-    //    private List<Marker> routeDrawn;
-    //    private List<LatLng>routePolyline;
     private HashMap<Integer, List<LatLng>> routePolylines;
     private HashMap<Integer, Polyline> polylines;
-    //    private Polyline polyline;
     private int startRouteFloor, destRouteFloor;
     private Marker startMarker, destinationMarker;
     private LatLng startCoord, destinationCoord;
@@ -119,7 +115,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private View levelButtons;
     private Button[] buttons;
     private Button buttonZeroLevel, buttonFirstLevel, buttonSecondLevel;
-//    private ProgressBar progressBar;
 
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
@@ -164,13 +159,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
 
                 Log.d("MapActivity", "Clicked route button");
-
-
+                // Mock starting position:
+//                startCoord = new LatLng(1.295252,103.7737);
+//                startCoord.setAltitude(0.0);
                 startCoord = locationLayerDisabledAndReturnLocation();
-                // Manual setting: FLoor ???
-                startCoord.setAltitude(floor);
-                Log.d(TAG, "Start coord level: " + floor);
-                startRouteFloor = floor;
+                startRouteFloor = (int) startCoord.getAltitude();
+
 
 //                if(checkOutBoundMarkers()){
 //                    return;
@@ -242,11 +236,14 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     public LatLng locationLayerDisabledAndReturnLocation() {
         locationLayerPlugin.setLocationLayerEnabled(false);
-        return new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+        LatLng location = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+        location.setAltitude(originLocation.getAltitude());
+        return location;
     }
 
     private void settingMapView() {
         green_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.green_marker);
+//        purple_icon = IconFactory.getInstance(MapActivity.this).fromResource(R.drawable.purple_marker);
         map.setMinZoomPreference(18);
         map.setMaxZoomPreference(22);
         map.setLatLngBoundsForCameraTarget(COM1_BOUNDS);
@@ -264,16 +261,16 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 startCoord = locationLayerDisabledAndReturnLocation();
                 // Mock Start location tapped
                 /*if (startMarker == null) {
-                    startCoord = point;
-                    startCoord.setAltitude(floor);
-                    Log.d(TAG, "Start coord level: " + floor);
-                    startRouteFloor = floor;
+                    // Mock starting position:
+                    startCoord = new LatLng(1.295252,103.7737);
+                    startCoord.setAltitude(1.0);
+                    startRouteFloor = 1;
                 } else {*/
                 destinationCoord = point;
                 Log.d(TAG, "Dest coord level: " + floor);
                 destinationCoord.setAltitude(floor);
                 destRouteFloor = floor;
-
+//                }
                 //////////////////////////////
                 refreshMarkers();
             }
@@ -315,13 +312,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             }
         });
 
-        // TODO: Enable location but not animate camera sometimes
         enableLocationPlugin();
 
-        // Mock starting position:
-//        startCoord = new LatLng(1.295252,103.7737);
-//        startCoord.setAltitude(1.0);
-//        startRouteFloor = 1;
 
         /*
          * Location entered
@@ -373,13 +365,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             List<LatLng> routePolyline = new ArrayList<>();
             for (Node node: waypoints.get(level)){
                 routePolyline.add(node.coordinate);
-//            Marker marker = map.addMarker(new MarkerOptions()
-//                    .position(waypoints.get(i).coordinate)
-//                    .setTitle(String.valueOf(i)+" || "+waypoints.get(i).bearing)
-//            );
-//            routeDrawn.add(marker);
+               /* if (node.isConnector) {
+                    Log.d(TAG + "Routing", node.toString());
+                }*/
             }
-            Log.d(TAG, "Lvl " + level + routePolyline);
             routePolylines.put(level, routePolyline);
         }
         refreshLevel();
@@ -387,7 +376,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private void drawRoute(int level){
         List<LatLng> routePolyline = routePolylines.get(level);
-        Log.d(TAG, "Drawing level " + level + " polylines: " + routePolyline);
         PolylineOptions polylineOptions = new PolylineOptions()
                 .addAll(routePolyline)
                 .color(Color.GRAY)
@@ -396,7 +384,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         polylines.put(level, polyline);
     }
     private void removeRoute(int level){
-        Log.d(TAG, "Removing level " + level + " polylines");
         if(map.getPolylines().size() > 0 && polylines.get(level) != null){
             map.removePolyline(polylines.get(level));
         }
@@ -447,10 +434,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         if (routePolylines != null){
             for (Integer level: routePolylines.keySet()){
                 if (floor == level) {
-                    Log.d(TAG, "add level " + level);
                     drawRoute(level);
                 } else {
-                    Log.d(TAG, "remove level " + level);
                     removeRoute(level);
                 }
             }
@@ -458,11 +443,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
 
     private void refreshMarkers() {
-        List<Marker>markers = map.getMarkers();
-        for (Marker marker: markers) {
+        for (Marker marker: map.getMarkers()) {
             map.removeMarker(marker);
         }
-        /////////////////////////////////////////////////////
+        ///////////////////////////////////////////
         Log.d(TAG, "Refreshing markers at lvl " + floor);
         if (startCoord != null){
             if (floor == startRouteFloor) {
@@ -484,7 +468,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 Log.d(TAG, "Added dest marker");
             }
         }
-        /////////////////
+        ////////////////////////
         Log.d(TAG, "markers: " + map.getMarkers().size());
     }
 
@@ -511,7 +495,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     private void initializeNewLevel(int level){
         String filename = "com1floor" + String.valueOf(level) + ".geojson";
-        Log.d(TAG, "initializing level: " + level);
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
         initializeNewIcons(level);
         setColorButton(level);
@@ -563,13 +546,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
     private String loadJsonFromAsset(String filename){
         try{
-//            Log.d("LoadJson", "loading....");
             InputStream is = getAssets().open(filename);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            Log.d("LOadJson", filename);
+//            Log.d("LOadJson", filename);
             return new String(buffer, "UTF-8");
         } catch(IOException e){
             e.printStackTrace();
@@ -581,7 +563,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         List<Feature> toiletsFeatures = filterFeatures(level, "toilet");
         List<Feature> stairsFeatures = filterFeatures(level, "stair");
         List<Feature> elevatorFeatures = filterFeatures(level, "lift");
-        Log.d(TAG, String.valueOf(map.getSources().size()));
+//        Log.d(TAG, String.valueOf(map.getSources().size()));
         if (settingUp){
             Log.d(TAG, "Adding new sources");
             stairSource = new GeoJsonSource("stair-source", FeatureCollection.fromFeatures(stairsFeatures));
@@ -658,14 +640,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
 
     public void enableLocationPlugin(){
-        Log.d(TAG, "Enable Location Plugin");
+        Log.d(TAG, "Enabled Location Plugin");
         if(PermissionsManager.areLocationPermissionsGranted(this)){
             initializeLocationEngine();
             initializeLocationLayer();
             getLifecycle().addObserver(locationLayerPlugin);
-//            map.getUiSettings().setZoomGesturesEnabled(true);
-//            map.getUiSettings().setZoomControlsEnabled(true);
-//            map.getUiSettings().setDoubleTapGesturesEnabled(true);
         }
         else {
             permissionsManager = new PermissionsManager(this);

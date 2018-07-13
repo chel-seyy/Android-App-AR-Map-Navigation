@@ -1,5 +1,6 @@
 package com.arjo129.artest;
 
+import com.arjo129.artest.places.Connector;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.io.Serializable;
@@ -7,19 +8,44 @@ import java.io.Serializable;
 public class Node implements Serializable {
     LatLng coordinate;
     double bearing;     // Difference in bearing to the next node
-//    boolean startPoint;
-//    boolean endPoint;
+    boolean isConnector = false;
+    Connector connector =  null;
+    boolean directionUp = false;
+    boolean directionDown = false;
+
 
     public Node(LatLng coordinate, double bearing){
-//        this.startPoint = false;
-//        this.endPoint = false;
         this.coordinate = coordinate;
         this.bearing = bearing;
     }
-//    public Node(LatLng coordinate, boolean startPoint, boolean endPoint){
-//        this.coordinate = coordinate;
-//        this.bearing = 0.0;
-//        this.startPoint = startPoint;
-//        this.endPoint = endPoint;
-//    }
+
+    public void setConnector(Connector connector, boolean directionUp) {
+        this.isConnector = true;
+        this.connector = connector;
+        if (directionUp) {
+            goingUp();
+        } else {
+            goingDown();
+        }
+    }
+
+    public void goingUp() {
+        this.directionUp = true;
+    }
+
+    public void goingDown() {
+        this.directionDown = true;
+    }
+
+    @Override
+    public String toString() {
+        if (isConnector) {
+            String direction = this.directionUp ? "up": "down";
+            return connector.toString() + " going " + direction;
+        } else {
+            return coordinate.toString() + ", " + bearing;
+        }
+    }
 }
+
+

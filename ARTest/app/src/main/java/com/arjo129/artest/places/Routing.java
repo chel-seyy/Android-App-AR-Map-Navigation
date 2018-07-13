@@ -56,8 +56,7 @@ public class Routing extends AppCompatActivity {
     private HashMap<Integer, List<List<Pair<Integer, Double>>>> floorAdjacencyList;
     private HashMap<Integer, Integer> backtracking;
     private List<Double> distances;
-//    private HashMap<Integer, LatLng> connectorCoords;
-    private HashMap<Integer, HashMap<Integer, LatLng>> connectorLevelsCoords;
+    private HashMap<Integer, HashMap<Integer, Pair<Connector, LatLng>>> connectorLevelsCoords;
     private LatLng start, end;
     private int floor = -1;
     List<List<Point>> boundingList;
@@ -71,7 +70,6 @@ public class Routing extends AppCompatActivity {
         for(int i=0; i < floors; i++){
             filterFeatures(i);
             addToAdjacencyList(i);
-//            connectorLevelsCoords.put(i, new HashMap<>());
         }
         boundingList = new ArrayList<>();
         List<Point> perimeter = Arrays.asList(Point.fromLngLat(103.773678, 1.295476),
@@ -155,8 +153,6 @@ public class Routing extends AppCompatActivity {
                     distances.set(neighbor, toDistance + distances.get(nextJunction));
                     // going from NextJunction to neighbor
                     backtracking.put(neighbor, nextJunction);
-//                    Log.d("Routing", "neighbor:"+neighbor);
-
                 }
             }
             // Select unvisited node with the least distance
@@ -169,7 +165,7 @@ public class Routing extends AppCompatActivity {
                     potentialNJ = v;
                 }
             }
-            if(potentialNJ!= null){         // no possible route found
+            if(potentialNJ != null){         // no possible route found
                 nextJunction = potentialNJ;
             } else{
                 Log.d("Routing", "returning null");
@@ -218,35 +214,49 @@ public class Routing extends AppCompatActivity {
         }
     }
 
+    /*
+        Only connectors about to be entered are marked with directions
+        Leaving connectors are not marked.
+     */
     public HashMap<Integer, List<Node>> getRoute(LatLng start, LatLng end) {
         HashMap<Integer, List<Node>> route = new HashMap<>();
         int startFloor = (int)start.getAltitude();
         int endFloor = (int)end.getAltitude();
+        boolean goingUp = endFloor - startFloor > 0;
 
         if (startFloor == endFloor) {
             route.put(startFloor, getRouteWithinLevel(start, end));
         } else if (Math.abs(endFloor - startFloor) == 1 ) {
             int connector = nearestConnector(start, endFloor);
-            LatLng fromConnector = connectorLevelsCoords.get(startFloor).get(connector);
-            LatLng toConnector = connectorLevelsCoords.get(endFloor).get(connector);
+            Pair<Connector, LatLng> fromConnector = connectorLevelsCoords.get(startFloor).get(connector);
+            Pair<Connector, LatLng> toConnector = connectorLevelsCoords.get(endFloor).get(connector);
 
-            List<Node> startRoute = getRouteWithinLevel(start, fromConnector);
-            List<Node> endRoute = getRouteWithinLevel(toConnector, end);
+            List<Node> startRoute = getRouteWithinLevel(start, fromConnector.second);
+            Log.d("MapActivity1Routing", "connector: " + fromConnector.first.toString());
+            startRoute.get(startRoute.size() - 1).setConnector(fromConnector.first, goingUp);
+            Log.d("MapActivity1Routing", startRoute.get(startRoute.size() - 1).toString());
+
+            List<Node> endRoute = getRouteWithinLevel(toConnector.second, end);
+//            endRoute.get(0).setConnector(toConnector.first, goingUp);
             route.put(startFloor, startRoute);
             route.put(endFloor, endRoute);
         } else {        // From Basement to Level 2
             int interFloor = 1;
             int connector_1 = nearestConnector(start, interFloor);
-            LatLng basementConnector = connectorLevelsCoords.get(startFloor).get(connector_1);
-            List<Node> startRoute = getRouteWithinLevel(start, basementConnector);
+            Pair<Connector, LatLng>  basementConnector = connectorLevelsCoords.get(startFloor).get(connector_1);
+            List<Node> startRoute = getRouteWithinLevel(start, basementConnector.second);
+            startRoute.get(startRoute.size() - 1).setConnector(basementConnector.first, goingUp);
 
-            LatLng firstConnector1 = connectorLevelsCoords.get(interFloor).get(connector_1);
-            int connector_2 = nearestConnector(firstConnector1, endFloor);
-            LatLng firstConnector2 = connectorLevelsCoords.get(interFloor).get(connector_2);
-            List<Node> interRoute = getRouteWithinLevel(firstConnector1, firstConnector2);
+            Pair<Connector, LatLng> firstConnector1 = connectorLevelsCoords.get(interFloor).get(connector_1);
+            int connector_2 = nearestConnector(firstConnector1.second, endFloor);
+            Pair<Connector, LatLng> firstConnector2 = connectorLevelsCoords.get(interFloor).get(connector_2);
+            List<Node> interRoute = getRouteWithinLevel(firstConnector1.second, firstConnector2.second);
+//            interRoute.get(0).setConnector(firstConnector1.first, goingUp);
+            interRoute.get(interRoute.size() - 1).setConnector(firstConnector2.first, goingUp);
 
-            LatLng secondConnector = connectorLevelsCoords.get(endFloor).get(connector_2);
-            List<Node> endRoute = getRouteWithinLevel(secondConnector, end);
+            Pair<Connector, LatLng> secondConnector = connectorLevelsCoords.get(endFloor).get(connector_2);
+            List<Node> endRoute = getRouteWithinLevel(secondConnector.second, end);
+//            endRoute.get(0).setConnector(secondConnector.first, goingUp);
 
             route.put(startFloor, startRoute);
             route.put(interFloor, interRoute);
@@ -275,7 +285,7 @@ public class Routing extends AppCompatActivity {
         List<Integer> connectors = fromConnectors.stream()
                                     .filter(x -> toConnectors.contains(x))
                                     .collect(Collectors.toList());
-//        Log.d(TAG, connectors.toString());
+
         if (connectors.isEmpty()) {
             return null;
         }
@@ -283,7 +293,7 @@ public class Routing extends AppCompatActivity {
         double shortestDistance = 1000;
         Integer nearestConnector = null;
         for(Integer type: connectors){
-            LatLng connector = connectorLevelsCoords.get(startFloor).get(type);
+            LatLng connector = connectorLevelsCoords.get(startFloor).get(type).second;
             if (calculate_distance(connector, start) < shortestDistance) {
                 shortestDistance = calculate_distance(connector, start);
                 nearestConnector = type;
@@ -322,7 +332,7 @@ public class Routing extends AppCompatActivity {
 
     private void filterFeatures(int level){
         HashMap<Integer, LatLng> junctions = new HashMap<>();
-        HashMap<Integer, LatLng> connectors = new HashMap<>();
+        HashMap<Integer, Pair<Connector, LatLng>> connectors = new HashMap<>();
         FeatureCollection featureCollection;
         try {
             String filename = "com1floor" + level + ".geojson";
@@ -351,7 +361,13 @@ public class Routing extends AppCompatActivity {
                 LatLng locationLatLng = new LatLng(stringLat, stringLng);
                 locationLatLng.setAltitude(level);
                 Integer type = singleLocation.getNumberProperty("type").intValue();
-                connectors.put(type, locationLatLng);
+                if (singleLocation.getStringProperty("connector").toLowerCase().contains("stairs")) {
+                    connectors.put(type, Pair.create(Connector.Stairs, locationLatLng));
+                } else {
+                    connectors.put(type, Pair.create(Connector.Lift, locationLatLng));
+                    assert singleLocation.getStringProperty("connector").contains("lift") : "Not a lift actually";
+                }
+//                Log.d("MapActivity1Routing", "Lvl " + level + " Creating connector: " + connectors.get(type).first);
             }
             if(singleLocation.hasProperty("junction")){
                 Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);

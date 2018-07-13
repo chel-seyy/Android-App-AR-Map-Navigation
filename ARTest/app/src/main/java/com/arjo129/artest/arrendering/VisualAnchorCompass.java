@@ -14,7 +14,7 @@ import com.google.ar.sceneform.math.Vector3;
 import java.util.ArrayList;
 
 public class VisualAnchorCompass {
-    final static int SIZE = 8;
+    final static int SIZE = 20;
     final static String TAG = "VisualAnchorCompass";
     Anchor camAnchors[];
     float measurements[], headings[];
