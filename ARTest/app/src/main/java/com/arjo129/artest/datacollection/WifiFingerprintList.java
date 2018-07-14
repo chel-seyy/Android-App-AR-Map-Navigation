@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -30,7 +31,7 @@ public class WifiFingerprintList {
     public void addFingerprint(WifiFingerprint wifiFingerprint){
         wifiFingerprints.add(wifiFingerprint);
     }
-    public boolean upload(Context ctx){
+    public boolean upload(Context ctx, Function<ServerResponse,Void> responseHandler){
         String APIKEY = ctx.getString(R.string.server_api_key);
         String server = ctx.getString(R.string.server_url)+"batch_learn";
         JSONObject encapsulation_layer = new JSONObject();
@@ -59,11 +60,14 @@ public class WifiFingerprintList {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response){
                 try {
+                    ServerResponse serverResponse;
                     if (response.get("status").equals("ok")) {
-
+                        serverResponse = ServerResponse.SERVER_RESPONSE_OK;
                     } else{
                         //Probably logged out
+                        serverResponse = ServerResponse.SERVER_RESPONSE_BAD_AUTH;
                     }
+                    responseHandler.apply(serverResponse);
                 } catch (Exception e){
                     e.printStackTrace();
                     return;

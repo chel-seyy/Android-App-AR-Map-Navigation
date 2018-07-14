@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.arjo129.artest.LoginActivity;
 import com.arjo129.artest.MapActivity;
 import com.arjo129.artest.R;
 
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 
 public class UploadConfirmation extends AppCompatActivity {
     private static final String TAG = "UploadConfirmation";
+    ArrayAdapter<String> listAdapter;
+    ArrayList<String> creation_times;
     private WifiFingerprintList wifiList;
     private boolean deletitem = false;
     @Override
@@ -28,12 +31,12 @@ public class UploadConfirmation extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_confirmation);
         wifiList = WifiFingerprintList.getInstance();
-        ArrayList<String> creation_times = new ArrayList<>();
+        creation_times = new ArrayList<>();
         for(WifiFingerprint fingerprint : wifiList.wifiFingerprints){
             creation_times.add("FingerPrint collected on:"+fingerprint.getDate());
         }
         ListView lv = (ListView)findViewById(R.id.upload_list);
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this,R.layout.upload_listview,creation_times);
+        listAdapter = new ArrayAdapter<String>(this,R.layout.upload_listview,creation_times);
         lv.setAdapter(listAdapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -61,7 +64,18 @@ public class UploadConfirmation extends AppCompatActivity {
         if (id == R.id.upload_list) {
             //NavUtils.navigateUpFromSameTask(this);
             //TODO Upload thw wifilist
-            wifiList.upload(this);
+            wifiList.upload(this, (ServerResponse response) -> {
+                if(response == ServerResponse.SERVER_RESPONSE_OK){
+                    wifiList.wifiFingerprints.clear();
+                    listAdapter.notifyDataSetChanged();
+                }
+                else {
+                    Intent login = new Intent(this, LoginActivity.class);
+                    login.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(login);
+                }
+                return null;
+            });
         }
         if(id == R.id.delete_item){
             deletitem = !deletitem;
