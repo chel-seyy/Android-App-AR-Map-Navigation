@@ -22,7 +22,8 @@ public class WifiFingerprintList {
     public void addFingerprint(WifiFingerprint wifiFingerprint){
         wifiFingerprints.add(wifiFingerprint);
     }
-    public void upload(Context ctx){
-//        = ctx.getString(R.string.server_api_key);
+
+    public void upload(/*Context ctx*/){
+       // = ctx.getString(R.string.server_api_key);
     }
 }
