@@ -243,6 +243,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     public LatLng locationLayerDisabledAndReturnLocation() {
         locationLayerPlugin.setLocationLayerEnabled(false);
         LatLng location = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+        Log.d(TAG, "Returning origin location: " + originLocation.getAltitude());
         location.setAltitude(originLocation.getAltitude());
         return location;
     }
