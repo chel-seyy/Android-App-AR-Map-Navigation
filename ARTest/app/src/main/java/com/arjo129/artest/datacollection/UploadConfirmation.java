@@ -61,7 +61,7 @@ public class UploadConfirmation extends AppCompatActivity {
         if (id == R.id.upload_list) {
             //NavUtils.navigateUpFromSameTask(this);
             //TODO Upload thw wifilist
-            wifiList.upload();
+            wifiList.upload(this);
         }
         if(id == R.id.delete_item){
             deletitem = !deletitem;

@@ -227,20 +227,13 @@ public class ARScene {
                         Pose.IDENTITY,
                         Pose.makeRotation(0, 0, (float)Math.sqrt(0.5f), (float)Math.sqrt(0.5f)),
                         dhelper.getRotation()));
-
-        Anchor anchor = sess.createAnchor(deviceOrientedPose);
-        if(anchor == null) return -1; //No trackable found yet
-        //Log.d(TAG,"Established Anchor");
+        float[] devquat = deviceOrientedPose.getRotationQuaternion();
         //Get the phone's pose in relation to the real world
         float heading = compassListener.getBearing();
-        float[] devquat = deviceOrientedPose.getRotationQuaternion();
         Quaternion deviceFrame = new Quaternion();
         deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
         double[] rpy = quat2rpy(deviceFrame);
         //Rotate around y axis...
-        //Log.d(TAG,"angle: "+heading+" world heading:"+(float)rpy[1]*180/3.1415f);
-        //Log.d(TAG,"ARNorth: "+arNorth+ ", arangle:"+(float)Math.toDegrees(rpy[1])+ ", heading: "+heading);
-        //Rotate to camera pose, then rotate to north, then rotate by x degrees
         float rotAngle = ((360-rotation)+heading+((float)Math.toDegrees(rpy[1])+360)%360)%360;
         Quaternion qt = Quaternion.axisAngle(Vector3.up(),rotAngle);
         //Build the node

@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.arjo129.artest.datacollection.WifiFingerprint;
+import com.arjo129.artest.datacollection.WifiFingerprintList;
 import com.loopj.android.http.*;
 
 import org.json.JSONException;
@@ -52,6 +55,9 @@ public class LoginActivity extends AppCompatActivity {
                                             Intent collect_data = new Intent(getApplicationContext(),CollectData.class);
                                             collect_data.putExtra("session_id", session_id);
                                             collect_data.putExtra("session_secret", session_secret);
+                                            WifiFingerprintList wifiFingerprintList = WifiFingerprintList.getInstance();
+                                            wifiFingerprintList.session_id = session_id;
+                                            wifiFingerprintList.session_secret = session_secret;
                                             startActivity(collect_data);
                                         } else {
                                             //'Tis not working

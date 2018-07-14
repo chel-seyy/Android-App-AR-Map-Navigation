@@ -139,48 +139,6 @@ public class CollectData extends AppCompatActivity implements
             WifiFingerprint wifiFingerprint = new WifiFingerprint(lat,lng,floor,map);
             fingerprints.addFingerprint(wifiFingerprint);
             //Transform the coordinate space into 3x3m grids...
-            int x_coord = (int)Math.round(((lat-1)*110547)/3);
-            int y_coord = (int)Math.round(111320*Math.cos(Math.toRadians(lat))*lng/3);
-            try {
-                //Compose JSON POST request
-                JSONObject encapsulation_layer = new JSONObject();
-                encapsulation_layer.put("session_id", session_id);
-                encapsulation_layer.put("session_secret", session_secret);
-                encapsulation_layer.put("api_key", getString(R.string.server_api_key));
-                encapsulation_layer.put("location", "com1f"+floor+"|"+x_coord+"|"+y_coord);
-                encapsulation_layer.put("x",x_coord);
-                encapsulation_layer.put("y",y_coord);
-                encapsulation_layer.put("floor",floor);
-                encapsulation_layer.put("WIFI",wifi_list);
-                AsyncHttpClient client = new AsyncHttpClient();
-                StringEntity ent = new StringEntity(encapsulation_layer.toString());
-                Log.d(TAG,"Sending request");
-                Log.d(TAG,encapsulation_layer.toString());
-               /* client.post(this,getString(R.string.server_url)+"learn_location",ent,"application/json",new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                        Log.d(TAG,responseBody.toString());
-                        Log.d(TAG,"Recieved response");
-                        try {
-                            if(responseBody.get("status").equals("failed")){
-                                // Log user out as something went wrong
-                                Intent loginIntent = new Intent(getApplicationContext(),LoginActivity.class);
-                                startActivity(loginIntent);
-                            }
-                            else {
-                                //Continue
-                                setSessionSecret((String)responseBody.get("session_secret"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });*/
-                Log.d(TAG, "Completed wifi scan");
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
             return null;
         });
     }
