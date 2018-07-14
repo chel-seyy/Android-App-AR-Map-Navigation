@@ -187,6 +187,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 startCoord = locationLayerDisabledAndReturnLocation();
                 Log.d(TAG,"Generating path");
                 HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
+                List<Node> nodesList = new ArrayList<>();
+                for (Integer level: drawNodes.keySet()) {
+                    nodesList.addAll(drawNodes.get(level));
+                }
+                
+
                 buildRoute(drawNodes);
                 List<Node> path = drawNodes.get(floor);
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
