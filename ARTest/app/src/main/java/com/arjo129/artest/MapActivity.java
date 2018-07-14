@@ -194,7 +194,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 
 
                 buildRoute(drawNodes);
-                List<Node> path = drawNodes.get(floor);
+                List<Node> path = drawNodes.get((int)startCoord.getAltitude());
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
                 float prev_dir = -1;
