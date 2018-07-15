@@ -1,10 +1,8 @@
 package com.arjo129.artest.arrendering;
 
 import android.content.Context;
-import android.hardware.SensorManager;
 import android.util.Log;
 import android.util.SparseArray;
-import android.widget.Toast;
 
 import com.arjo129.artest.device.CompassListener;
 import com.google.ar.core.Anchor;
@@ -18,7 +16,6 @@ import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.Scene;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
-import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.ux.ArFragment;
 
@@ -47,7 +44,6 @@ public class ARScene {
     private Anchor prevCam = null, prevStartPoint;
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
-    //TODO: Test the following filters
     private  VisualAnchorCompass visualAnchorCompass;
     //The navigation stack
     private int curr_direction;
@@ -70,21 +66,17 @@ public class ARScene {
        dhelper = displayRotationHelper;
        instructions = inst;
        refreshHandler = new android.os.Handler();
-       refreshThread = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    update = true;
-                } finally {
-                    refreshHandler.postDelayed(refreshThread,5000);
-                }
-            }
-        };
+       refreshThread = () -> {
+           try {
+               update = true;
+           } finally {
+               refreshHandler.postDelayed(refreshThread,5000);
+           }
+       };
        visualAnchorCompass = new VisualAnchorCompass(compassListener);
        refreshThread.run();
        curr_direction =0;
        if(inst.size() > 0){
-           inst.get(0);
            DirectionInstruction dir = instructions.get(curr_direction);
            float next_turn = 0;
            if(curr_direction+1 < instructions.size()){
@@ -103,8 +95,9 @@ public class ARScene {
     }
     /**
      * This method performs the actual update of the scene
-     * @param frameTime
+     * @param frameTime - passed by ARCore
      */
+    @SuppressWarnings("unused")
     public void onUpdateFrame(FrameTime frameTime){
         Date now = new Date();
         //locationEngine.hasBetterLocation(now);
@@ -141,7 +134,7 @@ public class ARScene {
                 prevCam = tmp;
                 prevHeading = compassListener.getBearing();
             } catch(NotTrackingException t){
-
+                t.printStackTrace();
             }
         }
         else if(ready){
@@ -163,7 +156,7 @@ public class ARScene {
         }
     }
 
-    public void onReady(){
+    private void onReady(){
         initialArrow.construct();
         Pose pose = frag.getArSceneView().getArFrame().getCamera().getPose();
         frag.getArSceneView().getSession().createAnchor(pose);
@@ -175,7 +168,7 @@ public class ARScene {
      * This function is called when the user turns... This forces the AR to update.
      *
      */
-    public void onTurn(){
+    private void onTurn(){
         double current_heading = compassListener.getBearing();
         Quaternion currentCompass = Quaternion.axisAngle(Vector3.up(),(float) current_heading);
 
@@ -349,7 +342,7 @@ public class ARScene {
         else
             pitch = asin(sinp);
         double siny = 2.0 * (qw * qz + qx * qy);
-        double cosy = 1.0 - 2.0 * (qy * qy + qz * qz);;
+        double cosy = 1.0 - 2.0 * (qy * qy + qz * qz);
         double yaw = atan2(siny, cosy);
         double[] rpy = new double[3];
         rpy[0] = roll;
