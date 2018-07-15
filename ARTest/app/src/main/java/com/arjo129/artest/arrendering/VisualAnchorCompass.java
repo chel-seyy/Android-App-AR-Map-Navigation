@@ -51,7 +51,7 @@ public class VisualAnchorCompass {
         return averageAngle(update);
     }
 
-    private float getAngleFromPose(Pose pose){
+    public static float getAngleFromPose(Pose pose){
         //Project z-axis onto x-z plane.
         Vector3 vec = new Vector3(pose.getZAxis()[0],pose.getZAxis()[1],pose.getZAxis()[2]);
         float zProjection = Vector3.dot(Vector3.back(), vec.normalized());
@@ -66,11 +66,11 @@ public class VisualAnchorCompass {
             totaly += Math.sin(Math.toRadians(measurements[i]));
         }
         if(!update || numAnchors == 0){
-            totalx += Math.cos(compassListener.getBearing());
-            totaly += Math.sin(compassListener.getBearing());
+            totalx += Math.cos(Math.toRadians(compassListener.getBearing()));
+            totaly += Math.sin(Math.toRadians(compassListener.getBearing()));
         }
         float total = ((float)Math.toDegrees(Math.atan2(totaly,totalx))+360)%360;
-        Log.d(TAG, "Angle "+total+" calculated from "+numAnchors+" anchors");
+        Log.d(TAG, "Angle "+total+" calculated from "+numAnchors+" anchors "+compassListener.getBearing());
         return total;
     }
 }
