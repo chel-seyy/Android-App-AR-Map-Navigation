@@ -33,11 +33,12 @@ public class VisualAnchorCompass {
         //Camera 2d
         Quaternion qt1 = Quaternion.axisAngle(Vector3.up(),deltaZ);
         Pose rotationCam = Pose.makeRotation(qt1.x,qt1.y,qt1.z,qt1.w);
+        camAnchors[anchorIdx].detach();
         camAnchors[anchorIdx] = session.createAnchor(rotationCam);
         headings[anchorIdx] = compassListener.getBearing();
         anchorIdx++;
         anchorIdx%=SIZE;
-        numAnchors = Math.min(numAnchors+1,8);
+        numAnchors = Math.min(numAnchors+1,SIZE);
         //TODO: try with various deletion schemes
         for(int i = 0; i < numAnchors; i++){
             Pose deltaCam = camAnchors[i].getPose().inverse().compose(rotationCam);
