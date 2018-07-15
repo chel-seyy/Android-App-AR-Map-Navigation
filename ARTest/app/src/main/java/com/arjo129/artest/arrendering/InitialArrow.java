@@ -11,12 +11,13 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
 public class InitialArrow {
-    CompassListener compassListener;
-    float bearing;
-    ModelRenderable arrow;
-    ARScene scene;
-    String TAG = "InitialArrow";
-    int model_id = -1;
+    private CompassListener compassListener;
+    private float bearing;
+    private ModelRenderable arrow;
+    private ARScene scene;
+    private static final String TAG = "InitialArrow";
+    private int model_id = -1;
+    @SuppressWarnings("WeakerAccess")
     public InitialArrow(Context ctx, ARScene scn, float heading, CompassListener cmp){
         bearing = heading;
         compassListener = cmp;
@@ -54,8 +55,5 @@ public class InitialArrow {
             Log.d(TAG,"constructing arrow follower");
             model_id = scene.placeItem(arrow, 1, current_cam,  bearing+90, 0, true);
         }
-    }
-    public boolean safeToRemove(){
-        return model_id >= 0;
     }
 }

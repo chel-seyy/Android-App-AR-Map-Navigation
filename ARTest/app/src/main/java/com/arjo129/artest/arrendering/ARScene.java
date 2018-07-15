@@ -48,7 +48,6 @@ public class ARScene {
     private float prevHeading = 0;
     private ArrayList<DirectionInstruction> instructions;
     //TODO: Test the following filters
-    private  VisualCompass visualCompass;
     private  VisualAnchorCompass visualAnchorCompass;
     //The navigation stack
     private int curr_direction;
@@ -81,7 +80,6 @@ public class ARScene {
                 }
             }
         };
-       visualCompass = new VisualCompass(compassListener);
        visualAnchorCompass = new VisualAnchorCompass(compassListener);
        refreshThread.run();
        curr_direction =0;
@@ -133,8 +131,7 @@ public class ARScene {
                         onTurn();
                     }
                     prevCam.detach();
-                    visualCompass.getHeading(deltaZ);
-                    visualAnchorCompass.getHeading(sess,frame);
+                    visualAnchorCompass.getHeading(sess,frame,true);
                     //Log.d(TAG, "Mag: " + (compassListener.getBearing() - prevHeading));
                     //Log.d(TAG, "Vis: " + Math.toDegrees(rpy[1] - prevOrientation[1] ));
                     //Log.d(TAG, "angle: " + compassListener.getBearing() + " world heading:" + (float) rpy[1] * 180 / 3.1415f);
@@ -229,7 +226,7 @@ public class ARScene {
                         dhelper.getRotation()));
         float[] devquat = deviceOrientedPose.getRotationQuaternion();
         //Get the phone's pose in relation to the real world
-        float heading = compassListener.getBearing();
+        float heading = visualAnchorCompass.getHeading(sess,frame,false);
         Quaternion deviceFrame = new Quaternion();
         deviceFrame.set(devquat[0],devquat[1],devquat[2],devquat[3]);
         double[] rpy = quat2rpy(deviceFrame);
