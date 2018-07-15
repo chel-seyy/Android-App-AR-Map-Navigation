@@ -35,7 +35,8 @@ public class VisualAnchorCompass {
         Quaternion qt1 = Quaternion.axisAngle(Vector3.up(),deltaZ);
         Pose rotationCam = Pose.makeRotation(qt1.x,qt1.y,qt1.z,qt1.w);
         if(update && compassListener.accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
-            camAnchors[anchorIdx].detach();
+            if(camAnchors[anchorIdx] != null)
+                camAnchors[anchorIdx].detach();
             camAnchors[anchorIdx] = session.createAnchor(rotationCam);
             headings[anchorIdx] = compassListener.getBearing();
             anchorIdx++;
