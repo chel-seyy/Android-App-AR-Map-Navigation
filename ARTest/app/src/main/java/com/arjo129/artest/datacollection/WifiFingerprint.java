@@ -1,18 +1,15 @@
 package com.arjo129.artest.datacollection;
 
-import android.net.wifi.WifiManager;
 import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class WifiFingerprint implements Serializable {
-    private String TAG = "WifiFingerprint";
+    private final static String TAG = "WifiFingerprint";
     private HashMap<String, Integer> wifiscans;
     private double latitude, longitude;
     private int floor;
@@ -36,7 +33,6 @@ public class WifiFingerprint implements Serializable {
                 Log.d(TAG,e.toString());
                 return null;
             }
-            Log.d(TAG, "Got wife bssid: "+ key +" , RSSI:"+ value + "session_secret");
         }
         JSONObject json = new JSONObject();
         int x_coord = (int)Math.round(((latitude-1)*110547)/3);
@@ -48,7 +44,7 @@ public class WifiFingerprint implements Serializable {
             json.put("WIFI",wifi_list);
         }
         catch ( JSONException e){
-
+            e.printStackTrace();
         }
         return json;
     }

@@ -30,7 +30,7 @@ public class WifiFingerprintList {
     public void addFingerprint(WifiFingerprint wifiFingerprint){
         wifiFingerprints.add(wifiFingerprint);
     }
-    public boolean upload(Context ctx, Function<ServerResponse,Void> responseHandler){
+    public void upload(Context ctx, Function<ServerResponse,Void> responseHandler){
         Log.d(TAG,"uploading..");
         String APIKEY = ctx.getString(R.string.server_api_key);
         String server = ctx.getString(R.string.server_url)+"batch_learn";
@@ -46,7 +46,8 @@ public class WifiFingerprintList {
             encapsulation_layer.put("measurements", measurements);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            responseHandler.apply(ServerResponse.SERVER_RESPONSE_ERROR);
+            return;
         }
         AsyncHttpClient client = new AsyncHttpClient();
         StringEntity ent;
@@ -54,7 +55,8 @@ public class WifiFingerprintList {
             ent = new StringEntity(encapsulation_layer.toString());
         } catch (Exception e){
             e.printStackTrace();
-            return false;
+            responseHandler.apply(ServerResponse.SERVER_RESPONSE_ERROR);
+            return;
         }
         client.post(ctx,server,ent,"application/json", new JsonHttpResponseHandler(){
             @Override
@@ -73,10 +75,9 @@ public class WifiFingerprintList {
                     responseHandler.apply(serverResponse);
                 } catch (Exception e){
                     e.printStackTrace();
-                    return;
+                    responseHandler.apply(ServerResponse.SERVER_RESPONSE_ERROR);
                 }
             }
         });
-        return true;
     }
 }
