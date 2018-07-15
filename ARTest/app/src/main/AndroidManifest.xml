@@ -80,7 +80,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".places.PlacesLectureTheatres" />
         </activity>
-
         <activity
             android:name=".MapActivity"
             android:label="Indoor Map"
@@ -91,7 +90,12 @@
         </activity>
         <activity
             android:name=".datacollection.UploadConfirmation"
-            android:label="@string/title_activity_upload_confirmation"/>
+            android:label="@string/title_activity_upload_confirmation" />
+
+        <service
+            android:name=".indoorLocation.WifiService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
