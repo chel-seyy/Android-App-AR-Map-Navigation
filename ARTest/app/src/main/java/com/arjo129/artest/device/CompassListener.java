@@ -6,19 +6,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-
 import com.arjo129.artest.arrendering.ARScene;
-import com.google.ar.sceneform.math.Quaternion;
-import com.google.ar.sceneform.math.Vector3;
 
 public class CompassListener implements SensorEventListener {
-    private final String TAG = "CompassListener";
+    private final static String TAG = "CompassListener";
     private SensorManager mSensorManager;
-    private float[] mGravity = new float[3];
-    public float[] mGeomagnetic = new float[3];
     public  float[] orientation = new float[3];
-    public float azimuth = 0f;
-    public float currentHeading = 0;
+    private float currentHeading = 0;
     private float rotation = 0f;
     private long timestamp;
     private boolean collected_ts = false;
@@ -27,6 +21,7 @@ public class CompassListener implements SensorEventListener {
         mSensorManager = (SensorManager)ctx.getSystemService(Context.SENSOR_SERVICE);
         startListening();
     }
+    @SuppressWarnings("WeakerAccess")
     public void  startListening(){
         mSensorManager.registerListener(this,mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_FASTEST);
     }
@@ -35,7 +30,6 @@ public class CompassListener implements SensorEventListener {
     }
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        final float alpha = 0.97f;
         if(sensorEvent.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
             float[] rotMatrix = new float[9];
             float[] outMatrix = new float[9];

@@ -2,19 +2,11 @@ package com.arjo129.artest.device;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.arjo129.artest.R;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
@@ -25,8 +17,6 @@ public class WifiLocation {
     private Context context;
     private WifiManager wifi;
     private boolean scan_finished = false;
-    private boolean destroyed = true;
-    private boolean isRegistered = false;
     private Function<HashMap<String,Integer>, Void> function;
 
     public WifiLocation(Context ctx, Function<HashMap<String, Integer>, Void> handler) {
@@ -40,7 +30,7 @@ public class WifiLocation {
             @Override
             public void onReceive(Context context, Intent intent) {
                 HashMap<String, Integer> map;
-                map = new HashMap<String, Integer>();
+                map = new HashMap<>();
                 Log.d("WifiScanner", "onReceive");
                 results = wifi.getScanResults();
                 context.unregisterReceiver(this);
@@ -55,11 +45,7 @@ public class WifiLocation {
         };
 
         context.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        isRegistered = true;
         wifi.startScan();
-        destroyed = false;
-//            Toast.makeText(context, "Scanning....", Toast.LENGTH_SHORT).show();
-
     }
 
     public boolean isConnected(){
@@ -67,10 +53,6 @@ public class WifiLocation {
     }
 
     public void stopListening(){
-      /*  if(!destroyed && isRegistered) {
-            context.unregisterReceiver(wifi_receiver);
-            destroyed = true;
-            isRegistered = false;
-        }*/
+
     }
 }
