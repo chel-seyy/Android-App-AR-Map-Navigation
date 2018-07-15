@@ -61,12 +61,13 @@ public class UploadConfirmation extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         // When the home button is pressed, take the user back to the VisualizerActivity
-        if (id == R.id.upload_list) {
+        if (id == R.id.upload_readings) {
             //NavUtils.navigateUpFromSameTask(this);
             //TODO Upload thw wifilist
             wifiList.upload(this, (ServerResponse response) -> {
                 if(response == ServerResponse.SERVER_RESPONSE_OK){
                     wifiList.wifiFingerprints.clear();
+                    creation_times.clear();
                     listAdapter.notifyDataSetChanged();
                 }
                 else {

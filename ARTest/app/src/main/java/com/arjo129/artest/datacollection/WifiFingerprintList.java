@@ -1,21 +1,20 @@
 package com.arjo129.artest.datacollection;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.arjo129.artest.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.function.Function;
-
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class WifiFingerprintList {
+    private static final String TAG = "WifiFingerprintList";
     private static final WifiFingerprintList ourInstance = new WifiFingerprintList();
     public static WifiFingerprintList getInstance() {
         return ourInstance;
@@ -32,6 +31,7 @@ public class WifiFingerprintList {
         wifiFingerprints.add(wifiFingerprint);
     }
     public boolean upload(Context ctx, Function<ServerResponse,Void> responseHandler){
+        Log.d(TAG,"uploading..");
         String APIKEY = ctx.getString(R.string.server_api_key);
         String server = ctx.getString(R.string.server_url)+"batch_learn";
         JSONObject encapsulation_layer = new JSONObject();
@@ -60,12 +60,15 @@ public class WifiFingerprintList {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response){
                 try {
+                    Log.d(TAG,response.toString());
                     ServerResponse serverResponse;
                     if (response.get("status").equals("ok")) {
                         serverResponse = ServerResponse.SERVER_RESPONSE_OK;
+                        session_secret = (String)response.get("session_secret");
                     } else{
                         //Probably logged out
                         serverResponse = ServerResponse.SERVER_RESPONSE_BAD_AUTH;
+
                     }
                     responseHandler.apply(serverResponse);
                 } catch (Exception e){
