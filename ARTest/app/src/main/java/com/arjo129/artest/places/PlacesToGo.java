@@ -69,15 +69,9 @@ public class PlacesToGo extends AppCompatActivity
             Intent loginIntent = new Intent(this, LoginActivity.class);
             startActivity(loginIntent);
         }
-//        if(item.getItemId() == R.id.activity_compass){
-//            Intent compassIntent = new Intent(this, CompassActivity.class);
-//            startActivity(compassIntent);
-//        }
-//        if(item.getItemId() == R.id.activity_wifi){
-//            wifiScanning();
-//        }
         return super.onOptionsItemSelected(item);
     }
+
     @AfterPermissionGranted(LOCATION_PERMISSION)
     private void wifiScanning(){
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};

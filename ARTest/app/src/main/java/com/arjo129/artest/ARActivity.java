@@ -1,7 +1,9 @@
 package com.arjo129.artest;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -27,6 +29,7 @@ public class ARActivity extends AppCompatActivity {
     private CompassListener compassListener;
     private DisplayRotationHelper dhelper;
     private ARScene navscene;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,37 @@ public class ARActivity extends AppCompatActivity {
         //Instantiate the ARCore stuff
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ARView);
         navscene = new ARScene(this,compassListener,arFragment,dhelper, directionInstructions);
+
+
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        // set title
+        alertDialogBuilder.setTitle("Calibrating the AR");
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Readings may not be accurate if phone is not calibrated in the Figure-8 pattern.")
+                .setCancelable(false)
+//                .setNegativeButton("DON'T SHOW THIS AGAIN", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        dialogInterface.cancel();
+//                    }
+//                })
+                .setPositiveButton("Calibrate", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
     }
 
 

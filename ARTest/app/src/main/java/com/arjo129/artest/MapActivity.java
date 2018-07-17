@@ -164,7 +164,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 //                startCoord.setAltitude(0.0);
                 startCoord = locationLayerDisabledAndReturnLocation();
                 startRouteFloor = (int) startCoord.getAltitude();
-                Log.d(TAG, "StartFloor: " + startRouteFloor + " DestFloor: " + destRouteFloor + " currentLevel: " + floor);
+//                Log.d(TAG, "StartFloor: " + startRouteFloor + " DestFloor: " + destRouteFloor + " currentLevel: " + floor);
 
 //                if(checkOutBoundMarkers()){
 //                    return;
@@ -174,6 +174,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
                     buildRoute(drawNodes);
                 } else {
+                    Toast.makeText(MapActivity.this, "Set a destination first." , Toast.LENGTH_LONG).show();
                     Log.d("MapActivity", "no route to plot");
                 }
             }
@@ -186,6 +187,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 startCoord = locationLayerDisabledAndReturnLocation();
                 Log.d(TAG,"Generating path");
+                if (destinationCoord == null) {
+                    Toast.makeText(MapActivity.this, "Set a destination first." , Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
                 List<Node> nodesList = new ArrayList<>();
                 for (Integer level: drawNodes.keySet()) {
@@ -216,7 +222,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     }
                     prevNode = node;
                 }
-                Intent intent = new Intent(MapActivity.this,ARActivity.class);
+                Intent intent = new Intent(MapActivity.this, ARActivity.class);
                 intent.putExtra("Directions",(Serializable)directionInstructions);
                 startActivity(intent);
             }

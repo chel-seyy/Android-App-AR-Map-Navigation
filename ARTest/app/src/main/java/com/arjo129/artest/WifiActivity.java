@@ -103,7 +103,6 @@ public class WifiActivity extends AppCompatActivity {
     };
 
 
-    // TODO: Dialog keeps coming up even when cancelled
     public void enableLocation(){
         LocationManager lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
         try{
