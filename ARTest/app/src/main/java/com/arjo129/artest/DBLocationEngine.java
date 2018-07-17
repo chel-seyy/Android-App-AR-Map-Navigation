@@ -132,7 +132,7 @@ public class DBLocationEngine extends LocationEngine {
             return;
         }
         Log.d(TAG, "Requesting Location Updates");
-        try{
+        try {
             //Build a wifiLocation request
             wifiLocation = new WifiLocation(context, (HashMap<String, Integer> map)->{
                 //Format WIFI list to pretty JSON
@@ -171,6 +171,7 @@ public class DBLocationEngine extends LocationEngine {
                                 lng = predictions.getJSONObject(0).getDouble("lng");
                                 accuracy = (float) predictions.getJSONObject(0).getDouble("probability");
                                 lastGoodLocation = date;
+                                Log.d(TAG, "accuracy: " + accuracy);
                                 setLocation(lat,lng,accuracy);
                             } catch(JSONException e){
                                 e.printStackTrace();

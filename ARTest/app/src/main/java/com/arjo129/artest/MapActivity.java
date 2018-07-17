@@ -164,7 +164,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 //                startCoord.setAltitude(0.0);
                 startCoord = locationLayerDisabledAndReturnLocation();
                 startRouteFloor = (int) startCoord.getAltitude();
-
+                Log.d(TAG, "StartFloor: " + startRouteFloor + " DestFloor: " + destRouteFloor + " currentLevel: " + floor);
 
 //                if(checkOutBoundMarkers()){
 //                    return;
@@ -438,12 +438,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     }
     private void refreshLevel() {
         refreshMarkers();
+        for (Polyline line: map.getPolylines()) {
+            map.removePolyline(line);
+        }
         if (routePolylines != null){
             for (Integer level: routePolylines.keySet()){
                 if (floor == level) {
                     drawRoute(level);
-                } else {
-                    removeRoute(level);
                 }
             }
         }

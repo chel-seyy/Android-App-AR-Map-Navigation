@@ -14,15 +14,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SearchPlaces  extends AppCompatActivity {
-    private List<PlaceSearch> places;
+    private Set<PlaceSearch> places;
     private Context mContext;
 
     SearchPlaces(Context context, int level){
         mContext = context;
         places = loadPlaces(level);
+    }
+
+    SearchPlaces(Context context) {
+        mContext = context;
+        places = new LinkedHashSet<>();
+        for (int level = 0; level < 3; level++) {
+            Set<PlaceSearch> levelPlaces = loadPlaces(level);
+            places.addAll(levelPlaces);
+        }
     }
 
     private String loadJsonFromAsset(String filename){
@@ -39,7 +50,7 @@ public class SearchPlaces  extends AppCompatActivity {
         }
     }
 
-    public List<PlaceSearch> loadPlaces(int level){
+    public Set<PlaceSearch> loadPlaces(int level){
         FeatureCollection featureCollection;
         try {
             String filename =  "com1floor"+level+".geojson";
@@ -48,23 +59,22 @@ public class SearchPlaces  extends AppCompatActivity {
             return null;
         }
         List<Feature> featureList = featureCollection.features();
-        List<PlaceSearch> level_1_places = new ArrayList<>();
+        Set<PlaceSearch> level_1_places = new LinkedHashSet<>();
         for(int i=0; i<featureList.size(); i++){
             Feature singleLocation = featureList.get(i);
             if( singleLocation.hasProperty("name")){
                 String name = singleLocation.getStringProperty("name");
                 Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
                 Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-                //                Log.d("MapActivity", "feature: " +name);
                 LatLng locationLatLng = new LatLng(stringLat, stringLng);
-                Log.d("SearchPlaces", locationLatLng.toString() + " at "+name);
+                locationLatLng.setAltitude((int) level);
                 level_1_places.add(new PlaceSearch(name, locationLatLng, level) );
             }
         }
         return level_1_places;
     }
 
-    public List<PlaceSearch> getPlaces(){
+    public Set<PlaceSearch> getPlaces(){
         return places;
     }
 

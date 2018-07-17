@@ -9,18 +9,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.arjo129.artest.MapActivity;
 import com.arjo129.artest.R;
 
 import java.util.List;
+import java.util.Set;
 
 public class PlaceLevel1 extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerAdapter adapter;
-    private List<PlaceSearch> list;
+    private Set<PlaceSearch> list;
     private SearchPlaces searchPlaces;
 
     @Override
@@ -58,6 +60,8 @@ public class PlaceLevel1 extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_lt, menu);
+        MenuItem item = menu.findItem(R.id.action_search_lt);
+        item.setVisible(false);
         return true;
     }
 

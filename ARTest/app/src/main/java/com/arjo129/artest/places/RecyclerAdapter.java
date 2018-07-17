@@ -3,6 +3,7 @@ package com.arjo129.artest.places;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,23 +17,34 @@ import com.arjo129.artest.R;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-
+import java.util.Set;
 
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
     private static final String TAG = "RECYCLER_ADAPTER";
+    private static final String BASEMENT = "Basement";
+    private static final String LEVEL_1 = "Level 1";
+    private static final String LEVEL_2 = "Level 2";
+    private static final String[] levelNames = {BASEMENT, LEVEL_1, LEVEL_2};
     private ListItemClickListener mOnClickListener;
-    private List<PlaceSearch> list;
+    private Set<PlaceSearch> list;
     private Context context;
     private Toast mToast;
     private int level;
 
-    public RecyclerAdapter(Context context, List<PlaceSearch>list, int level){
+    public RecyclerAdapter(Context context, Set<PlaceSearch>list, int level){
         this.context = context;
         this.list = list;
         this.level = level;
+    }
+
+    public RecyclerAdapter(Context context, Set<PlaceSearch>list){
+        this.context = context;
+        this.list = list;
+        this.level = -1;
     }
 
     /*
@@ -53,24 +65,24 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.place.setText(list.get(position).place_name);
+        PlaceSearch place = (PlaceSearch)list.toArray()[position];
+        if (level == -1){
+            holder.place.setText(place.place_name + "   (" + levelNames[place.level] + ")");
+        } else {
+            holder.place.setText(place.place_name);
+        }
         holder.setItemClickListener(new ListItemClickListener() {
             @Override
             public void onListItemClick(View v, int index) {
-                if (mToast != null) {
-                    mToast.cancel();
-                }
-//                Log.d(TAG, list.get(position)+" at position: "+index);
-//                String toastMessage = "Going to: " + list.get(index);
-//                mToast = Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show();
-                LatLng latLng = list.get(index).coordinate;
-                Intent mapActivity = new Intent(context,MapActivity.class);
+                PlaceSearch placeClick = (PlaceSearch)list.toArray()[index];
+                LatLng latLng = placeClick.coordinate;
+                Intent mapActivity = new Intent(context, MapActivity.class);
                 mapActivity.putExtra("lat", latLng.getLatitude());
                 mapActivity.putExtra("lng", latLng.getLongitude());
-                mapActivity.putExtra("place_name", list.get(index).place_name);
-                mapActivity.putExtra("level", level);
+                mapActivity.putExtra("place_name", placeClick.place_name);
+                mapActivity.putExtra("level", placeClick.level);
+//                Log.d(TAG, placeClick.place_name + " at " + placeClick.level);
                 context.startActivity(mapActivity);
-
             }
         });
     }
@@ -99,6 +111,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         public void setItemClickListener(ListItemClickListener listener){
             mOnClickListener = listener;
         }
+    }
+
+    public void updateList(Set<PlaceSearch> newList){
+        list = new LinkedHashSet<>();
+        list.addAll(newList);
+        notifyDataSetChanged();
     }
 
 }
