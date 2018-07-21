@@ -15,14 +15,20 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.arjo129.artest.arrendering.ARScene;
 import com.arjo129.artest.arrendering.DirectionInstruction;
@@ -57,6 +63,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
@@ -81,10 +88,15 @@ import java.util.Map;
 
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionBase;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionHeight;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
@@ -123,6 +135,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     private Routing mapRouting;
     private boolean settingUp = true;
 
+    private android.support.v7.widget.Toolbar toolbar;
+    private TextView destination_text, start_text;
+
     private int floor = -1; //Keep track of the floor
     private String TAG = "MapActivity1"; // Used for log.d
 
@@ -131,6 +146,32 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.access_token));
         setContentView(R.layout.activity_map);
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+//        toolbar.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()){
+//                    case MotionEvent.ACTION_DOWN:
+//
+//                        actionBar.show();
+//                }
+//                return false;
+//            }
+//        });
+//        LayoutInflater mInflater = LayoutInflater.from(this);
+
+//        View mCustomView = mInflater.inflate(R.layout.toolbar_layout, null);
+        destination_text = findViewById(R.id.textDestination);
+        start_text = findViewById(R.id.textStart);
+//        destination_text.setText("DEST !!");
+//        actionBar.setCustomView(mCustomView);
+//        actionBar.setDisplayShowCustomEnabled(true);
+
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -153,11 +194,11 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         mapRouting = new Routing(this);
 
 
-        Button route_button = findViewById(R.id.start_route_buttton);
+        Button route_button = findViewById(R.id.start_route_button);
         route_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-
+//                getSupportActionBar().hide();
                 Log.d("MapActivity", "Clicked route button");
                 // Mock starting position:
 //                startCoord = new LatLng(1.295252,103.7737);
@@ -180,12 +221,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             }
         });
 
-        Button startARButton = (Button)findViewById(R.id.start_AR_buttton);
+        Button startARButton = (Button)findViewById(R.id.start_AR_button);
         startARButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 startCoord = locationLayerDisabledAndReturnLocation();
+                startRouteFloor = (int) startCoord.getAltitude();
                 Log.d(TAG,"Generating path");
                 if (destinationCoord == null) {
                     Toast.makeText(MapActivity.this, "Set a destination first." , Toast.LENGTH_LONG).show();
@@ -194,9 +236,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
                 HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
                 List<Node> nodesList = new ArrayList<>();
-                for (Integer level: drawNodes.keySet()) {
-                    nodesList.addAll(drawNodes.get(level));
+                nodesList.addAll(drawNodes.get(startRouteFloor));
+                if (Math.abs(startRouteFloor - destRouteFloor) > 1) {
+                    nodesList.addAll(drawNodes.get(1));
                 }
+                nodesList.addAll(drawNodes.get(destRouteFloor));
+
                 
 
                 buildRoute(drawNodes);
@@ -234,6 +279,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
                 // Find Location again, and animate camera
                 if(locationLayerPlugin != null){
+                    getSupportActionBar().show();
+//                    start_text.setText("Current location");
                     locationLayerPlugin.setLocationLayerEnabled(true);
                     ((DBLocationEngine)locationEngine).enableLocation();
                     locationEngine.requestLocationUpdates();
@@ -241,6 +288,32 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 }
                 else{
                     Toast.makeText(MapActivity.this, "Null location", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        Button switchLocationsButton = findViewById(R.id.switch_locations_button);
+        switchLocationsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (destination_text != null && !destination_text.toString().isEmpty()
+                        && startCoord != null && destinationCoord != null) {
+                    int tempFloor = startRouteFloor;
+                    startRouteFloor = destRouteFloor;
+                    destRouteFloor = tempFloor;
+
+                    LatLng tempLatlng = startCoord;
+                    startCoord = destinationCoord;
+                    destinationCoord = tempLatlng;
+
+                    Marker tempMarker = startMarker;
+                    startMarker = destinationMarker;
+                    destinationMarker = tempMarker;
+                    refreshLevel();
+
+                    String tempText = start_text.getText().toString();
+                    start_text.setText(destination_text.getText());
+                    destination_text.setText(tempText);
                 }
             }
         });
@@ -336,6 +409,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             double lat = before.getDoubleExtra("lat", 0);
             double lng = before.getDoubleExtra("lng", 0);
             String place_name = before.getStringExtra("place_name");
+            destination_text.setText(place_name);
             floor = before.getIntExtra("level",0);
 
             // Load map layout for that level
@@ -512,31 +586,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
         initializeNewIcons(level);
         setColorButton(level);
-//        map.removeAnnotations();
-//        featureCollection = null;
-//        try {
-//            getFeatureCollectionFromJson(level);
-//        }catch (Exception e){
-//            Log.e("MapActivity","onCreate: "+e);
-//        }
-//        List<Feature> featureList = featureCollection.features();
-//
-//
-//        Log.d("Mapactivity","Building features list");
-//        for(int i=0; i<featureList.size(); i++){
-//            Feature singleLocation = featureList.get(i);
-//            if( singleLocation.hasProperty("name")){
-//                String name = singleLocation.getStringProperty("name");
-//                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
-//                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-////                Log.d("MapActivity", "feature: " +name);
-//                LatLng locationLatLng = new LatLng(stringLat, stringLng);
-//
-//                map.addMarker(new MarkerOptions()
-//                        .position(locationLatLng)
-//                        .title(name));
-//            }
-//        }
     }
 
 
@@ -557,6 +606,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                                 stop(16.5f, 0.5f),
                                 stop(16f,0f))));
         map.addLayer(indoorBuildingLineLayer);
+
+//        FillExtrusionLayer roomExtrusionLayer = new FillExtrusionLayer("room-extrusion", "indoor-building");
+//        roomExtrusionLayer.setProperties(fillExtrusionColor(get("color")),
+//                fillExtrusionHeight(get("height")),
+//                fillExtrusionBase(get("base_height")),
+//                fillExtrusionOpacity(0.5f));
+//        map.addLayer(roomExtrusionLayer);
     }
     private String loadJsonFromAsset(String filename){
         try{
@@ -800,4 +856,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+
 }
