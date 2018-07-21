@@ -27,28 +27,28 @@
 
 
         <Button
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
             android:id="@+id/second_level_button"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
             android:text="2"
-            android:background="?android:attr/selectableItemBackground"
-            android:textColor="#ffffff"/>
+            android:textColor="@android:color/black" />
 
         <Button
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
             android:id="@+id/first_level_button"
-            android:text="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:textColor="#ffffff"/>
-
-        <Button
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:id="@+id/zero_level_button"
-            android:text="B1"
             android:background="?android:attr/selectableItemBackground"
-            android:textColor="#ffffff"/>
+            android:text="1"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/zero_level_button"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="B1"
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

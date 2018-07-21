@@ -1,6 +1,8 @@
 package com.arjo129.artest;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 
@@ -33,8 +35,10 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -43,6 +47,8 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.turf.TurfJoins;
 import com.mapbox.android.core.location.LocationEngine;
@@ -70,6 +76,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOpacity;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
@@ -81,6 +88,9 @@ public class CollectData extends AppCompatActivity implements
     private GeoJsonSource indoorBuildingSource;
     private List<List<Point>> boundingBoxList;
     private MapboxMap map;
+    private Button[] buttons;
+    private GeoJsonSource toiletSource, elevatorSource, stairSource;
+    private boolean settingUp = true;
     private WifiLocation wifilocation; // Custom class to wrap wifi scans which will be done in multiple placed through this app
     private View levelButtons;
     private FeatureCollection featureCollection;
@@ -96,6 +106,12 @@ public class CollectData extends AppCompatActivity implements
     private String session_id;
     //private ArrayList<WifiFingerprint> fingerprints;
     private WifiFingerprintList fingerprints;
+    private static final LatLngBounds COM1_BOUNDS = new LatLngBounds.Builder()
+            .include(new LatLng(1.2957635, 103.7730444))
+            .include(new LatLng(1.2943826, 103.7745324))
+            .build();
+
+
     void setSessionSecret(String str){
         session_secret = str;
     }
@@ -167,6 +183,7 @@ public class CollectData extends AppCompatActivity implements
                 initializeNewLevel(floor);
             }
         });
+        buttons = new Button[]{buttonZeroLevel, buttonFirstLevel, buttonSecondLevel};
     }
 
     private void hideLevelButton(){
@@ -181,44 +198,97 @@ public class CollectData extends AppCompatActivity implements
         levelButtons.startAnimation(animation);
         levelButtons.setVisibility(View.VISIBLE);
     }
-
-//    private void getFeatureCollectionFromJson(int level) throws IOException{
-//        String filename = "com1floor"+String.valueOf(level)+".geojson";
-//        try {
-//            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
-//        } catch (Exception e){
-//            Log.d("MapActivity", "getFeatureCollectionFromJson: "+e);
-//        }
-//    }
+    private void setColorButton(int level){
+        buttons[level].setBackgroundResource(R.color.green);
+        for(int i=0; i<3;i++){
+            if(i!=level){
+                buttons[i].setBackgroundResource(R.color.turquoise);
+            }
+        }
+    }
     private void initializeNewLevel(int level){
         String filename = "com1floor"+String.valueOf(level)+".geojson";
-        Log.d(TAG, "initialize floor: "+level);
         indoorBuildingSource.setGeoJson(loadJsonFromAsset(filename));
-//        map.removeAnnotations();
-//        featureCollection = null;
-//        try {
-//            getFeatureCollectionFromJson(level);
-//        }catch (Exception e){
-//            Log.e("MapActivity","onCreate: "+e);
-//        }
-//        List<Feature> featureList = featureCollection.features();
-//
-//
-//        Log.d("Mapactivity","Building features list");
-//        for(int i=0; i<featureList.size(); i++){
-//            Feature singleLocation = featureList.get(i);
-//            if( singleLocation.hasProperty("name")){
-//                String name = singleLocation.getStringProperty("name");
-//                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
-//                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-////                Log.d("MapActivity", "feature: " +name);
-//                LatLng locationLatLng = new LatLng(stringLat, stringLng);
-//
-//                map.addMarker(new MarkerOptions()
-//                        .position(locationLatLng)
-//                        .title(name));
-//            }
-//        }
+        initializeNewIcons(level);
+        setColorButton(level);
+    }
+
+    private void initializeNewIcons(int level) {
+        List<Feature> toiletsFeatures = filterFeatures(level, "toilet");
+        List<Feature> stairsFeatures = filterFeatures(level, "stair");
+        List<Feature> elevatorFeatures = filterFeatures(level, "lift");
+//        Log.d(TAG, String.valueOf(map.getSources().size()));
+        if (settingUp){
+            Log.d(TAG, "Adding new sources");
+            stairSource = new GeoJsonSource("stair-source", FeatureCollection.fromFeatures(stairsFeatures));
+            elevatorSource = new GeoJsonSource("elevator-source", FeatureCollection.fromFeatures(elevatorFeatures));
+            toiletSource = new GeoJsonSource("toilet-source", FeatureCollection.fromFeatures(toiletsFeatures));
+            map.addSource(stairSource);
+            map.addSource(elevatorSource);
+            map.addSource(toiletSource);
+            settingUp = false;
+        } else {
+            stairSource.setGeoJson(FeatureCollection.fromFeatures(stairsFeatures));
+            elevatorSource.setGeoJson(FeatureCollection.fromFeatures(elevatorFeatures));
+            toiletSource.setGeoJson(FeatureCollection.fromFeatures(toiletsFeatures));
+        }
+
+    }
+    private void initializeIconsLayer(int floor){
+        Bitmap stairs = BitmapFactory.decodeResource(
+                CollectData.this.getResources(), R.drawable.staircase_marker);
+        map.addImage("staircase-image", stairs);
+
+        Bitmap toilet_icon = BitmapFactory.decodeResource(
+                CollectData.this.getResources(), R.drawable.toilet_marker);
+        map.addImage("toilet-image", toilet_icon);
+
+        Bitmap elevator_icon = BitmapFactory.decodeResource(
+                CollectData.this.getResources(), R.drawable.elevator_marker);
+        map.addImage("elevator-image", elevator_icon);
+
+        initializeNewIcons(floor);
+        addSymbolLayer();
+    }
+    private void addSymbolLayer(){
+        SymbolLayer stairs_layer = new SymbolLayer("stairs.layer.id", "stair-source");
+        SymbolLayer toilets_layer = new SymbolLayer("toilets.layer.id", "toilet-source");
+        SymbolLayer elevator_layer = new SymbolLayer("elevator.layer.id", "elevator-source");
+        map.addLayer(stairs_layer);
+        map.addLayer(toilets_layer);
+        map.addLayer(elevator_layer);
+        stairs_layer.withProperties(PropertyFactory.iconImage("staircase-image"),
+                iconSize((float) 0.4));
+        toilets_layer.withProperties(PropertyFactory.iconImage("toilet-image"),
+                iconSize((float) 0.2));
+        elevator_layer.withProperties(PropertyFactory.iconImage("elevator-image"),
+                iconSize((float) 0.25));
+    }
+    private List<Feature> filterFeatures(int level, String key){
+        FeatureCollection featureCollection;
+        try {
+            String filename = "com1floor" + level + ".geojson";
+            featureCollection = FeatureCollection.fromJson(loadJsonFromAsset(filename));
+        } catch (Exception e) {
+            Log.d("MapActivity", "converting failed");
+            return null;
+        }
+        List<Feature> featureList = featureCollection.features();
+        List<Feature> featuresRequired = new ArrayList<>();
+        for (int i = 0; i < featureList.size(); i++) {
+            Feature singleLocation = featureList.get(i);
+            if(key.equals("toilet") && singleLocation.hasProperty(key)){
+                featuresRequired.add(singleLocation);
+            }
+            if((key.equals("stair") && singleLocation.hasProperty("connector")) ||
+                    (key.equals("lift") && singleLocation.hasProperty("connector"))){
+                String title = singleLocation.getStringProperty("connector");
+                if(title.toLowerCase().contains(key)){
+                    featuresRequired.add(singleLocation);
+                }
+            }
+        }
+        return featuresRequired;
     }
 
     private void loadBuildingLayer(){
@@ -244,14 +314,12 @@ public class CollectData extends AppCompatActivity implements
 
     private String loadJsonFromAsset(String filename){
         try{
-            Log.d("LoadJson", "loading....");
+//            Log.d("LoadJson", "loading....");
             InputStream is = getAssets().open(filename);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            Log.d(TAG, filename);
-            Log.d("LOadJson", filename);
             return new String(buffer, "UTF-8");
         } catch(IOException e){
             e.printStackTrace();
@@ -259,9 +327,16 @@ public class CollectData extends AppCompatActivity implements
         }
     }
 
+    private void settingMapView() {
+        map.setMinZoomPreference(18);
+        map.setMaxZoomPreference(22);
+        map.setLatLngBoundsForCameraTarget(COM1_BOUNDS);
+    }
+
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
+        settingMapView();
         map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
 
             @Override
@@ -316,51 +391,18 @@ public class CollectData extends AppCompatActivity implements
             }
         });
 
-        Intent before = getIntent();
-        if(before.hasExtra("lat") && before.hasExtra("lng") && before.hasExtra("place_name") && before.hasExtra("level")){
-            double lat = before.getDoubleExtra("lat", 0);
-            double lng = before.getDoubleExtra("lng", 0);
-            String place_name = before.getStringExtra("place_name");
-            int level = before.getIntExtra("level",0);
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(lat,lng))
-                    .setTitle(place_name)
-            );
-            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor"+level+".geojson"));
-            mapboxMap.addSource(indoorBuildingSource);
-            loadBuildingLayer();
-            return;
-        } else{
-            indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor0.geojson"));
-            mapboxMap.addSource(indoorBuildingSource);
-            loadBuildingLayer();
-        }
+        floor = 0;
+        indoorBuildingSource = new GeoJsonSource("indoor-building", loadJsonFromAsset("com1floor" + floor + ".geojson"));
+        mapboxMap.addSource(indoorBuildingSource);
+        setColorButton(floor);
+        loadBuildingLayer();
 
-//        try {
-//            getFeatureCollectionFromJson(0);
-//        }catch (Exception e){
-//            Log.e("MapActivity","onCreate: "+e);
-//        }
-//        List<Feature> featureList = featureCollection.features();
-//        Log.d("Mapactivity","Building features list");
-//        for(int i=0; i<featureList.size(); i++){
-//            Feature singleLocation = featureList.get(i);
-//            if( singleLocation.hasProperty("name")){
-//
-//                String name = singleLocation.getStringProperty("name");
-//                Double stringLng = ((Point)singleLocation.geometry()).coordinates().get(0);
-//                Double stringLat = ((Point)singleLocation.geometry()).coordinates().get(1);
-////                Log.d("MapActivity", "feature: " +name);
-//                LatLng locationLatLng = new LatLng(stringLat, stringLng);
-//
-//                mapboxMap.addMarker(new MarkerOptions()
-//                        .position(locationLatLng)
-//                        .title(name));
-//            }
-//
-//        }
+        initializeIconsLayer(floor);
+
         //enableLocationPlugin();
     }
+
+    @Override
     public void onStart() {
         super.onStart();
         if(locationEngine != null){

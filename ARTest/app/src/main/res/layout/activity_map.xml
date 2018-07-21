@@ -64,7 +64,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginBottom="36dp"
             android:layout_marginEnd="19dp"
-            android:background="@mipmap/my_location_foreground"
+                android:background="@mipmap/my_location_foreground"
             android:backgroundTint="#21a3a5" />
 
     </RelativeLayout>
