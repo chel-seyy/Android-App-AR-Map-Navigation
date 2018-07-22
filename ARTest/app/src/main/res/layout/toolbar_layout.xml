@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#75d7f3"
+    android:elevation="4dp"
+    android:minHeight="?attr/actionBarSize"
+    android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/starting_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/destination_title"
+            android:layout_marginTop="69dp"
+            android:fontFamily="sans-serif"
+            android:text="Destination"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/destination_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
+            android:text="Starting"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textDestination"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/starting_title"
+            android:layout_marginEnd="60dp"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+        <!--android:hint="Choose destination"-->
+
+        <TextView
+            android:id="@+id/textStart"
+            android:layout_width="141dp"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/textDestination"
+            android:layout_alignTop="@+id/destination_title"
+            android:text="Current Location"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+        <!--android:hint="Choose starting point"-->
+
+        <Button
+            android:id="@+id/start_route_button"
+            android:layout_width="30dp"
+            android:layout_height="31dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/destination_title"
+            android:layout_marginEnd="15dp"
+            android:background="@android:color/background_light"
+            android:enabled="true"
+            android:fontFamily="serif"
+            android:text="Go"
+            android:textColor="@android:color/holo_green_dark"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/start_AR_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignStart="@+id/start_route_button"
+            android:layout_alignTop="@+id/starting_title"
+            android:background="@android:color/white"
+            android:enabled="true"
+            android:text="AR"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/switch_locations_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignEnd="@+id/textDestination"
+            android:layout_centerVertical="true"
+            android:background="@mipmap/switch_locations" />
+
+    </RelativeLayout>
+</android.support.v7.widget.Toolbar>
