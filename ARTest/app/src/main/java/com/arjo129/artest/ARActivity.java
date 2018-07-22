@@ -23,9 +23,7 @@ public class ARActivity extends AppCompatActivity {
     WifiLocation wifiLocation;
     final String TAG = "ARActivity";
     int x,y,floor;
-    Runnable serverReqThread;
-    private int ScanInterval = 60000; // 5 seconds by default, can be changed later
-    private Handler serverHandler;
+
     private CompassListener compassListener;
     private DisplayRotationHelper dhelper;
     private ARScene navscene;
@@ -43,8 +41,6 @@ public class ARActivity extends AppCompatActivity {
         //Instantiate the ARCore stuff
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ARView);
         navscene = new ARScene(this,compassListener,arFragment,dhelper, directionInstructions);
-
-
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
