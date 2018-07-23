@@ -16,6 +16,7 @@ import com.arjo129.artest.CompassActivity;
 import com.arjo129.artest.LoginActivity;
 import com.arjo129.artest.R;
 import com.arjo129.artest.WifiActivity;
+import com.arjo129.artest.indoorLocation.WifiService;
 
 import java.util.List;
 
@@ -62,6 +63,7 @@ public class PlacesToGo extends AppCompatActivity
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};
         if(EasyPermissions.hasPermissions(this, perms)){
 //            openWifiIntent();
+            startService(new Intent(this, WifiService.class));
             Intent favsAct = new Intent(PlacesToGo.this,PlacesLectureTheatres.class);
             PlacesToGo.this.startActivity(favsAct);
 

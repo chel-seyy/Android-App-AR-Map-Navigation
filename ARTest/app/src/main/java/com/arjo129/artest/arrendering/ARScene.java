@@ -95,7 +95,7 @@ public class ARScene {
        }
        Log.d(TAG,"--[Recieved instructions]----------");
        for(DirectionInstruction dir: instructions){
-           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction);
+           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction+", is connector: ");
        }
     }
     /**

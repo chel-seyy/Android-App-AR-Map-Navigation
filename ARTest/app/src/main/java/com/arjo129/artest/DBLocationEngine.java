@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.arjo129.artest.device.WifiLocation;
+import com.arjo129.artest.indoorLocation.WifiNotificationListener;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mapbox.android.core.location.LocationEngine;
@@ -33,7 +34,7 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 
-public class DBLocationEngine extends LocationEngine {
+public class DBLocationEngine extends LocationEngine implements WifiNotificationListener {
     public final static String TAG = "DBLocationEngine";
     public static final int DELAY = 1000 * 5; // change to 5 seconds
     private Handler mHandler;
@@ -244,5 +245,10 @@ public class DBLocationEngine extends LocationEngine {
             dialog.show();
 
         }
+    }
+
+    @Override
+    public void onServerSendsFix(double lat, double lng, double alt) {
+
     }
 }
