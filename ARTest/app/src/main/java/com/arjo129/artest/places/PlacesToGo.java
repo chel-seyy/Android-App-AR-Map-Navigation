@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 
@@ -27,29 +28,13 @@ public class PlacesToGo extends AppCompatActivity
         implements EasyPermissions.PermissionCallbacks{
 
     private static final int LOCATION_PERMISSION = 22;
-    /*private GridView gridView;
-    String[] places = {
-            "Lecture Theatres",
-            "Favourites",
-            "Recent"
-
-    };
-    int[] images = {
-            R.mipmap.ic_location_gps_foreground,
-            R.mipmap.ic_happy_star_foreground,
-            R.mipmap.ic_recents_foreground
-
-    };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places_to_go);
-        /*gridView = (GridView)findViewById(R.id.grid_view);
-        GridAdapter gridAdapter = new GridAdapter(this, places, images);
-        gridView.setAdapter(gridAdapter);*/
-        ImageButton imageButton = findViewById(R.id.imageButton);
-        imageButton.setOnClickListener(new View.OnClickListener() {
+        Button button = findViewById(R.id.main_button);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 wifiScanning();

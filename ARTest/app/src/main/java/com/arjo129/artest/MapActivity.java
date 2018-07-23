@@ -201,11 +201,10 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
 //                getSupportActionBar().hide();
                 Log.d("MapActivity", "Clicked route button");
-                // Mock starting position:
-//                startCoord = new LatLng(1.295252,103.7737);
-//                startCoord.setAltitude(0.0);
-                startCoord = locationLayerDisabledAndReturnLocation();
-                startRouteFloor = (int) startCoord.getAltitude();
+                if (startCoord == null) {
+                    startCoord = locationLayerDisabledAndReturnLocation();
+                    startRouteFloor = (int) startCoord.getAltitude();
+                }
 //                Log.d(TAG, "StartFloor: " + startRouteFloor + " DestFloor: " + destRouteFloor + " currentLevel: " + floor);
 
 //                if(checkOutBoundMarkers()){
@@ -214,6 +213,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 if (destinationCoord != null) {
                     // TODO: floor set altitude in Location coordinate
                     HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
+                    Log.d(TAG, startCoord.toString());
+                    Log.d(TAG, destinationCoord.toString());
                     buildRoute(drawNodes);
                 } else {
                     Toast.makeText(MapActivity.this, "Set a destination first." , Toast.LENGTH_LONG).show();
@@ -243,7 +244,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 }
                 nodesList.addAll(drawNodes.get(destRouteFloor));
 
-                
+
 
                 buildRoute(drawNodes);
                 List<Node> path = nodesList;
@@ -296,6 +297,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     ((DBLocationEngine)locationEngine).enableLocation();
                     locationEngine.requestLocationUpdates();
                     setCameraPosition(originLocation);
+                    startCoord = locationLayerDisabledAndReturnLocation();
+                    startRouteFloor = (int) startCoord.getAltitude();
                 }
                 else{
                     Toast.makeText(MapActivity.this, "Null location", Toast.LENGTH_SHORT).show();
@@ -325,6 +328,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     String tempText = start_text.getText().toString();
                     start_text.setText(destination_text.getText());
                     destination_text.setText(tempText);
+
+                    Log.d(TAG, startCoord.toString());
+                    Log.d(TAG, destinationCoord.toString());
                 }
             }
         });
@@ -463,9 +469,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             List<LatLng> routePolyline = new ArrayList<>();
             for (Node node: waypoints.get(level)){
                 routePolyline.add(node.coordinate);
-               /* if (node.isConnector) {
-                    Log.d(TAG + "Routing", node.toString());
-                }*/
             }
             routePolylines.put(level, routePolyline);
         }
@@ -553,7 +556,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         .position(startCoord)
                         .setTitle("Start point")
                 );
-                Log.d(TAG, "Added start marker");
+//                Log.d(TAG, "Added start marker");
             }
         }
 
@@ -564,7 +567,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         .setTitle(destinationCoord.toString())
                         .setIcon(green_icon)
                 );
-                Log.d(TAG, "Added dest marker");
+//                Log.d(TAG, "Added dest marker");
             }
         }
         ////////////////////////
