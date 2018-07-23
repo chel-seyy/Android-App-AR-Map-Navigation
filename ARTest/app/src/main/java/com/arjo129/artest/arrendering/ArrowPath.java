@@ -17,7 +17,7 @@ public class ArrowPath {
     private int lastArrow;
     private ARScene scene;
     private ModelRenderable arrow;
-    private ViewRenderable destinationMarker;
+    private ViewRenderable destinationMarker, upMarker, downMarker;
     private ArrayList<Integer> arrows;
     private static final String TAG = "ArrowPath";
     public enum EndMarkerType{
@@ -45,6 +45,20 @@ public class ArrowPath {
                     destinationMarker = renderable;
                     ((ImageButton)destinationMarker.getView()).setImageResource(R.drawable.destination);
                 });
+        ViewRenderable.builder()
+                .setView(ctx,R.layout.ar_imageview)
+                .build()
+                .thenAccept(renderable -> {
+                     upMarker = renderable;
+                    ((ImageButton)destinationMarker.getView()).setImageResource(R.drawable.stairs_up);
+                });
+        ViewRenderable.builder()
+                .setView(ctx,R.layout.ar_imageview)
+                .build()
+                .thenAccept(renderable -> {
+                    downMarker = renderable;
+                    ((ImageButton)destinationMarker.getView()).setImageResource(R.drawable.stairs_down);
+                });
 
     }
 
@@ -62,18 +76,22 @@ public class ArrowPath {
             case END_MARKER_TYPE_DESTINATION:
                 lastArrow = scene.placeItem(destinationMarker, distance, heading, heading, 1, true);
                 break;
+            case END_MARKER_TYPE_STAIRS_UP:
+                lastArrow = scene.placeItem(upMarker,distance,heading,heading,1,true);
+            case END_MARKER_TYPE_STAIRS_DOWN:
+                lastArrow = scene.placeItem(downMarker,distance,heading,heading,1,true);
         }
     }
     public void update(){
        ArrayList<Integer> tbr = new ArrayList<>();
        for(int id: arrows){
             if (scene.isInFrontOf(id)){
-                //Log.d(TAG,"in front of arrow "+id);
+                Log.d(TAG,"in front of arrow "+id);
                 scene.removeItem(id);
                 tbr.add(id);
             }
             else {
-               // Log.d(TAG,"behind arrow "+id);
+               Log.d(TAG,"behind arrow "+id);
             }
         }
         for(int id: tbr){

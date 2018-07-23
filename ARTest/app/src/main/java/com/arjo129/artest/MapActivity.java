@@ -34,6 +34,7 @@ import com.arjo129.artest.arrendering.ARScene;
 import com.arjo129.artest.arrendering.DirectionInstruction;
 import com.arjo129.artest.device.WifiLocation;
 import com.arjo129.artest.places.BearingUtils;
+import com.arjo129.artest.places.Connector;
 import com.arjo129.artest.places.Routing;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -245,7 +246,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 
 
                 buildRoute(drawNodes);
-                List<Node> path = drawNodes.get((int)startCoord.getAltitude());
+                List<Node> path = nodesList;
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
                 float prev_dir = -1;
@@ -254,16 +255,26 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         float dist = (float) BearingUtils.calculate_distance(node.coordinate,prevNode.coordinate)*1000;
                         float bearing = (float)(prevNode.bearing + 360)%360;
 
-                        if(prev_dir > 0 &&Math.abs(bearing - prev_dir) < 45){
+                        if(prev_dir > 0 && Math.abs(bearing - prev_dir) < 45 && node.isConnector){
                             directionInstructions.get(directionInstructions.size()-1).distance+=dist;
                             directionInstructions.get(directionInstructions.size()-1).direction=bearing;
+                            prev_dir = bearing;
                         }
                         else {
-                            DirectionInstruction dirInst = new DirectionInstruction(dist, bearing);
-                            directionInstructions.add(dirInst);
+                            if(!node.isConnector) {
+                                DirectionInstruction dirInst = new DirectionInstruction(dist, bearing);
+                                directionInstructions.add(dirInst);
+                                prev_dir = bearing;
+                            } else {
+                                DirectionInstruction dirInst = new DirectionInstruction(dist,bearing);
+                                dirInst.isConnector = true;
+                                dirInst.connector_type = node.connector;
+                                dirInst.goingUp = node.directionUp;
+                                prev_dir = -1;
+                            }
                         }
-                        prev_dir = bearing;
-                        Log.d(TAG,"Adding instruction "+dist+"m" + ","+bearing);
+
+                        Log.d(TAG,"Adding instruction "+dist+"m" + ","+bearing+" connector: "+node.connector);
                     }
                     prevNode = node;
                 }
@@ -765,7 +776,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged");
+        //Log.d(TAG, "onLocationChanged");
         if(location!= null){
             originLocation = location;
             // Buggy Line: floor != altitude

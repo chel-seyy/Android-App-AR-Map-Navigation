@@ -78,7 +78,14 @@ public class ARScene {
        curr_direction =0;
        if(inst.size() > 0){
            DirectionInstruction dir = instructions.get(curr_direction);
-           if(curr_direction+1 < instructions.size()){
+           if(dir.isConnector){
+               arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, 0,this);
+               if(dir.goingUp)
+                   arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_STAIRS_UP;
+               else
+                   arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_STAIRS_DOWN;
+           }
+           else if(curr_direction+1 < instructions.size()){
                float next_turn = instructions.get(curr_direction+1).direction;
                arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn,this);
            }
@@ -95,7 +102,7 @@ public class ARScene {
        }
        Log.d(TAG,"--[Recieved instructions]----------");
        for(DirectionInstruction dir: instructions){
-           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction+", is connector: ");
+           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction+", is connector: "+ dir.connector_type);
        }
     }
     /**

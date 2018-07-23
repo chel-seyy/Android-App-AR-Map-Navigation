@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ImageButton android:id="@+id/ARImageButton"
-    android:layout_width="600dp"
-    android:layout_height="600dp"
+    android:layout_width="300dp"
+    android:layout_height="300dp"
     android:background="@android:color/transparent"
     android:scaleType="fitStart"
     xmlns:android="http://schemas.android.com/apk/res/android" />

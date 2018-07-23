@@ -41,6 +41,7 @@ public class WifiFingerprint implements Serializable {
             json.put("x", x_coord);
             json.put("y", y_coord);
             json.put("floor", floor);
+            json.put();
             json.put("WIFI",wifi_list);
         }
         catch ( JSONException e){
