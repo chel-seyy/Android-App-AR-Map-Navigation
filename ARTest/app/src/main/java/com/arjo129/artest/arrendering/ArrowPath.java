@@ -50,14 +50,14 @@ public class ArrowPath {
                 .build()
                 .thenAccept(renderable -> {
                      upMarker = renderable;
-                    ((ImageButton)destinationMarker.getView()).setImageResource(R.drawable.stairs_up);
+                    ((ImageButton)upMarker.getView()).setImageResource(R.drawable.stairs_up);
                 });
         ViewRenderable.builder()
                 .setView(ctx,R.layout.ar_imageview)
                 .build()
                 .thenAccept(renderable -> {
                     downMarker = renderable;
-                    ((ImageButton)destinationMarker.getView()).setImageResource(R.drawable.stairs_down);
+                    ((ImageButton)downMarker.getView()).setImageResource(R.drawable.stairs_down);
                 });
 
     }

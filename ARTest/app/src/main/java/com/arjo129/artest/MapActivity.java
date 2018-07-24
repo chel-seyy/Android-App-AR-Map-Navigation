@@ -247,7 +247,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 
 
                 buildRoute(drawNodes);
-                List<Node> path = nodesList;
+                List<Node> path = drawNodes.get(1);
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
                 float prev_dir = -1;
@@ -256,7 +256,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                         float dist = (float) BearingUtils.calculate_distance(node.coordinate,prevNode.coordinate)*1000;
                         float bearing = (float)(prevNode.bearing + 360)%360;
 
-                        if(prev_dir > 0 && Math.abs(bearing - prev_dir) < 45 && node.isConnector){
+                        if(prev_dir >= 0 && Math.abs(bearing - prev_dir) < 45 && !node.isConnector){
                             directionInstructions.get(directionInstructions.size()-1).distance+=dist;
                             directionInstructions.get(directionInstructions.size()-1).direction=bearing;
                             prev_dir = bearing;
