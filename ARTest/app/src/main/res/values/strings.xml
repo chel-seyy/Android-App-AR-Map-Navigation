@@ -15,4 +15,8 @@
     <string name="server_api_key" translatable="false">aQer6790fg#$gt67</string>
     <string name="access_token" translatable="false">pk.eyJ1IjoiZ3JlZWtnZWVrIiwiYSI6ImNqaHZlZmhrNDA0ajkzcW1kODRtMHZ5MmYifQ.1AxqPHxWVqkZHQtJYmEZJw</string>
     <string name="title_activity_upload_confirmation">Upload Confirmation</string>
+
+    <string name="title_activity_climb_stair">ClimbStairActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

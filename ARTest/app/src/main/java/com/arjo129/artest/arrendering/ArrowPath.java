@@ -82,7 +82,7 @@ public class ArrowPath {
                 lastArrow = scene.placeItem(downMarker,distance,heading,heading,1,true);
         }
     }
-    public void update(){
+    public void update() throws StairException {
        ArrayList<Integer> tbr = new ArrayList<>();
        for(int id: arrows){
             if (scene.isInFrontOf(id)){
@@ -97,6 +97,8 @@ public class ArrowPath {
         for(int id: tbr){
             arrows.remove(Integer.valueOf(id));
         }
+        if(arrows.size() ==0 && (endMarker == EndMarkerType.END_MARKER_TYPE_STAIRS_UP || endMarker == EndMarkerType.END_MARKER_TYPE_STAIRS_DOWN))
+            throw new StairException();
         //construct();
     }
     public void destroy(){

@@ -1,6 +1,7 @@
 package com.arjo129.artest.arrendering;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -19,6 +20,7 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.ux.ArFragment;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -155,7 +157,17 @@ public class ARScene {
                             Pose.makeRotation(0, 0, (float) Math.sqrt(0.5f), (float) Math.sqrt(0.5f)),
                             dhelper.getRotation()));
             initialArrow.update(currPose,sess,frame);
-            arrowPath1.update();
+            try {
+                arrowPath1.update();
+            } catch (StairException st){
+                Intent stairActivity= new Intent(context, StaircaseActivity.class);
+                ArrayList<DirectionInstruction> directions = new ArrayList<>();
+                for(int i = curr_direction+1; i < instructions.size(); i++){
+                    directions.add(instructions.get(i));
+                }
+                stairActivity.putExtra("instructions",(Serializable)directions);
+                context.startActivity(stairActivity);
+            }
             Pose deviceOrientedPose = frame.getCamera().getPose();
             //Get the phone's pose in relation to the real world
             float heading = visualAnchorCompass.getHeading(sess,frame,false);

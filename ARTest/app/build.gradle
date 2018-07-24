@@ -48,6 +48,7 @@ dependencies {
     //Add: Sceneform framework - these libraries enable you to easily place objects in 3D
     implementation "com.google.ar.sceneform:core:1.0.0"
     implementation "com.google.ar.sceneform.ux:sceneform-ux:1.0.0"
+    implementation 'com.android.support:support-v4:27.1.1'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.10.19'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
