@@ -80,12 +80,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".places.PlacesLectureTheatres" />
         </activity>
-
         <activity
             android:name=".MapActivity"
             android:label="Indoor Map"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:parentActivityName=".places.PlacesLectureTheatres">
+            android:parentActivityName=".places.PlacesLectureTheatres"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".places.PlacesLectureTheatres" />
@@ -97,7 +96,9 @@
         <service
             android:name=".indoorLocation.WifiService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".arrendering.StaircaseActivity"></activity>
     </application>
 
 </manifest>

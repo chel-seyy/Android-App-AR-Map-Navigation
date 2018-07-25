@@ -1,6 +1,7 @@
 package com.arjo129.artest.arrendering;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -19,6 +20,7 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.ux.ArFragment;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -78,7 +80,14 @@ public class ARScene {
        curr_direction =0;
        if(inst.size() > 0){
            DirectionInstruction dir = instructions.get(curr_direction);
-           if(curr_direction+1 < instructions.size()){
+           if(dir.isConnector){
+               arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, 0,this);
+               if(dir.goingUp)
+                   arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_STAIRS_UP;
+               else
+                   arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_STAIRS_DOWN;
+           }
+           else if(curr_direction+1 < instructions.size()){
                float next_turn = instructions.get(curr_direction+1).direction;
                arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn,this);
            }
@@ -95,7 +104,7 @@ public class ARScene {
        }
        Log.d(TAG,"--[Recieved instructions]----------");
        for(DirectionInstruction dir: instructions){
-           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction+", is connector: ");
+           Log.d(TAG,"Got instruction walk "+dir.distance+"m"+" due"+dir.direction+", is connector: "+ dir.connector_type);
        }
     }
     /**
@@ -148,7 +157,17 @@ public class ARScene {
                             Pose.makeRotation(0, 0, (float) Math.sqrt(0.5f), (float) Math.sqrt(0.5f)),
                             dhelper.getRotation()));
             initialArrow.update(currPose,sess,frame);
-            arrowPath1.update();
+            try {
+                arrowPath1.update();
+            } catch (StairException st){
+                Intent stairActivity= new Intent(context, StaircaseActivity.class);
+                ArrayList<DirectionInstruction> directions = new ArrayList<>();
+                for(int i = curr_direction+1; i < instructions.size(); i++){
+                    directions.add(instructions.get(i));
+                }
+                stairActivity.putExtra("instructions",(Serializable)directions);
+                context.startActivity(stairActivity);
+            }
             Pose deviceOrientedPose = frame.getCamera().getPose();
             //Get the phone's pose in relation to the real world
             float heading = visualAnchorCompass.getHeading(sess,frame,false);
