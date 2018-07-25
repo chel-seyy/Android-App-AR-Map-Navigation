@@ -153,25 +153,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
-//        toolbar.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                switch (event.getAction()){
-//                    case MotionEvent.ACTION_DOWN:
-//
-//                        actionBar.show();
-//                }
-//                return false;
-//            }
-//        });
-//        LayoutInflater mInflater = LayoutInflater.from(this);
 
-//        View mCustomView = mInflater.inflate(R.layout.toolbar_layout, null);
         destination_text = findViewById(R.id.textDestination);
         start_text = findViewById(R.id.textStart);
-//        destination_text.setText("DEST !!");
-//        actionBar.setCustomView(mCustomView);
-//        actionBar.setDisplayShowCustomEnabled(true);
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -201,8 +185,12 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
 //                getSupportActionBar().hide();
                 Log.d("MapActivity", "Clicked route button");
-                startCoord = locationLayerDisabledAndReturnLocation();
-                startRouteFloor = (int) startCoord.getAltitude();
+                if (startCoord == null) {
+                    startCoord = locationLayerDisabledAndReturnLocation();
+                    startRouteFloor = (int) startCoord.getAltitude();
+                }
+                locationLayerPlugin.setLocationLayerEnabled(false);
+
 
 //                Log.d(TAG, "StartFloor: " + startRouteFloor + " DestFloor: " + destRouteFloor + " currentLevel: " + floor);
 
@@ -210,7 +198,6 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
 //                    return;
 //                }
                 if (destinationCoord != null) {
-                    // TODO: floor set altitude in Location coordinate
                     HashMap<Integer, List<Node>> drawNodes = mapRouting.getRoute(startCoord, destinationCoord);
                     Log.d(TAG, startCoord.toString());
                     Log.d(TAG, destinationCoord.toString());
@@ -288,13 +275,13 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 // Find Location again, and animate camera
                 if(locationLayerPlugin != null){
                     getSupportActionBar().show();
-//                    start_text.setText("Current location");
                     locationLayerPlugin.setLocationLayerEnabled(true);
                     ((DBLocationEngine)locationEngine).enableLocation();
                     locationEngine.requestLocationUpdates();
                     setCameraPosition(originLocation);
-//                    startCoord = locationLayerDisabledAndReturnLocation();
-//                    startRouteFloor = (int) startCoord.getAltitude();
+                    startCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                    startCoord.setAltitude(originLocation.getAltitude());
+                    startRouteFloor = (int) startCoord.getAltitude();
                 }
                 else{
                     Toast.makeText(MapActivity.this, "Null location", Toast.LENGTH_SHORT).show();
@@ -325,8 +312,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     start_text.setText(destination_text.getText());
                     destination_text.setText(tempText);
 
-                    Log.d(TAG, startCoord.toString());
-                    Log.d(TAG, destinationCoord.toString());
+                    Log.d("SwitchLoc", startCoord.toString());
+                    Log.d("SwitchLoc", destinationCoord.toString());
                 }
             }
         });
@@ -352,28 +339,22 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
     public void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
         settingMapView();
-        map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
+        /*map.addOnMapClickListener(new MapboxMap.OnMapClickListener(){
 
             @Override
             public void onMapClick(@NonNull LatLng point) {
-                // TODO: Change this part when location enabled
-                startCoord = locationLayerDisabledAndReturnLocation();
-                // Mock Start location tapped
-                /*if (startMarker == null) {
-                    // Mock starting position:
-                    startCoord = new LatLng(1.295252,103.7737);
-                    startCoord.setAltitude(1.0);
-                    startRouteFloor = 1;
-                } else {*/
-                destinationCoord = point;
-                Log.d(TAG, "Dest coord level: " + floor);
-                destinationCoord.setAltitude(floor);
-                destRouteFloor = floor;
-//                }
+
+//                startCoord = locationLayerDisabledAndReturnLocation();
+
+//                destinationCoord = point;
+//                Log.d(TAG, "Dest coord level: " + floor);
+//                destinationCoord.setAltitude(floor);
+//                destRouteFloor = floor;
+
                 //////////////////////////////
-                refreshMarkers();
+//                refreshMarkers();
             }
-        });
+        });*/
 
         /*
          * Camera bounding box
