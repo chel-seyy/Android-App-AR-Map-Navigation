@@ -2,6 +2,8 @@ package com.arjo129.artest.datacollection;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -24,6 +26,12 @@ public class UploadConfirmation extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_confirmation);
+        ActionBar actionBar = this.getSupportActionBar();
+        // Set the action bar back button to look like an up button
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         wifiList = WifiFingerprintList.getInstance();
         creation_times = new ArrayList<>();
         for(WifiFingerprint fingerprint : wifiList.wifiFingerprints){
@@ -52,7 +60,9 @@ public class UploadConfirmation extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         // When the home button is pressed, take the user back to the VisualizerActivity
-        if (id == R.id.upload_readings) {
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+        } else if (id == R.id.upload_readings) {
             //NavUtils.navigateUpFromSameTask(this);
             wifiList.upload(this, (ServerResponse response) -> {
                 if(response == ServerResponse.SERVER_RESPONSE_OK){

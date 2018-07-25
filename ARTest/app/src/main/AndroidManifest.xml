@@ -89,10 +89,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".places.PlacesLectureTheatres" />
         </activity>
+
         <activity
             android:name=".datacollection.UploadConfirmation"
-            android:label="@string/title_activity_upload_confirmation" />
-
+            android:parentActivityName=".CollectData"
+            android:label="@string/title_activity_upload_confirmation">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".CollectData" />
+        </activity>
         <service
             android:name=".indoorLocation.WifiService"
             android:enabled="true"
