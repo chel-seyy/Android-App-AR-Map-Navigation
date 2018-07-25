@@ -201,10 +201,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
             public void onClick(View view) {
 //                getSupportActionBar().hide();
                 Log.d("MapActivity", "Clicked route button");
-                if (startCoord == null) {
-                    startCoord = locationLayerDisabledAndReturnLocation();
-                    startRouteFloor = (int) startCoord.getAltitude();
-                }
+                startCoord = locationLayerDisabledAndReturnLocation();
+                startRouteFloor = (int) startCoord.getAltitude();
+
 //                Log.d(TAG, "StartFloor: " + startRouteFloor + " DestFloor: " + destRouteFloor + " currentLevel: " + floor);
 
 //                if(checkOutBoundMarkers()){
@@ -251,7 +250,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
                 float prev_dir = -1;
-                for(Node node: path){
+                for(Node node: nodesList){
                     if(prevNode != null){
                         float dist = (float) BearingUtils.calculate_distance(node.coordinate,prevNode.coordinate)*1000;
                         float bearing = (float)(prevNode.bearing + 360)%360;
@@ -297,8 +296,8 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                     ((DBLocationEngine)locationEngine).enableLocation();
                     locationEngine.requestLocationUpdates();
                     setCameraPosition(originLocation);
-                    startCoord = locationLayerDisabledAndReturnLocation();
-                    startRouteFloor = (int) startCoord.getAltitude();
+//                    startCoord = locationLayerDisabledAndReturnLocation();
+//                    startRouteFloor = (int) startCoord.getAltitude();
                 }
                 else{
                     Toast.makeText(MapActivity.this, "Null location", Toast.LENGTH_SHORT).show();
