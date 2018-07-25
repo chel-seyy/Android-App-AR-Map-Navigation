@@ -70,17 +70,20 @@ public class ArrowPath {
            arrows.add(id);
         }
         switch(endMarker) {
-            case END_MARKER_TYPE_NEXT:
-                lastArrow = scene.placeItem(arrow, distance, heading, next_path + 90, 0, true);
-                break;
+
             case END_MARKER_TYPE_DESTINATION:
-                lastArrow = scene.placeItem(destinationMarker, distance, heading, heading, 1, true);
+                lastArrow = scene.placeItem(destinationMarker, distance, heading, heading, 0, true);
+                Log.d(TAG, "Destination");
                 break;
             case END_MARKER_TYPE_STAIRS_UP:
-                lastArrow = scene.placeItem(upMarker,distance,heading,heading,1,true);
+                lastArrow = scene.placeItem(upMarker,distance,heading,heading,0,true);
                 break;
             case END_MARKER_TYPE_STAIRS_DOWN:
-                lastArrow = scene.placeItem(downMarker,distance,heading,heading,1,true);
+                lastArrow = scene.placeItem(downMarker,distance,heading,heading,0,true);
+                break;
+            case END_MARKER_TYPE_NEXT:
+                lastArrow = scene.placeItem(arrow, distance, heading, next_path + 90, 0, true);
+                Log.d(TAG, "Arrow");
                 break;
         }
     }
