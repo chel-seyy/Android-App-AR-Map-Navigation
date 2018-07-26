@@ -63,7 +63,7 @@ public class ArrowPath {
     }
 
     public void construct(){
-        Log.d(TAG,"heading: "+heading);
+        Log.d(TAG,"heading: "+heading+"endmarker: "+endMarker);
         for(int i =1 ; i < distance; i+=5){
             //Log.d(TAG, "drawing arrow "+i);
            int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
@@ -78,20 +78,22 @@ public class ArrowPath {
                 break;
             case END_MARKER_TYPE_STAIRS_UP:
                 lastArrow = scene.placeItem(upMarker,distance,heading,heading,1,true);
+                break;
             case END_MARKER_TYPE_STAIRS_DOWN:
                 lastArrow = scene.placeItem(downMarker,distance,heading,heading,1,true);
+                break;
         }
     }
     public void update() throws StairException {
        ArrayList<Integer> tbr = new ArrayList<>();
        for(int id: arrows){
             if (scene.isInFrontOf(id)){
-                Log.d(TAG,"in front of arrow "+id);
+                //Log.d(TAG,"in front of arrow "+id);
                 scene.removeItem(id);
                 tbr.add(id);
             }
             else {
-               Log.d(TAG,"behind arrow "+id);
+               //Log.d(TAG,"behind arrow "+id);
             }
         }
         for(int id: tbr){

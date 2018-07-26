@@ -212,17 +212,21 @@ public class ARScene {
             if (abs(angleBetweenVectors) < 55) {
                 if (curr_direction < instructions.size()) {
                     DirectionInstruction dir = instructions.get(curr_direction);
-                    if (curr_direction + 1 < instructions.size()) {
-                        float next_turn = instructions.get(curr_direction).direction;
-                        arrowPath1.destroy();
-                        arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn, this);
+                    if(dir.isConnector){
+                        arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, 0,this);
+                        if(dir.goingUp)
+                            arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_STAIRS_UP;
+                        else
+                            arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_STAIRS_DOWN;
                     }
-                    else{
-                        Log.d(TAG, "Drawing End Marker");
-                        arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, 0, this);
+                    else if(curr_direction+1 < instructions.size()){
+                        float next_turn = instructions.get(curr_direction+1).direction;
+                        arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, next_turn,this);
+                    }
+                    else {
+                        arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, 0,this);
                         arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_DESTINATION;
                     }
-                    //Log.d(TAG, "drawing..."+dir.direction+"next: "+next_turn);
                     arrowPath1.construct();
                     curr_direction++;
                 }
