@@ -73,7 +73,7 @@ public class ArrowPath {
 
     private void render(){
         Log.d(TAG,"heading: "+heading+"endmarker: "+endMarker);
-        for(int i =1 ; i < distance; i+=5){
+        for(int i =1 ; i < distance-1; i+=5){
             //Log.d(TAG, "drawing arrow "+i);
            int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
            arrows.add(id);
