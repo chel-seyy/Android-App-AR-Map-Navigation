@@ -95,7 +95,6 @@ public class ARScene {
                arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, 0,this);
                arrowPath1.endMarker = ArrowPath.EndMarkerType.END_MARKER_TYPE_DESTINATION;
            }
-           //arrowPath1.destroy();
 
            //Log.d(TAG, "drawing...."+dir.direction+","+next_turn);
            //arrowPath1.construct();
@@ -212,6 +211,7 @@ public class ARScene {
             if (abs(angleBetweenVectors) < 55) {
                 if (curr_direction < instructions.size()) {
                     DirectionInstruction dir = instructions.get(curr_direction);
+                    arrowPath1.destroy();
                     if(dir.isConnector){
                         arrowPath1 = new ArrowPath(context, dir.distance, dir.direction, dir.direction,this);
                         if(dir.goingUp)
