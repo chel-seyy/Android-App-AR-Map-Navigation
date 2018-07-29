@@ -16,10 +16,12 @@ public class ArrowPath {
     private float next_path;
     private int lastArrow;
     private ARScene scene;
-    private ModelRenderable arrow;
-    private ViewRenderable destinationMarker, upMarker, downMarker;
+    private static ModelRenderable arrow;
+    private static ViewRenderable destinationMarker, upMarker, downMarker;
+    private static int numberOfObjectsLoaded = 0;
     private ArrayList<Integer> arrows;
     private static final String TAG = "ArrowPath";
+    private boolean toBeRendered = false;
     public enum EndMarkerType{
         END_MARKER_TYPE_STAIRS_UP,
         END_MARKER_TYPE_STAIRS_DOWN,
@@ -33,55 +35,72 @@ public class ArrowPath {
         distance = dist;
         heading = angle;
         next_path = next_angle;
-        ModelRenderable.builder()
-                .setSource(ctx, R.raw.model)
-                .build()
-                .thenAccept(renderable -> arrow = renderable);
         arrows = new ArrayList<>();
-        ViewRenderable.builder()
-                .setView(ctx,R.layout.ar_imageview)
-                .build()
-                .thenAccept(renderable -> {
-                    destinationMarker = renderable;
-                    ((ImageButton)destinationMarker.getView()).setImageResource(R.drawable.destination);
-                });
-        ViewRenderable.builder()
-                .setView(ctx,R.layout.ar_imageview)
-                .build()
-                .thenAccept(renderable -> {
-                     upMarker = renderable;
-                    ((ImageButton)upMarker.getView()).setImageResource(R.drawable.stairs_up);
-                });
-        ViewRenderable.builder()
-                .setView(ctx,R.layout.ar_imageview)
-                .build()
-                .thenAccept(renderable -> {
-                    downMarker = renderable;
-                    ((ImageButton)downMarker.getView()).setImageResource(R.drawable.stairs_down);
-                });
-
+        if(numberOfObjectsLoaded < 3) {
+            ModelRenderable.builder()
+                    .setSource(ctx, R.raw.model)
+                    .build()
+                    .thenAccept(renderable -> arrow = renderable);
+            ViewRenderable.builder()
+                    .setView(ctx, R.layout.ar_imageview)
+                    .build()
+                    .thenAccept(renderable -> {
+                        destinationMarker = renderable;
+                        ((ImageButton) destinationMarker.getView()).setImageResource(R.drawable.destination);
+                        numberOfObjectsLoaded++;
+                        if(toBeRendered) construct();
+                    });
+            ViewRenderable.builder()
+                    .setView(ctx, R.layout.ar_imageview)
+                    .build()
+                    .thenAccept(renderable -> {
+                        upMarker = renderable;
+                        ((ImageButton) upMarker.getView()).setImageResource(R.drawable.stairs_up);
+                        numberOfObjectsLoaded++;
+                        if(toBeRendered) construct();
+                    });
+            ViewRenderable.builder()
+                    .setView(ctx, R.layout.ar_imageview)
+                    .build()
+                    .thenAccept(renderable -> {
+                        downMarker = renderable;
+                        ((ImageButton) downMarker.getView()).setImageResource(R.drawable.stairs_down);
+                        numberOfObjectsLoaded++;
+                        if(toBeRendered) construct();
+                    });
+        }
     }
 
-    public void construct(){
+    private void render(){
         Log.d(TAG,"heading: "+heading+"endmarker: "+endMarker);
-        for(int i =1 ; i < distance; i+=5){
+        for(int i =1 ; i < distance-1; i+=5){
             //Log.d(TAG, "drawing arrow "+i);
            int id = scene.placeItem(arrow,i,heading,heading+90,0,true);
            arrows.add(id);
         }
         switch(endMarker) {
-            case END_MARKER_TYPE_NEXT:
-                lastArrow = scene.placeItem(arrow, distance, heading, next_path + 90, 0, true);
-                break;
             case END_MARKER_TYPE_DESTINATION:
-                lastArrow = scene.placeItem(destinationMarker, distance, heading, heading, 1, true);
+                lastArrow = scene.placeItem(destinationMarker, distance, heading, heading, 0, true);
                 break;
             case END_MARKER_TYPE_STAIRS_UP:
-                lastArrow = scene.placeItem(upMarker,distance,heading,heading,1,true);
+                lastArrow = scene.placeItem(upMarker,distance,heading,heading,0,true);
                 break;
             case END_MARKER_TYPE_STAIRS_DOWN:
-                lastArrow = scene.placeItem(downMarker,distance,heading,heading,1,true);
+                lastArrow = scene.placeItem(downMarker,distance,heading,heading,0,true);
                 break;
+            case END_MARKER_TYPE_NEXT:
+                lastArrow = scene.placeItem(arrow, distance, heading, next_path + 90, 0, true);
+                Log.d(TAG, "Arrow "+arrow);
+                break;
+        }
+    }
+
+    public void construct(){
+        if(numberOfObjectsLoaded < 3){
+            toBeRendered = true;
+        }
+        else{
+            render();
         }
     }
     public void update() throws StairException {

@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.arjo129.artest.datacollection.WifiFingerprint;
 import com.arjo129.artest.datacollection.WifiFingerprintList;
+import com.arjo129.artest.indoorLocation.SecurityProvider;
 import com.loopj.android.http.*;
 
 import org.json.JSONException;
@@ -43,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
                     obj.put("password", password);
                     StringEntity ent = new StringEntity(obj.toString());
                     AsyncHttpClient client = new AsyncHttpClient();
+                    client.setSSLSocketFactory(SecurityProvider.getSocketFactory(LoginActivity.this));
                     client.post(getApplication(), getString(R.string.server_url)+"session_token",
                             ent, "application/json", new JsonHttpResponseHandler() {
                                 @Override

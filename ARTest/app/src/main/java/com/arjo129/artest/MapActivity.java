@@ -228,12 +228,9 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                 if (Math.abs(startRouteFloor - destRouteFloor) > 1) {
                     nodesList.addAll(drawNodes.get(1));
                 }
-                nodesList.addAll(drawNodes.get(destRouteFloor));
-
-
-
+                if(startRouteFloor != destRouteFloor) nodesList.addAll(drawNodes.get(destRouteFloor));
+                Log.d(TAG, "nodesList length " + nodesList.size());
                 buildRoute(drawNodes);
-                List<Node> path = drawNodes.get(1);
                 ArrayList<DirectionInstruction> directionInstructions = new ArrayList<>();
                 Node prevNode = null;
                 float prev_dir = -1;

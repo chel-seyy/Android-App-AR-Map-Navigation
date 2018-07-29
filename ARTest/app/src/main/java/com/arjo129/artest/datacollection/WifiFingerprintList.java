@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.arjo129.artest.R;
+import com.arjo129.artest.indoorLocation.SecurityProvider;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONArray;
@@ -50,6 +51,7 @@ public class WifiFingerprintList {
             return;
         }
         AsyncHttpClient client = new AsyncHttpClient();
+        client.setSSLSocketFactory(SecurityProvider.getSocketFactory(ctx));
         StringEntity ent;
         try {
             ent = new StringEntity(encapsulation_layer.toString());

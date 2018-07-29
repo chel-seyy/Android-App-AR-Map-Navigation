@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.arjo129.artest.device.WifiLocation;
+import com.arjo129.artest.indoorLocation.SecurityProvider;
 import com.arjo129.artest.indoorLocation.WifiNotificationListener;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -154,6 +155,7 @@ public class DBLocationEngine extends LocationEngine implements WifiNotification
                 try {
                     query.put("WIFI", wifi_list);
                     AsyncHttpClient client = new AsyncHttpClient();
+                    client.setSSLSocketFactory(SecurityProvider.getSocketFactory(context));
                     StringEntity ent = new StringEntity(query.toString());
                     Log.d(TAG,"Sending request");
                     Log.d(TAG, "Processing: "+lat+" " +lng+" "+accuracy);
