@@ -71,7 +71,6 @@
             android:layout_marginEnd="15dp"
             android:background="@android:color/background_light"
             android:enabled="true"
-            android:fontFamily="serif"
             android:text="Go"
             android:textColor="@android:color/holo_green_dark"
             android:textSize="18sp"
