@@ -60,13 +60,14 @@ public class WifiService extends Service {
             try {
                 query.put("WIFI", wifi_list);
                 AsyncHttpClient client = new AsyncHttpClient();
+                client.setSSLSocketFactory(SecurityProvider.getSocketFactory(this));
                 StringEntity ent = new StringEntity(query.toString());
                 Log.d(TAG,"Sending request");
                 Log.d(TAG, "Processing: "+lat+" " +lng+" "+accuracy);
                 Log.d(TAG,query.toString());
 
                 //Query location
-                client.post(getApplicationContext(),getApplicationContext().getString(R.string.server_url)+"location",ent,"application/json",new JsonHttpResponseHandler() {
+                client.post(getApplicationContext(),"https://ec2-18-191-20-227.us-east-2.compute.amazonaws.com/"+"location",ent,"application/json",new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                         Log.d(TAG,"got response: "+responseBody.toString());
