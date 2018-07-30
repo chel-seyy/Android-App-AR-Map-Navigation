@@ -36,6 +36,7 @@ public class ArrowPath {
         heading = angle;
         next_path = next_angle;
         arrows = new ArrayList<>();
+        numberOfObjectsLoaded = 0;
         if(numberOfObjectsLoaded < 3) {
             ModelRenderable.builder()
                     .setSource(ctx, R.raw.model)
@@ -80,6 +81,7 @@ public class ArrowPath {
         }
         switch(endMarker) {
             case END_MARKER_TYPE_DESTINATION:
+                Log.d(TAG,"Last Arrow!!");
                 lastArrow = scene.placeItem(destinationMarker, distance, heading, heading, 0, true);
                 break;
             case END_MARKER_TYPE_STAIRS_UP:

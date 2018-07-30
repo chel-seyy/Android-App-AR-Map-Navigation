@@ -254,6 +254,7 @@ public class MapActivity extends AppCompatActivity implements LocationEngineList
                                 dirInst.isConnector = true;
                                 dirInst.connector_type = node.connector;
                                 dirInst.goingUp = node.directionUp;
+                                directionInstructions.add(dirInst);
                                 prev_dir = -1;
                             }
                         }

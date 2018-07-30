@@ -26,6 +26,7 @@ public class StaircaseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent arIntent = new Intent(StaircaseActivity.this, ARActivity.class);
                 arIntent.putExtra("Directions",(Serializable)dirInst);
+                startActivity(arIntent);
             }
         });
     }
