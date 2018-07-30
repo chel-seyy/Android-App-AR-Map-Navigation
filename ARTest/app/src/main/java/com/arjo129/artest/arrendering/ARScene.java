@@ -72,7 +72,7 @@ public class ARScene {
            try {
                update = true;
            } finally {
-               refreshHandler.postDelayed(refreshThread,5000);
+               refreshHandler.postDelayed(refreshThread,3000);
            }
        };
        visualAnchorCompass = new VisualAnchorCompass(compassListener);
