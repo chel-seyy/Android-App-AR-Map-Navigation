@@ -12,6 +12,9 @@ import android.widget.TextView;
 import com.arjo129.artest.ARActivity;
 import com.arjo129.artest.R;
 
+/**
+ * Done by Chelsey
+ */
 public class GridAdapter extends BaseAdapter{
     Context context;
     private final String[] values;

@@ -34,7 +34,9 @@ import java.util.Map;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-
+/**
+ * Done by Chelsey
+ */
 public class DBLocationEngine extends LocationEngine implements WifiNotificationListener {
     public final static String TAG = "DBLocationEngine";
     public static final int DELAY = 1000 * 5; // change to 5 seconds

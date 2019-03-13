@@ -18,6 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Done by Chelsey
+ */
 public class SearchPlaces  extends AppCompatActivity {
     private Set<PlaceSearch> places;
     private Context mContext;

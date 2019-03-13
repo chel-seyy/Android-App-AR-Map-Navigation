@@ -81,6 +81,9 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
+/**
+ * Done by Chelsey
+ */
 public class CollectData extends AppCompatActivity implements
         OnMapReadyCallback, PermissionsListener{
     private MapView mapView;

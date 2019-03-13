@@ -5,6 +5,9 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.io.Serializable;
 
+/**
+ * Done by Chelsey
+ */
 public class Node implements Serializable {
     LatLng coordinate;
     double bearing;     // Difference in bearing to the next node

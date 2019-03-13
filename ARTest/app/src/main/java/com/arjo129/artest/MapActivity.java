@@ -104,6 +104,9 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
+/**
+ * Done by Chelsey
+ */
 public class MapActivity extends AppCompatActivity implements LocationEngineListener,
         OnMapReadyCallback, PermissionsListener {
 

@@ -12,6 +12,9 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * Done by Chelsey
+ */
 public class CompassActivity extends AppCompatActivity implements SensorEventListener{
     private SensorManager mSensorManager;
     private ImageView imageView;

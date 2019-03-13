@@ -17,6 +17,9 @@ import com.arjo129.artest.R;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Done by Chelsey
+ */
 public class PlaceLevel1 extends AppCompatActivity {
 
     private RecyclerView recyclerView;

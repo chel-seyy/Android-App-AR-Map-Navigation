@@ -24,6 +24,9 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
+/**
+ * Done by Chelsey
+ */
 public class PlacesToGo extends AppCompatActivity
         implements EasyPermissions.PermissionCallbacks{
 

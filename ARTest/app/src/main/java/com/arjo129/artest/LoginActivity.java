@@ -20,6 +20,9 @@ import org.json.JSONObject;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
+/**
+ * Done by Chelsey
+ */
 public class LoginActivity extends AppCompatActivity {
     EditText admin_editText, password_editText;
     Button loginButton;

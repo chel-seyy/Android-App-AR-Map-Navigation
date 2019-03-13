@@ -2,6 +2,9 @@ package com.arjo129.artest.places;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
+/**
+ * Done by Chelsey
+ */
 public class PlaceSearch {
     LatLng coordinate;
     String place_name;

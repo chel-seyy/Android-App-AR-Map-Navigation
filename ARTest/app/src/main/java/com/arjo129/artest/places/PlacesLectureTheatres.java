@@ -22,6 +22,9 @@ import com.arjo129.artest.places.PlaceLevel1;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Done by Chelsey
+ */
 public class PlacesLectureTheatres extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;

@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Done by Chelsey
+ */
 public class WifiLocation {
     private BroadcastReceiver wifi_receiver;
     private List<ScanResult> results;

@@ -25,6 +25,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Done by Chelsey
+ */
 public class WifiActivity extends AppCompatActivity {
     private WifiManager wifi;
     private ListView listView;
