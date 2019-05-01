@@ -6,6 +6,6 @@ a part which contains the routing and UI logic, and another which contains the A
 
 # Some videos of the app in action:
 ![Navigating To  CompBio](http://img.youtube.com/vi/GQzfkelTCxQ/0.jpg)](http://www.youtube.com/watch?v=GQzfkelTCxQ "Navigating to CompBio lab")
-![Multistory Navigation](http://img.youtube.com/vi/D7Onn8yB5sA&t/0.jpg)](http://www.youtube.com/watch?v=D7Onn8yB5sA "Multistory navigation")
-![Generic Demo](http://img.youtube.com/vi/pmsJEq3TNSw/0.jpg)](http://www.youtube.com/watch?v=pmsJEq3TNSw "Yet another demo")
+![[Multistory Navigation](http://img.youtube.com/vi/D7Onn8yB5sA&t/0.jpg)]](http://www.youtube.com/watch?v=D7Onn8yB5sA "Multistory navigation")
+![[Generic Demo](http://img.youtube.com/vi/pmsJEq3TNSw/0.jpg)](http://www.youtube.com/watch?v=pmsJEq3TNSw)
 
